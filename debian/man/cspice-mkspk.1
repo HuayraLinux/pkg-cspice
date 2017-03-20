@@ -1,0 +1,57 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-MKSPK 1
+.SH NAME
+cspice-mkspk \- creates an SPK file from trajectory information.
+
+.SH SYNOPSIS
+\fBcspice-mkspk\fR \fB\-setup\fR \fISETUP_FILE\fR [\fIOPTIONS\fR]
+.br
+\fBcspice-mkspk\fR \fB\-u\fR | \fB\-h\fR
+.br
+\fBcspice-mkspk\fR \fB\-template\fR [\fIIMPUT_TYPE\fR \fIOUTPUT_TYPE\fR]
+
+.SH DESCRIPTION
+.B cspice-mkspk
+generates a new, or appends data to an existing, spacecraft or target body's ephemeris file in SPICE SPK format using one of the following SPK types: 5, 8, 9, 10, 12, 13, 15, 17. This SPK file is a binary file constructed according to the SPICE DAF (Double Precision Array File) architecture, containing one or more SPK data segments.
+.PP
+The program accepts one ASCII text file containing descriptions of input data (setup file) and a second ASCII text file (input file) containing the source ephemeris data to be processed.
+.PP
+Source ephemeris data can be time ordered lists of states (positions and velocities), sets of conic elements, sets of two-line elements, or a single set of equinoctial elements. All input data must be defined in a reference frame and relative to a body center both of which are specified in the setup file.
+.PP
+.B cspice-mkspk
+is part of the SPICE Toolkit. See \fBcspice\fR(7).
+
+.SH OPTIONS
+.TP
+\fB\-setup\fR \fISETUP_FILE\fR
+Provide the setup file name. If input and output file names are provided, any file names assigned using setup file keywords are ignored.
+.TP
+\fB\-input\fR \fIIMPUT_FILE\fR
+Provide the input data file name. The input file must already exist.
+.TP
+\fB\-output\fR \fIOUTPUT_FILE\fR
+Provide the output SPK file name. The output must not exist unless the \fB\-append\fR option or the corresponding setup file keyword tells the program to run in the append mode.
+.TP
+\fB\-append\fR
+Append new data to the specified output SPK file. If the SPK file specified after the \fB-output\fR option doesn't exist, then a new SPK file with the name specified will be created.
+.br
+Caution: if the program fails for any reason, it, in most cases, deletes the output file, even if it was appending data to an existing SPK file.
+.TP
+\fB\-u\fR, \fB\-usage\fR
+Display usage information.
+.TP
+\fB\-h\fR, \fB\-help\fR
+Display a brief summary of the program's functionality.
+.TP
+\fB\-t\fR, \fB\-template\fR [\fIIMPUT_TYPE\fR \fIOUTPUT_TYPE\fR]
+Display either the complete setup file template or a type-specific setup file template and exit.
+If specified by itself, the program displays the complete setup file template including all required, optional, and conditional setup file keywords.
+To display a more concise, type-specific template, the \fIIMPUT_TYPE\fR (\fBstates\fR, \fBelements\fR, \fBeq_elements\fR, or \fBtl_elements\fR) and the \fIOUTPUT_TYPE\fR (\fB5\fR, \fB8\fR, \fB9\fR, \fB10\fR, \fB12\fR, \fB13\fR, \fB15\fR or \fB17\fR) can be specified. Such templates will include only keywords applicable for the specified type combination.
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

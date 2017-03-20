@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+# autopkgtest check: Run a basic test on two of the CSPICE toolkit utilities
+# to verify that it is working as expected at least at a very basic level.
+#
+# Author: Rock Storm <rockstorm@gmx.com>
+
+set -e
+
+__exeprefix="cspice-"
+__datadir="data"
+__bspfile="cook_01.bsp"
+__output="brief-utc.out"
+
+# Populate the expeted output file
+/bin/cat <<EOF > $__output
+ 
+BRIEF -- Version 4.0.0, September 8, 2010 -- Toolkit Version N0065
+ 
+ 
+Summary for: $__bspfile
+ 
+Bodies: GALILEO ORBITER (-77)   JUPITER BARYCENTER (5)  SUN (10)
+        MERCURY BARYCENTER (1)  SATURN BARYCENTER (6)   MOON (301)
+        VENUS BARYCENTER (2)    URANUS BARYCENTER (7)   EARTH (399)
+        EARTH BARYCENTER (3)    NEPTUNE BARYCENTER (8)
+        MARS BARYCENTER (4)     PLUTO BARYCENTER (9)
+        Start of Interval (UTC)             End of Interval (UTC)
+        -----------------------------       -----------------------------
+        1989-OCT-19 01:34:59.999            1991-JAN-31 23:59:59.000
+ 
+EOF
+
+# tobin test: Convert a text kernel into binary
+"$__exeprefix""tobin" "$__datadir/cook_01.tsp" "$__bspfile" > /dev/null
+
+# brief test: Summarize the contents of the binary kernel
+"$__exeprefix""brief" -utc "$__bspfile" "$__datadir/cook_01.tls" | \
+diff "$__output" -
+
+echo "toolkit utilities: OK"

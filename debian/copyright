@@ -1,0 +1,47 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: CSPICE
+Source: https://naif.jpl.nasa.gov/naif/toolkit.html
+
+Files: *
+Copyright: none
+License: public-domain
+ This software and any related materials were created by the California
+ Institute of Technology (Caltech) under a U.S. government contract with the
+ National Aeronautics and Space Administration (NASA). The software is
+ Technology and Software Publicly Available under U.S. export laws and is
+ provided "as-is" to the recipient without warranty of any kind, including any
+ warranties of performance or merchantability or fitness for a particular use
+ or purpose (as set forth in United States UCC§2312-§2313) or for any purpose
+ whatsoever, for the software and related materials, however used.
+ .
+ In no event shall Caltech, its Jet Propulsion Laboratory, or NASA be liable
+ for any damages and/or costs, including, but not limited to, incidental or
+ consequential damages of any kind, including economic damage or injury to
+ property and lost profits, regardless of whether Caltech, JPL, or NASA be
+ advised, have reason to know, or, in fact, shall know of the possibility.
+ .
+ Recipient bears all risk relating to quality and performance of the software
+ and any related materials, and agrees to indemnify Caltech and NASA for all
+ third-party claims resulting from the actions of recipient in the use of the
+ software.
+
+Files: debian/*
+Copyright: 2016-2017 Rock Storm <rockstorm@gmx.com>
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.

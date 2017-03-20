@@ -1,0 +1,25 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-TOXFR 1
+.SH NAME
+cspice-toxfr \- converts binary format SPICE files to transfer format
+
+.SH SYNOPSIS
+\fBcspice-toxfr\fR \fIBINARY_FORMAT_FILE\fR [\fITRANSFER_FORMAT_FILE\fR]
+
+.SH DESCRIPTION
+.B cspice-toxfr
+is a command-line program that converts binary format SPK, CK and EK files into a transfer file format that is used to transfer, or port, the binary data to a different computing environment. It requires at least the name of the input binary file, which is the first argument on the command line. Optionally, a name for the output transfer file may be specified as the second argument on the command line. If a name for the output file is provided on the command line it overrides the automatic naming conventions used by the program.
+.PP
+If only the name of the input binary file is provided on the command line, the program will generate a name for the output transfer file that has the same base name as the input binary file and an appropriate filename extension, based on the filename extension of the binary file. If it does not recognize the filename extension of the input binary file, or there is no filename extension on the input binary file, a filename extension of '.xfr' will be used as the filename extension of the output transfer file. If a file having the same name as the output file already exists, it signals an error and stops.
+.PP
+.B cspice-toxfr
+is part of the SPICE Toolkit. See
+.BR cspice (7).
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

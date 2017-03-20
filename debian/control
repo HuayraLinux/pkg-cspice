@@ -1,0 +1,69 @@
+Source: cspice
+Maintainer: Debian Astronomy Team <debian-astro-maintainers@lists.alioth.debian.org>
+Uploaders: Rock Storm <rockstorm@gmx.com>
+Section: science
+Priority: extra
+Build-Depends: debhelper (>= 9),
+               csh,
+               f2c
+Standards-Version: 3.9.8
+Homepage: http://naif.jpl.nasa.gov/naif/
+Vcs-Git: https://anonscm.debian.org/git/debian-astro/packages/cspice.git
+Vcs-Browser: https://anonscm.debian.org/git/debian-astro/packages/cspice.git
+
+Package: cspice
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Recommends: cspice-doc
+Description: Observation geometry system for planetary science missions
+ SPICE (Spacecraft Planet Instrument C-matrix Events) is a NASA ancillary
+ information system used to compute geometric and event information in
+ analyzing and planning science observations obtained from spacecraft. It is
+ also used in planning missions and conducting numerous engineering functions
+ needed to carry out those missions.
+ .
+ This package provides the different utilities comprising the CSPICE toolkit.
+
+Package: libcspice-dev
+Architecture: any
+Section: libdevel
+Depends: libcspice1 (= ${binary:Version}),
+         ${misc:Depends}
+Description: Development files for the CSPICE library
+ SPICE (Spacecraft Planet Instrument C-matrix Events) is a NASA ancillary
+ information system used to compute geometric and event information in
+ analyzing and planning science observations obtained from spacecraft. It is
+ also used in planning missions and conducting numerous engineering functions
+ needed to carry out those missions.
+ .
+ This package provides header files and the CSPICE library in static form.
+
+Package: libcspice1
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Description: CSPICE shared library
+ SPICE (Spacecraft Planet Instrument C-matrix Events) is a NASA ancillary
+ information system used to compute geometric and event information in
+ analyzing and planning science observations obtained from spacecraft. It is
+ also used in planning missions and conducting numerous engineering functions
+ needed to carry out those missions.
+ .
+ This package provides the shared libraries comprising the CSPICE library.
+
+
+Package: cspice-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}
+Description: Documentation for the CSPICE library and toolkit
+ SPICE (Spacecraft Planet Instrument C-matrix Events) is a NASA ancillary
+ information system used to compute geometric and event information in
+ analyzing and planning science observations obtained from spacecraft. It is
+ also used in planning missions and conducting numerous engineering functions
+ needed to carry out those missions.
+ .
+ This package provides user guides and module's documentation, in plain text
+ and HTML formats, for both the CSPICE library and toolkit.

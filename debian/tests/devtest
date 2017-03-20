@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+# autopkgtest check: Build and run a simple program against libcspice, to
+# verify that the headers and library are installed correctly
+#
+# Author: Rock Storm <rockstorm@gmx.com>
+
+set -e
+
+__testprogram="testprogram"
+__testkernel="data/cook_01.tls"
+
+cat <<EOF > "$__testprogram"".c"
+#include "cspice/SpiceUsr.h"
+
+int main()
+{
+    SpiceChar kernel_arch;
+    SpiceChar kernel_type;
+    
+    if ( SPICETRUE ) {
+        getfat_c("$__testkernel", 3, 4, &kernel_arch, &kernel_type);        
+    }
+
+    return 0;
+}
+EOF
+
+gcc -Wall -Werror -o "$__testprogram" "$__testprogram.c" -lcspice
+
+[ -x "$__testprogram" ]
+./"$__testprogram"
+echo "library and headers: OK"
+
+

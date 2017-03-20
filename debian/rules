@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+bindnow
+
+# group the toolkit binaries for renaming
+exes=brief \
+     chronos \
+     ckbrief \
+     commnt \
+     frmdiff \
+     inspekt \
+     mkspk \
+     msopck \
+     spacit \
+     spkdiff \
+     spkmerge \
+     tobin \
+     toxfr \
+     version
+
+%:
+	dh $@
+
+
+override_dh_auto_configure:
+# Configure the architecture dependant files
+	/bin/sh debian/configure
+	
+# Translate the FORTRAN files to C
+	/bin/sh debian/translate
+
+override_dh_auto_build:
+	make -f debian/Makefile build
+
+override_dh_install:
+# Rename cspice binaries from % to cspice-%
+	@for exe in $(exes) ; do \
+		mv exe/$$exe exe/cspice-$$exe ; \
+	done
+	
+# Rename static library with a more library-like name
+	@mv lib/cspice.a lib/libcspice.a
+	
+	dh_install --exclude=whats.new
+
+override_dh_installchangelogs:
+	dh_installchangelogs doc/whats.new

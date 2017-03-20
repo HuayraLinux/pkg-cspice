@@ -1,0 +1,4 @@
+include/*.h usr/include/cspice
+debian/SpiceZplDeb.h usr/include/cspice
+lib/lib*.so usr/lib
+lib/lib*.a usr/lib

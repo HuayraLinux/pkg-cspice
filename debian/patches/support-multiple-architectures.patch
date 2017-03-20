@@ -1,0 +1,103 @@
+Description: Add support for multiple architectures
+Author: Rock Storm <rockstorm@gmx.com>
+
+--- a/include/SpiceZpl.h
++++ b/include/SpiceZpl.h
+@@ -109,9 +109,10 @@
+  
+ #ifndef HAVE_PLATFORM_MACROS_H
+ #define HAVE_PLATFORM_MACROS_H
+- 
+- 
+-   #define   CSPICE_PC_LINUX
++
++    #ifndef HAVE_DEBIAN_PLATFORM_SPECIFICATION_H
++        #include "SpiceZplDeb.h"
++    #endif
+  
+ #endif
+  
+--- a/src/cspice/zzplatfm.f
++++ b/src/cspice/zzplatfm.f
+@@ -43,6 +43,8 @@
+ C$ Declarations
+  
+       IMPLICIT NONE
++      
++      INCLUDE              'splicezpldeb.inc'      
+  
+       CHARACTER*(*)         KEY
+       CHARACTER*(*)         VALUE
+@@ -387,11 +389,11 @@
+  
+  
+  
+-         ATTCPY (IDXCMP) = 'GFORTRAN'
++         ATTCPY (IDXCMP) = COMPILER_TAG
+  
+  
+  
+-         ATTCPY (IDXFMT) = 'LTL-IEEE'
++         ATTCPY (IDXFMT) = ENDIANNESS_TAG
+  
+  
+  
+--- a/src/cspice/fndlun.f
++++ b/src/cspice/fndlun.f
+@@ -41,13 +41,15 @@
+ C
+ C$ Declarations
+  
++      INCLUDE              'splicezpldeb.inc'
++      
+       INTEGER          UNIT
+  
+       INTEGER          MINLUN
+       PARAMETER      ( MINLUN =  1 )
+  
+       INTEGER          MAXLUN
+-      PARAMETER      ( MAXLUN = 99 )
++      PARAMETER      ( MAXLUN = MAX_LUN )
+  
+ C$ Brief_I/O
+ C
+--- a/src/cspice/rdtext.f
++++ b/src/cspice/rdtext.f
+@@ -42,6 +42,8 @@
+ C
+ C$ Declarations
+  
++      INCLUDE              'splicezpldeb.inc'
++      
+       CHARACTER*(*)       FILE
+       CHARACTER*(*)       LINE
+       LOGICAL             EOF
+@@ -50,7 +52,7 @@
+       PARAMETER         ( MAXLEN = 255 )
+  
+       INTEGER             MAXOPN
+-      PARAMETER         ( MAXOPN =  96 )
++      PARAMETER         ( MAXOPN =  MAX_OPN )
+  
+ C$ Brief_I/O
+ C
+--- a/src/cspice/stmp03.f
++++ b/src/cspice/stmp03.f
+@@ -44,6 +44,8 @@
+ C
+ C$ Declarations
+  
++      INCLUDE              'splicezpldeb.inc'
++ 
+       DOUBLE PRECISION      X
+       DOUBLE PRECISION      C0
+       DOUBLE PRECISION      C1
+@@ -52,7 +54,7 @@
+  
+  
+       INTEGER               TRUNC
+-      PARAMETER           ( TRUNC = 11   )
++      PARAMETER           ( TRUNC = _TRUNC   )
+  
+ C$ Brief_I/O
+ C

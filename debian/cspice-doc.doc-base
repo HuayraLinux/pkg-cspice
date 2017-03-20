@@ -1,0 +1,22 @@
+Document: cspice
+Title: CSPICE Documentation 
+Author: NASA's Navigation and Ancillary Information Facility (NAIF)
+Abstract: This manual contains
+ - Introduction to the SPICE system.
+ - Overview of the C language version of SPICE, CSPICE.
+ - Brief description of the CSPICE Toolkit layout and contents.
+ - A list of most frequently used CSPICE APIs grouped by category.
+ - A list of all CSPICE APIs with hyperlinks to API specific documentation.
+ - An index that helps identify the proper routine based on functional
+   requirements.
+ - Reference documents describing the various SPICE subsystems.
+ - User's Guides, the set of manuals for those applications included in the
+   CSPICE Toolkit.
+Section: Science/Astronomy
+
+Format: text
+Files: /usr/share/doc/cspice/*
+
+Format: HTML
+Index: /usr/share/doc/cspice/html/index.html
+Files: /usr/share/doc/cspice/html/*

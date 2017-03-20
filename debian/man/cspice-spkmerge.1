@@ -1,0 +1,26 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-SPKMERGE 1
+.SH NAME
+cspice-spkmerge \- subset or merge one or more SPICE SPK files
+
+.SH SYNOPSIS
+\fBcspice-spkmerge\fR \fICOMMAND_FILE\fR
+
+.SH DESCRIPTION
+.B cspice-spkmerge
+builds new SPK files by merging entire or subsets of one or more existing SPK files. It creates SPK kernels that have no overlapping ephemeris; the order in which source files are specified determines the precedence when source files contain overlapping data.
+.PP
+.B cspice-spkmerge
+reads all its instructions from a command file. A command file is an ASCII formatted file containing 'KEYWORD = value' assignments.
+.PP
+.B cspice-spkmerge
+is part of the SPICE Toolkit. See
+.BR cspice (7).
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

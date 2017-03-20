@@ -1,0 +1,81 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE 7
+.SH NAME
+cspice \- contents summary of the SPICE Toolkit utilities
+
+.SH DESCRIPTION
+This documentation summarizes the different utilities comprising the SPICE Toolkit and a brief description of the various files where SPICE stores its data, often called "kernels" or "kernel files".
+
+.SH TOOLKIT UTILITIES
+.TP
+.B cspice-brief
+A command line utility used to summarize the information within an SPK file. See
+.BR cspice-brief (1).
+.TP
+.B cspice-chronos
+A utility used to convert time values between various formats, e.g. UTC to ET, Et to SCLK, etc.  See
+.BR cspice-chronos (1).
+.TP
+.B cspice-ckbrief
+A command line utility used to summarize the pointing data within a CK file. See
+.BR cspice-ckbrief (1).
+.TP
+.B cspice-commnt
+A utility, usable in either interactive or command line mode, used to examine and manipulate the comment area of a SPICE binary kernel. See
+.BR cspice-commnt (1).
+.TP
+.B cspice-inspekt
+An interactive program used to examine and query to contents of an E-kernel. See
+.BR cspice-inspekt (1).
+.TP
+.B cspice-mkspk
+An application used to create, or append to, SPK files. See
+.BR cspice-mkspk (1).
+.TP
+.B cspice-spacit
+An interactive application used to manipulate and examine SPK files. See
+.BR cspice-spacit (1).
+.TP
+.B cspice-spkmerge
+An application used to merge several SPK files or subsets of SPK files into a single SPK file. See
+.BR cspice-spkmerge (1).
+.TP
+.B cspice-tobin
+A command line utility used to convert SPICE ASCII transfer files to architecture native binary kernels. See
+.BR cspice-tobin (1).
+.TP
+.B cspice-toxfr
+A command line utility used to convert SPICE binary kernels to ASCII transfer format. See
+.BR cspice-toxfr (1).
+.TP
+.B cspice-version
+A command line utility used to display the current version number of the SPICE Toolkit. See
+.BR cspice-version (1).
+
+.SH SPICE KERNELS
+SPICE kernels are composed of navigation and other ancillary information that has been structured and formatted for easy access and correct use by the planetary science and engineering communities. A kernel may store data in either text (ASCII) or binary format. SPICE kernel file contents are summarized below:
+.RS
+.PP
+\fISpacecraft and Planet Kernel\fR (\fBSPK\fR): spacecraft, planet, satellite, comet, or asteroid ephemerides, or more generally, location of any target body, given as a function of time.
+.PP
+\fIPlanetary Constants Kernel\fR (\fBPCK\fR): physical, dynamical and cartographic constants for target bodies, such as size and shape specifications, and orientation of the spin axis and prime meridian.
+.PP
+\fIInstrument Kernel\fR (\fBIK\fR): description kernel, containing descriptive data peculiar to a particular scientific instrument, such as field-of-view size, shape and orientation parameters.
+.PP
+\fIC-matrix Kernel\fR (\fBCK\fR): pointing kernel, containing a transformation, traditionally called the "C-matrix," which provides time-tagged pointing (orientation) angles for a spacecraft bus or a spacecraft structure upon which science instruments are mounted. A C-kernel may also include angular rate data for that structure.
+.PP
+\fIEvents Kernel\fR (\fBEK\fR): kernel summarizing mission activities - both planned and unanticipated. Events data consists of three components: science plans, sequences, and notes.
+.PP
+\fIFrames Kernel\fR (\fBFK\fR): contains specifications for the assortment of reference frames that are typically used by flight projects. This file also includes mounting alignment information for instruments, antennas and perhaps other structures of interest.
+.PP
+\fISpacecraft CLock Kernel\fR (\fBSCLK\fR): spacecraft's clock correlation data.
+.PP
+\fILeap Seconds Kernel\fR (\fBLSK\fR)
+.PP
+\fIDigital Shape Kernel\fR (\fBDSK\fR): digital shape model for both small, irregularly shaped bodies such as asteroids and comet nuclei, and for large, more uniformly shaped bodies such as the moon, earth and Mars.
+.RE
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

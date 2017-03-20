@@ -1,0 +1,29 @@
+Source Code Procurement
+=======================
+
+The package's source code is actually constructed from two different upstream
+sources:
+
+ * The C toolkit: http://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_32bit/packages/cspice.tar.Z
+
+ * The FORTRAN toolkit: http://naif.jpl.nasa.gov/pub/naif/toolkit//FORTRAN/PC_Linux_gfortran_32bit/packages/toolkit.tar.Z
+
+The first link corresponds to the C implementation of the library, which is the
+one intended to package. However much of the C code distributed is produced by
+translating FORTRAN files through f2c. Therefore the translated C files are
+substituted by its corresponding FORTRAN counterparts, which are of course
+obtained from the second link. Nevertheless there are 4 files which are not
+produced by direct translation and are left as is:
+
+ * rdker.c
+ * zzldker.c
+ * zzxlated.c
+ * zzxlatei.c
+
+Moreover upstream distributes source code and compiled binaries, all together.
+This binaries are removed for compliance with the DFSG. Besides, upstream
+replicates the very same header files through different subfolder, these are
+also removed for the sake of simplicity.
+
+ -- Rock Storm <rockstorm@gmx.com>  Mon, 20 Mar 2017 18:48:04 +0100
+

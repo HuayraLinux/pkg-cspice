@@ -1,0 +1,76 @@
+Subject: Add creation and linking to shared libraries
+ Modify the building sequence to generate shared libraries apart from
+ the static ones and link the executables to them.
+From: Rock Storm <rockstorm@gmx.com>
+
+--- a/src/brief_c/mkprodct.csh
++++ b/src/brief_c/mkprodct.csh
+@@ -255,7 +255,8 @@
+          $TKCOMPILER -o $EXECUT           $MAINOBJ             \
+                                           locallib.a           \
+                                           ../../lib/csupport.a \
+-                                          ../../lib/cspice.a   \
++                                          -L../../lib          \
++                                          -lcspice             \
+                                           $TKLINKOPTIONS    
+ 
+          \rm $TARGET
+@@ -268,7 +269,8 @@
+          $TKCOMPILER    $TKCOMPILEOPTIONS $TARGET
+          $TKCOMPILER -o $EXECUT           $MAINOBJ             \
+                                           ../../lib/csupport.a \
+-                                          ../../lib/cspice.a   \
++                                          -L../../lib          \
++                                          -lcspice             \
+                                          $TKLINKOPTIONS
+  
+          \rm $TARGET
+--- a/src/cook_c/mkprodct.csh
++++ b/src/cook_c/mkprodct.csh
+@@ -201,7 +201,8 @@
+          $TKCOMPILER -o $EXECUT           $MAINOBJ             \
+                                           locallib.a           \
+                                           ../../lib/csupport.a \
+-                                          ../../lib/cspice.a   \
++                                          -L../../lib          \
++                                          -lcspice             \
+                                           $TKLINKOPTIONS    
+ 
+          \rm $TARGET
+@@ -214,7 +215,8 @@
+          $TKCOMPILER    $TKCOMPILEOPTIONS $TARGET
+          $TKCOMPILER -o $EXECUT           $MAINOBJ             \
+                                           ../../lib/csupport.a \
+-                                          ../../lib/cspice.a   \
++                                          -L../../lib          \
++                                          -lcspice             \
+                                          $TKLINKOPTIONS
+  
+          \rm $TARGET
+--- a/src/cspice/mkprodct.csh
++++ b/src/cspice/mkprodct.csh
+@@ -189,7 +189,11 @@
+ #   Determine a provisional LIBRARY name.
+ #
+    foreach item ( `pwd` )
++      set LIBDIR = "../../lib/"
+       set LIBRARY = "../../lib/"$item:t
++      set SL_REALNAME = "lib"$item:t".so.1.0.0"
++      set SL_SONAME = "lib"$item:t".so.1"
++      set SL_LINKERNAME = "lib"$item:t".so"
+    end
+ 
+ #
+@@ -223,6 +227,12 @@
+ 
+ if ( $status == 0 ) then
+ 
++   echo "      Inserting objects in the shared library $SL_REALNAME ..."
++   $TKCOMPILER -shared -Wl,-soname,$SL_SONAME -o $SL_REALNAME *.o $TKLINKOPTIONS
++   mv $SL_REALNAME $LIBDIR
++   ln -sf $SL_REALNAME $LIBDIR$SL_SONAME
++   ln -sf $SL_REALNAME $LIBDIR$SL_LINKERNAME
++
+    echo "      Inserting objects in the library $LIBRARY ..."
+    ar  crv $LIBRARY.a *.o
+    ranlib  $LIBRARY.a

@@ -1,0 +1,63 @@
+General Information
+===================
+
+The contents of the CSPICE package are split into four packages in the
+following manner:
+
+ * libcspice1: only contains the SPICE library, distributed as a shared library
+   so it can be linked against.
+
+ * libcspice-dev: contains all the necessary tools to develop applications
+   using the SPICE library. The latter is now distributed as a static library,
+   along with the header files and libcspice.so.
+
+ * cspice: contains mainly the utilities for which upstream has released the
+   source code, a.k.a. the SPICE Toolkit. Also, some example or "cookbook"
+   programs to demonstrate the capabilities of the spice library along with
+   example data can be found in the directory /usr/share/doc/cspice/examples.
+
+ * cspice-doc: contains all the documentation for the library and the Toolkit
+   utilities, in both text and html format. This documentation can be found in
+   the directory /usr/share/doc/cspice once this package is installed. Upstream
+   provides numerous additional tutorials and training lessons that can be
+   found at http://naif.jpl.nasa.gov/naif/tutorials.html.
+
+
+Toolkit Modules' Renaming
+=========================
+
+The toolkit modules are renamed as depicted below because some of them are too generic and in order not to flood the '/usr/bin' folder:
+ 
+ * brief    ->  cspice-brief
+ * chronos  ->  cspice-chronos
+ * ckbrief  ->  cspice-ckbrief
+ * commnt   ->  cspice-commnt
+ * frmdifff ->  cspice-frmdiff
+ * inspekt	->	cspice-inspekt
+ * mkspk	->	cspice-mkspk
+ * msopck	->	cspice-msopck
+ * spacit	->	cspice-spacit
+ * spkdiff	->	cspice-spkdiff
+ * spkmerge	->	cspice-spkmerge
+ * tobin	->	cspice-tobin
+ * toxfr	->	cspice-toxfr
+ * version	->	cspice-version
+
+
+Header Files' Location
+======================
+
+The header files and the static libraries are placed in '/usr/include/cspice'
+instead of simply '/usr/include' due to name conflicts such as f2c.h. This
+implies that code developed using this headers must include i.e.
+'<cspice/SpiceUsr.h>' instead of just '<SpiceUsr.h>'.
+
+
+Why is csupport not distributed? Where is "libcsupport"?
+========================================================
+
+While upstream guarantees backwards compatibility for the SPICE library, that
+won't be the case for the csupport library. Also, users are kindly asked not to
+use this library. See /usr/share/doc/cspice/dscriptn.txt.
+
+ -- Rock Storm <rockstorm@gmx.com>  Sun, 19 Mar 2017 11:12:22 +0100

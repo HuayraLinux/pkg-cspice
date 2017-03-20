@@ -1,0 +1,105 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-CHRONOS 1
+.SH NAME
+cspice-chronos \- convert time from one supported system/type to another
+.SH SYNOPSIS
+.B cspice-chronos
+\fB\-setup\fR \fIFILE\fR
+.br
+.RS 15
+\fB\-from\fR \fITIME_SYSTEM\fR
+.br
+\fB\-to\fR \fITIME_SYSTEM\fR
+.br
+\fB\-time\fR \fITIME\fR | \fB-batch\fR
+.br
+[\fIOPTIONS\fR]
+
+.SH DESCRIPTION
+\fBcspice-chronos\fR
+is a time conversion tool capable of converting times between the following time systems:
+.br
+.RS 4
+UTC: Universal Time Coordinated (types: SCET, ERT, ETT, LT)
+.br
+ET: Ephemeris Time (types: SCET, ERT, ETT, LT, SECONDS)
+.br
+SCLK: Spacecraft On-board Clock Time (types: SCLK, HEX, TICKS)
+.br
+ST: Local True Solar Time (types: LST, LSU)
+.RE
+.PP
+.B cspice-chronos
+is part of the SPICE Toolkit. See \fBcspice\fR(7).
+
+.SH OPTIONS
+.TP
+\fB\-setup\fR \fISETUP_FILE\fR
+Specify a setup file name or directly list the names of the SPICE kernels to be used.
+If \fISETUP_FILE\fR is not present or is blank, it tries to obtain it from the environment variable CHRONOS_SETUP_FILE.
+.TP
+\fB\-from\fR \fITIME_SYSTEM\fR
+Specify the time system of the input time.
+.TP
+\fB\-fromtype\fR \fITIME_TYPE\fR
+Specify the time type of the input time.
+If it's not present or is blank, it is assumed the default time type for the input time system (SCET for UTC and ET, SCLK for SCLK, and LST for LST).
+.TP
+\fB\-to\fR \fITIME_SYSTEM\fR
+Specify the time system of the output time.
+.TP
+\fB\-totype\fR \fITIME_TYPE\fR
+Specify the time type of the output time.
+If it's not present or is blank, it is assumed the default time type for the output time system (SCET for UTC and ET, SCLK for SCLK and LST for LST).
+.TP
+\fB\-format\fR \fIOUTPUT_FORMAT\fR
+Specify a custom format for the output time.
+If a format specification is not present or is blank, it looks for a specification in the setup file and, if such is also not available, it uses the default format.
+.TP
+\fB\-time\fR \fITIME\fR
+Specify the input time.
+Most time types of UTC and ET systems require input time to be in a form of a time string recognized by TIME subsystem of SPICE.
+.TP
+\fB\-batch\fR
+Tell the program to take input time(s) from standard input instead of the command line.
+If it's present, the program ignores any input time provided after the \fB-time\fR option.
+.TP
+\fB\-sc\fR \fISC_ID\fR
+Specify the NAIF ID for the spacecraft.
+If \fISC_ID\fR is not present, the program looks for it in the setup file.
+.TP
+\fB\-center\fR \fIBODY_ID\fR
+Specify the NAIF ID for the center body.
+If \fIBODY_ID\fR is not present, the program looks for it in the setup file.
+.TP
+\fB\-landingtime\fR \fITIME\fR
+Specify the UTC time of the landing.
+If \fITIME\Fr is not present, the program looks for it in the setup file.
+.TP
+\fB\-sol1index\fR \fIINDEX\fR
+Specify the SOL index for the first day on surface.
+If \fIINDEX\fR is not present, the program looks for it in the setup file.
+.TP
+\fB\-nolabel\fR
+Tell the program to not display [SYSTEM]/[TYPE] following the output time string.
+.TP
+\fB\-trace\fR
+Tell the program to display trace information including, complete command line, names of the loaded SPICE kernel files, all relevant setup information, etc.
+This option overrules the \fB-nolabel\fR option.
+.TP
+\fB\-template\fR
+Display setup file template.
+.TP
+\fB\-h\fR, \fB\-help\fR
+Display help information.
+.TP
+\fB\-u\fR, \fB\-usage\fR
+Display usage information.
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

@@ -1,0 +1,50 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-COMMNT 1
+.SH NAME
+cspice-commnt \- manipulate comments from SPICE binary kernel files
+.SH SYNOPSIS
+.B cspice-commnt
+.br
+.B cspice-commnt
+[\fIOPTIONS\fR]
+.br
+.B cspice-commnt
+\fB\-a\fR | \fB\-e\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
+.br
+.B cspice-commnt
+\fB\-r\fR | \fB\-d\fR \fIKERNEL_FILE\fR
+
+.SH DESCRIPTION
+\fBcspice-commnt\fR
+is a program that reads, adds, extracts, or deletes comments from SPICE binary kernel files.
+.PP
+.B cspice-commnt
+can be used as a menu driven interactive program or as a command line utility.
+.PP
+.B cspice-commnt
+is part of the SPICE Toolkit. See \fBcspice\fR(7).
+
+.SH OPTIONS
+.TP
+\fB\-a\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
+Add comments to a kernel file from a text file.
+.TP
+\fB\-e\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
+Extract comments from a kernel file to a text file.
+.TP
+\fB\-r\fR \fIKERNEL_FILE\fR
+Read the comments in a kernel file, displaying the results on the Standard Output.
+.TP
+\fB\-d\fR \fIKERNEL_FILE\fR
+Delete all of the comments in a kernel file.
+.TP
+\fB\-h\fR
+Display usage information.
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

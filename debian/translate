@@ -1,0 +1,38 @@
+#! /bin/sh
+# translation script: Translate the all the FORTRAN files to C using f2c.
+#
+# Author: Rock Storm <rockstorm@gmx.com>
+
+# List source subfolders
+cdirs="brief_c chrnos_c ckbref_c commnt_c cspice csupport frmdif_c inspkt_c mkspk_c msopck_c spacit_c spkdif_c spkmrg_c tobin_c toxfr_c versn_c"
+
+# Include every source subfolder to look for .inc files while translating
+# Include the debian folder to allow the architecture dependant .inc file to be
+# found.
+for item in $cdirs
+do
+	finc="$finc -Isrc/$item"
+done
+finc="$finc -Idebian"
+
+# Set the options for the f2c translation
+f2coptions="-A -a -C"
+
+# Translate every .f file to C
+for item in $cdirs
+do
+	f2c $f2coptions -dsrc/$item $finc src/$item/*.f
+	
+	# Rename the .pgm files to .f, translate them to C and rename them back to 
+	# .pgm
+	pgmfile="$(find src/$item -type f -name '*.pgm')"
+	for item2 in $pgmfile
+    do
+		    pgmname="${item2%.pgm}"
+			pgmname="${pgmname##src*/}"
+			mv src/$item/$pgmname.pgm src/$item/$pgmname.f
+			f2c $f2coptions -dsrc/$item $finc src/$item/$pgmname.f
+			mv -v src/$item/$pgmname.c src/$item/$pgmname.pgm
+			rm src/$item/$pgmname.f
+	done
+done

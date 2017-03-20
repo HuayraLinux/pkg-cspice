@@ -1,0 +1,89 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-CKBRIEF 1
+.SH NAME
+cspice-ckbrief \- displays a summary for binary CK files
+.SH SYNOPSIS
+.B cspice-ckbrief
+.RI [OPTIONS]
+.RI FILE
+[\fIFILE\fR ...]
+
+
+.SH DESCRIPTION
+.PP
+.B cspice-ckbrief
+displays a summary of the contents and time coverage for one or more binary CK files.
+It displays a summary for each CK file listed on the command line, in a list file, and/or a meta-kernel. It can display coverage boundaries as ephemeris time (ET) in calendar format, as UTC time in "year-month-day" or "day-of-year" format, or as on-board clock (SCLK) time in string or encoded format. It can display the summary in a variety of formats, with or without showing the names of the frames associated with spacecraft or structure IDs or the names/IDs of the frames with respect to which orientation is provided.
+.PP
+In order for the program to display times in the default format or any other format (except encoded SCLK), both an LSK file and an SCLK file containing required time correlation data must be provided on the command line, in a list file (specified with the option \fB\-f\fR described later in this document), or in a meta-kernel file given on the command line or in the list file.
+.PP
+.B cspice-ckbrief
+is part of the SPICE Toolkit. See \fBcspice\fR(7).
+
+
+.SH OPTIONS
+.SS Options Controlling Output Summary Format
+.TP
+.BR \-dump
+Display a summary of interpolation interval boundaries, the actual time periods for which the file provides data, for each of the segments in the file.
+.TP
+.BR \-nm
+Display a summary of segment boundaries for each of the structures in the file.
+This option is ignored when \fB\-dump\fR is specified.
+.TP
+.BR \-rel
+Display, in the additional right-hand column, frames with respect to which the orientation is given in the CK segments. For frames known to SPICE, built-in or defined in the FK files provided to the program along with CK, LSK, and SCLK files, the program displays names; for unrecognized frames, the program displays IDs.
+This option is ignored when \fB\-g\fR is specified.
+.TP
+.BR \-n
+Display frame names associated with the structure IDs instead of the numeric structure IDs. For frames known to SPICE, defined in the FK files provided to the program, the program displays names; for unrecognized frames, the program displays IDs with the prefix "NO FRAME FOR <id>".
+.TP
+.BR \-t
+Use the tabular display format in which coverage information for all structures from each file is presented in a single table with the structure IDs provided in the left column rather than in the table headers.
+.TP
+.BR \-g
+Use the grouping display format, in which information for structures with the same coverage is grouped together into blocks with the coverage begin and end time shown first, and the list of structure IDs shown below them.
+This option is ignored when \fB\-dump\fR or \fB\-t\fR are specified.
+
+.SS Options Controlling Output Time Format
+In order for the program to display times in the default format or any other format (except encoded SCLK), both an LSK file and an SCLK file containing required time correlation data must be provided.
+.PP
+When multiple options controlling the output time format are given at the same time, the option specified last on the command line takes precedence.
+.TP
+.BR \-utc
+Display time tags as UTC in the "YYYY-MON-DD HR:MN:SC.DDD" format (needs LSK and SCLK).
+.TP
+.BR \-utcdoy
+Display time tags as UTC times in the "YYYY-DOY // HR:MN:SC.DDD" format (needs LSK and SCLK).
+.TP
+.BR \-sclk
+Display time tags as SCLK strings (needs LSK and SCLK).
+.TP
+.BR \-dpsclk
+Display time tags as encoded SCLKs (ticks).
+
+.SS Miscellaneous Options
+.TP
+\fB\-a\fR
+Display a summary for multiple CKs listed on the command line and/or provided in meta-kernels and/or a list file as if all data from these CKs were provided in a single CK file.
+.TP
+\fIID\fR
+One or more (up to 100) structure IDs may be listed on the command line to tell BRIEF to display summary information only for the specified structure(s).
+.TP
+\fB\-f\fR \fILIST_FILE\fR
+Display a summary for the files whose names are listed in the text file \fILIST_FILE\fR.
+The file names can be provided one-per-line or a few-per-line separated by one or more spaces.
+.TP
+\fB\-h\fR
+Display a complete usage message listing all options and exit.
+.TP
+\fB\-v\fR
+Display just the version line and exit.
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

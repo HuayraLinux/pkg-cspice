@@ -1,0 +1,25 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
+.\"
+.TH CSPICE-TOBIN 1
+.SH NAME
+cspice-tobin \- converts transfer format SPICE files to binary format
+
+.SH SYNOPSIS
+\fBcspice-tobin\fR \fITRANSFER_FORMAT_FILE\fR [\fIBINARY_FORMAT_FILE\fR]
+
+.SH DESCRIPTION
+.B cspice-tobin
+is a command-line program that converts transfer format SPK, CK and EK files into it's binary format for use in a particular computing environment. It requires at least the name of the input transfer file, which is the first argument on the command line. Optionally, a name for the output binary file may be specified as the second argument on the command line. If a name for the output file is provided it overrides the automatic naming conventions used by the program.
+.PP
+If only the name of the input transfer file is provided on the command line, the program will generate a name for the output binary kernel file that has the same base name as the input transfer file and an appropriate filename extension, based on the filename extension of the transfer file. If it does not recognize the filename extension of the input transfer file, or there is no filename extension on the input transfer file, a filename extension of '.bin' will be used as the filename extension of the output binary file. If a file having the same name as the output file already exists, it signals an error and stops.
+.PP
+.B cspice-tobin
+is part of the SPICE Toolkit. See
+.BR cspice (7).
+
+.SH SEE ALSO
+.BR cspice (7).
+
+.SH AUTHOR
+This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.

@@ -1,0 +1,14 @@
+exe/cspice-brief usr/bin
+exe/cspice-chronos usr/bin
+exe/cspice-ckbrief usr/bin
+exe/cspice-commnt usr/bin
+exe/cspice-frmdiff usr/bin
+exe/cspice-inspekt usr/bin
+exe/cspice-mkspk usr/bin
+exe/cspice-msopck usr/bin
+exe/cspice-spacit usr/bin
+exe/cspice-spkdiff usr/bin
+exe/cspice-spkmerge usr/bin
+exe/cspice-tobin usr/bin
+exe/cspice-toxfr usr/bin
+exe/cspice-version usr/bin
