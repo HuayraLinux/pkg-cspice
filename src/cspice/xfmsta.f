@@ -168,6 +168,10 @@ C     6)  If the product of the Jacobian and velocity components
 C         may lead to numeric overflow, the error
 C         'SPICE(NUMERICOVERFLOW)' is signaled.  
 C
+C     7)  If body's equatorial radii are not equal and either the 
+C         input or output coordinate system is geodetic or 
+C         planetographic, the error 'SPICE(NOTSUPPORTED)' is signaled.
+C
 C$ Files
 C
 C     SPK, PCK, CK, and FK kernels may be required. 
@@ -566,6 +570,14 @@ C     B.V. Semenov      (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0  09-FEB-2017 (BVS)
+C
+C        BUG FIX: the routine no longer allows converting to and from
+C        geodetic and planetographic coordinates for bodies with
+C        unequal equatorial radii. Previously it arbitrarily picked the
+C        first and the third radii to compute body's flattening
+C        coefficient.
+C
 C-    SPICELIB Version 1.0.0  22-APR-2014 (SCK)(BVS)
 C
 C-&
@@ -865,6 +877,7 @@ C     located and the flattening coefficient is calculated.
 C
       IF ( ( OSYS .EQ. GEODET ) .OR. ( OSYS .EQ. PLNTGR )   .OR.
      .     ( ISYS .EQ. GEODET ) .OR. ( ISYS .EQ. PLNTGR ) ) THEN
+
 C
 C        Find the NAIF ID code
 C
@@ -922,6 +935,31 @@ C
 
             END IF
 
+C
+C           At this point, we also check for unequal equatorial radii,
+C           which are not allowed with geodetic or planetographic
+C           coordinates.
+C        
+            IF ( RADII(1) .NE. RADII(2) ) THEN
+
+               CALL SETMSG ( 'The body # has radii (#, #, #). '
+     .         //            'Unequal equatorial ellipsoid radii are '
+     .         //            'not supported for # and # coordinates.')
+               CALL ERRCH  ( '#', BODY                               )
+               CALL ERRDP  ( '#', RADII(1)                           )
+               CALL ERRDP  ( '#', RADII(2)                           )
+               CALL ERRDP  ( '#', RADII(3)                           )
+               CALL ERRCH  ( '#', COSYS ( GEODET )                   )
+               CALL ERRCH  ( '#', COSYS ( PLNTGR )                   )
+               CALL SIGERR ( 'SPICE(NOTSUPPORTED)'                   )
+               CALL CHKOUT ( 'XFMSTA'                                )
+               RETURN
+
+            END IF
+
+C
+C           Calculate the flattening coefficient, F.
+C
             F = ( RADII(1) - RADII(3) ) / RADII(1)
 
          ELSE

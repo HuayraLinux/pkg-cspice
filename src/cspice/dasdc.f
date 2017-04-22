@@ -80,13 +80,12 @@ C     Binary DAS files contain an area which is reserved for storing
 C     annotations or descriptive textual information about the data
 C     contained in a file. This area is referred to as the ``comment
 C     area'' of the file. The comment area of a DAS file is a line
-C     oriented medium for storing textual information. The comment
-C     area preserves any leading or embedded white space in the line(s)
-C     of text which are stored, so that the appearance of the of
-C     information will be unchanged when it is retrieved (extracted) at
-C     some other time. Trailing blanks, however, are NOT preserved,
-C     due to the way that character strings are represented in
-C     standard Fortran 77.
+C     oriented medium for storing textual information. The comment area
+C     preserves any leading or embedded white space in the line(s) of
+C     text which are stored, so that the appearance of the information
+C     will be unchanged when it is retrieved (extracted) at some other
+C     time. Trailing blanks, however, are NOT preserved, due to the way
+C     that character strings are represented in standard Fortran 77.
 C
 C     This routine will delete the entire comment area from the binary
 C     DAS file attached to HANDLE. The size of the binary DAS file will
@@ -120,6 +119,10 @@ C
 C     K.R. Gehringer (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.2, 11-NOV-2016 (NJB)
+C
+C        Fixed typo in Particulars header section.
 C
 C-    SPICELIB Version 1.0.1, 26-OCT-1993 (KRG)
 C

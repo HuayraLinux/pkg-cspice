@@ -208,6 +208,12 @@ C                       where x, y, z represent Cartesian position
 C                       components and  vx, vy, vz represent Cartesian
 C                       velocity components.
 C
+C                      
+C                       Type 2 (indicated by code S19TP2):
+C
+C                           Data are identical to type 1; only the
+C                           interpolation algorithm is different.
+C
 C                    Position units are kilometers, velocity units 
 C                    are kilometers per second, and acceleration units
 C                    are kilometers per second per second.
@@ -389,6 +395,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 21-DEC-2015 (NJB) 
+C
+C        Updated to support subtype 2.
+C     
 C-    SPICELIB Version 1.0.0, 05-FEB-2014 (NJB) (BVS)
 C
 C-&
@@ -473,7 +483,7 @@ C
 C
 C     Initial values
 C
-      DATA                  PKTSZS  /  S19PS0, S19PS1 /
+      DATA                  PKTSZS  /  S19PS0, S19PS1, S19PS2 /
     
 C
 C     Standard SPICE error handling.
@@ -688,11 +698,22 @@ C
 
          PKTSIZ = PKTSZS ( SUBTYP )
 
-         IF ( ODD(SUBTYP) ) THEN
+         IF ( SUBTYP .EQ. S19TP0 ) THEN
+
+            WINSIZ = ( DEGRES(I) + 1 ) / 2
+
+         ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
 
             WINSIZ =   DEGRES(I) + 1
-         ELSE
+
+         ELSE IF ( SUBTYP .EQ. S19TP2 ) THEN
+
             WINSIZ = ( DEGRES(I) + 1 ) / 2
+
+         ELSE
+            CALL SETMSG ( 'Subtype = #; not expected.' )
+            CALL ERRINT ( '#', SUBTYP                  )
+            CALL SIGERR ( 'SPICE(BUG1)'                )
          END IF
 
 C
@@ -930,11 +951,22 @@ C
 
          PKTSIZ = PKTSZS ( SUBTYP )
 
-         IF ( ODD(SUBTYP) ) THEN
+         IF ( SUBTYP .EQ. S19TP0 ) THEN
+
+            WINSIZ = ( DEGRES(I) + 1 ) / 2
+
+         ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
 
             WINSIZ =   DEGRES(I) + 1
-         ELSE
+
+         ELSE IF ( SUBTYP .EQ. S19TP2 ) THEN
+
             WINSIZ = ( DEGRES(I) + 1 ) / 2
+
+         ELSE
+            CALL SETMSG ( 'Subtype = #; not expected.' )
+            CALL ERRINT ( '#', SUBTYP                  )
+            CALL SIGERR ( 'SPICE(BUG2)'                )
          END IF
 
 C

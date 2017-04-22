@@ -42,10 +42,9 @@ C     FILES
 C
 C$ Declarations
  
+      INCLUDE 'das.inc'
+
       INTEGER               HANDLE
- 
-      INTEGER               FTSIZE
-      PARAMETER           ( FTSIZE = 21 )
  
 C$ Brief_I/O
 C
@@ -73,7 +72,7 @@ C
 C     Error free.
 C
 C     1)  If HANDLE is not the handle of an open DAS file, no error
-C         is signalled.
+C         is signaled.
 C
 C$ Files
 C
@@ -128,6 +127,10 @@ C     W.L. Taber     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 10-FEB-2017 (NJB)
+C
+C        Updated to use DAF/DAS handle manager subsystem.
+C     
 C-    SPICELIB Version 1.3.3, 05-OCT-2006 (NJB)
 C
 C        Corrected DASADD calling sequence error in code example.
@@ -260,10 +263,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASCLS' )
       END IF
- 
+
+      CALL CHKIN ( 'DASCLS' )
  
       IF ( PASS1 ) THEN
          CALL SSIZEI ( FTSIZE, FHSET )
@@ -314,7 +316,7 @@ C
 C        We cannot directly test the status of the file, but if
 C        the file is unnamed, it must be a scratch file.
 C
-         CALL DASHLU ( HANDLE, UNIT )
+         CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
 
          IF ( FAILED() ) THEN
             CALL CHKOUT ( 'DASCLS' )

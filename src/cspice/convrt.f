@@ -55,7 +55,7 @@ C     --------  ---  -------------------------------------------------
 C     X          I   Number representing a measurement in some units.
 C     IN         I   The units in which X is measured.
 C     OUT        I   Desired units for the measurement.
-C     Y          O   The measurment in the desired units.
+C     Y          O   The measurement in the desired units.
 C
 C$ Detailed_Input
 C
@@ -73,10 +73,14 @@ C                                        'HOURANGLE'
 C                                        'MINUTEANGLE'
 C                                        'SECONDANGLE'
 C
-C                Metric Distances:       'METERS'
+C                Metric Distances:       'M'
+C                                        'METERS'
 C                                        'KM'
+C                                        'KILOMETERS'
 C                                        'CM'
+C                                        'CENTIMETERS'
 C                                        'MM'
+C                                        'MILLIMETERS'
 C
 C                English Distances:      'FEET'
 C                                        'INCHES'
@@ -181,6 +185,7 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     N.J. Bachman    (JPL)
 C     C.A. Curzon     (JPL)
 C     H.A. Neilan     (JPL)
 C     W.M. Owen       (JPL)
@@ -189,6 +194,11 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 12-MAY-2015 (NJB)
+C
+C        Added support for full names of metric distance units. Added
+C        support for the abbreviation 'M' indicating meters.
+C     
 C-    SPICELIB Version 1.0.2, 01-JUL-2014 (NJB)
 C
 C        Updated the description of the AU in the Restrictions
@@ -286,7 +296,7 @@ C
       PARAMETER      ( DIST = ANG  + 7  )
  
       INTEGER          TME
-      PARAMETER      ( TME  = DIST + 13 )
+      PARAMETER      ( TME  = DIST + 17 )
  
       INTEGER          TOTAL
       PARAMETER      ( TOTAL = TME + 7  )
@@ -347,14 +357,18 @@ C
       DATA TYPE   (ANG + 6)  / 'ANGLE'    /
       DATA TYPE   (ANG + 7)  / 'ANGLE'    /
 C
-C     Distance Conversions ( 5 through 17 )
+C     Distance Conversions ( 8 through 17 )
 C
-C                 ( 5) Meters/Meter
-C                 ( 6) Meters/Km
-C                 ( 7) Meters/Cm
-C                 ( 8) Meters/mm
-C                 ( 9) Meters/Lightsecs
-C                 (10) Meters/AU
+C                 (+  1) Meters/Meter
+C                 (+  2) Meters/Km
+C                 (+  3) Meters/Cm
+C                 (+  4) Meters/mm
+C                 (+  5) Meters/Lightsecs
+C                 (+  6) Meters/AU
+C                 (+  7) Meters/Meter
+C                 (+  8) Meters/Km
+C                 (+  9) Meters/cm
+C                 (+ 10) Meters/mm
 C
       DATA UNITS (DIST + 1)  / 'METERS'               /
       DATA UNITS (DIST + 2)  / 'KM'                   /
@@ -362,6 +376,10 @@ C
       DATA UNITS (DIST + 4)  / 'MM'                   /
       DATA UNITS (DIST + 5)  / 'LIGHTSECS'            /
       DATA UNITS (DIST + 6)  / 'AU'                   /
+      DATA UNITS (DIST + 7)  / 'M'                    /
+      DATA UNITS (DIST + 8)  / 'KILOMETERS'           /
+      DATA UNITS (DIST + 9)  / 'CENTIMETERS'          /
+      DATA UNITS (DIST + 10) / 'MILLIMETERS'          /
  
       DATA CNVRTN(DIST + 1)  / 1.00D0                 /
       DATA CNVRTN(DIST + 2)  / 1000.0D0               /
@@ -369,6 +387,10 @@ C
       DATA CNVRTN(DIST + 4)  / 0.001D0                /
       DATA CNVRTN(DIST + 5)  / 299 792 458.0D0        /
       DATA CNVRTN(DIST + 6)  / AU                     /
+      DATA CNVRTN(DIST + 7)  / 1.00D0                 /
+      DATA CNVRTN(DIST + 8)  / 1000.0D0               /
+      DATA CNVRTN(DIST + 9)  / 0.01D0                 /
+      DATA CNVRTN(DIST + 10) / 0.001D0                /
  
       DATA TYPE  (DIST + 1)  / 'DISTANCE'             /
       DATA TYPE  (DIST + 2)  / 'DISTANCE'             /
@@ -376,48 +398,52 @@ C
       DATA TYPE  (DIST + 4)  / 'DISTANCE'             /
       DATA TYPE  (DIST + 5)  / 'DISTANCE'             /
       DATA TYPE  (DIST + 6)  / 'DISTANCE'             /
+      DATA TYPE  (DIST + 7)  / 'DISTANCE'             /
+      DATA TYPE  (DIST + 8)  / 'DISTANCE'             /
+      DATA TYPE  (DIST + 9)  / 'DISTANCE'             /
+      DATA TYPE  (DIST + 10) / 'DISTANCE'             /
  
 C
 C     Distance Conversions
 C
-C                 (+ 7 ) Meters/Foot
-C                 (+ 8 ) Meters/inch
-C                 (+ 9 ) Meters/Statute Mile
-C                 (+ 10) Meters/Nautical Mile
-C                 (+ 11) Meters/Yard
+C                 (+ 11) Meters/Foot
+C                 (+ 12) Meters/inch
+C                 (+ 13) Meters/Statute Mile
+C                 (+ 14) Meters/Nautical Mile
+C                 (+ 15) Meters/Yard
 C
-      DATA UNITS (DIST + 7 ) / 'FEET'            /
-      DATA UNITS (DIST + 8 ) / 'INCHES'          /
-      DATA UNITS (DIST + 9 ) / 'STATUTE_MILES'   /
-      DATA UNITS (DIST + 10) / 'NAUTICAL_MILES'  /
-      DATA UNITS (DIST + 11) / 'YARDS'           /
+      DATA UNITS (DIST + 11) / 'FEET'            /
+      DATA UNITS (DIST + 12) / 'INCHES'          /
+      DATA UNITS (DIST + 13) / 'STATUTE_MILES'   /
+      DATA UNITS (DIST + 14) / 'NAUTICAL_MILES'  /
+      DATA UNITS (DIST + 15) / 'YARDS'           /
  
-      DATA CNVRTN(DIST + 7 ) / 0.3048D0          /
-      DATA CNVRTN(DIST + 8 ) / 0.0254D0          /
-      DATA CNVRTN(DIST + 9 ) / 1 609.344D0       /
-      DATA CNVRTN(DIST + 10) / 1 852.0D0         /
-      DATA CNVRTN(DIST + 11) / 0.9144D0          /
+      DATA CNVRTN(DIST + 11) / 0.3048D0          /
+      DATA CNVRTN(DIST + 12) / 0.0254D0          /
+      DATA CNVRTN(DIST + 13) / 1 609.344D0       /
+      DATA CNVRTN(DIST + 14) / 1 852.0D0         /
+      DATA CNVRTN(DIST + 15) / 0.9144D0          /
  
-      DATA TYPE  (DIST + 7 ) / 'DISTANCE'        /
-      DATA TYPE  (DIST + 8 ) / 'DISTANCE'        /
-      DATA TYPE  (DIST + 9 ) / 'DISTANCE'        /
-      DATA TYPE  (DIST + 10) / 'DISTANCE'        /
       DATA TYPE  (DIST + 11) / 'DISTANCE'        /
+      DATA TYPE  (DIST + 12) / 'DISTANCE'        /
+      DATA TYPE  (DIST + 13) / 'DISTANCE'        /
+      DATA TYPE  (DIST + 14) / 'DISTANCE'        /
+      DATA TYPE  (DIST + 15) / 'DISTANCE'        /
  
 C
 C     Distance Conversions
 C
-C                 (+ 12) Meters/LightYear
-C                 (+ 13) Meters/Parsec
+C                 (+ 16) Meters/LightYear
+C                 (+ 17) Meters/Parsec
 C
-      DATA UNITS (DIST + 12) / 'LIGHTYEARS'            /
-      DATA UNITS (DIST + 13) / 'PARSECS'               /
+      DATA UNITS (DIST + 16) / 'LIGHTYEARS'            /
+      DATA UNITS (DIST + 17) / 'PARSECS'               /
  
-      DATA CNVRTN(DIST + 12) / LTYEAR                  /
-      DATA CNVRTN(DIST + 13) / PARSEC                  /
+      DATA CNVRTN(DIST + 16) / LTYEAR                  /
+      DATA CNVRTN(DIST + 17) / PARSEC                  /
  
-      DATA TYPE  (DIST + 12) / 'DISTANCE'              /
-      DATA TYPE  (DIST + 13) / 'DISTANCE'              /
+      DATA TYPE  (DIST + 16) / 'DISTANCE'              /
+      DATA TYPE  (DIST + 17) / 'DISTANCE'              /
  
 C
 C     Time Conversions

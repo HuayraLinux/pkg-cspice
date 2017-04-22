@@ -57,9 +57,11 @@ C$ Declarations
  
       IMPLICIT NONE
 
-      INCLUDE 'zzabcorr.inc'
-      INCLUDE 'zzocced.inc'
+      INCLUDE 'dsk.inc'
       INCLUDE 'gf.inc'
+      INCLUDE 'zzabcorr.inc'
+      INCLUDE 'zzdsk.inc'
+      INCLUDE 'zzocced.inc'
       
       CHARACTER*(*)         OCCTYP
       CHARACTER*(*)         FRONT
@@ -107,17 +109,19 @@ C     See entry points.
 C
 C$ Files
 C
-C     Appropriate SPK and PCK kernels must be loaded by the calling
-C     program before the entry points of this routine are called.
+C
+C     Appropriate SPICE kernels must be loaded by the calling program
+C     before this routine is called.
 C
 C     The following data are required:
 C
 C        - SPK data: the calling application must load ephemeris data
 C          for the target, source and observer that cover the time
 C          period specified by the window CNFINE. If aberration
-C          corrections are used, the states of target and observer
-C          relative to the solar system barycenter must be calculable
-C          from the available ephemeris data. Typically ephemeris data
+C          corrections are used, the states of the target bodies and of
+C          the observer relative to the solar system barycenter must be
+C          calculable from the available ephemeris data. Typically
+C          ephemeris data
 C          are made available by loading one or more SPK files via
 C          FURNSH.
 C
@@ -126,14 +130,53 @@ C          semi-axis lengths provided by variables in the kernel pool.
 C          Typically these data are made available by loading a text
 C          PCK file via FURNSH.
 C
-C     In all cases, kernel data are normally loaded once per program
-C     run, NOT every time the entry points of this routine are called.  
+C        - FK data: if either of the reference frames designated by
+C          BFRAME or FFRAME are not built in to the SPICE system,
+C          one or more FKs specifying these frames must be loaded.
+C
+C     The following data may be required:
+C
+C        - DSK data: if either FSHAPE or BSHAPE indicates that DSK
+C          data are to be used, DSK files containing topographic data
+C          for the target body must be loaded. If a surface list is
+C          specified, data for at least one of the listed surfaces must
+C          be loaded.
+C
+C        - Surface name-ID associations: if surface names are specified
+C          in FSHAPE or BSHAPE, the association of these names with
+C          their corresponding surface ID codes must be established by
+C          assignments of the kernel variables
+C
+C             NAIF_SURFACE_NAME
+C             NAIF_SURFACE_CODE
+C             NAIF_SURFACE_BODY
+C
+C          Normally these associations are made by loading a text
+C          kernel containing the necessary assignments. An example
+C          of such a set of assignments is
+C
+C             NAIF_SURFACE_NAME += 'Mars MEGDR 128 PIXEL/DEG'
+C             NAIF_SURFACE_CODE += 1
+C             NAIF_SURFACE_BODY += 499
+C
+C        - CK data: either of the body-fixed frames to which FFRAME or
+C          BFRAME refer might be a CK frame. If so, at least one CK
+C          file will be needed to permit transformation of vectors
+C          between that frame and the J2000 frame.
+C
+C        - SCLK data: if a CK file is needed, an associated SCLK
+C          kernel is required to enable conversion between encoded SCLK
+C          (used to time-tag CK data) and barycentric dynamical time
+C          (TDB).
+C
+C     Kernel data are normally loaded once per program run, NOT every
+C     time this routine is called.
 C
 C$ Particulars
 C
 C     This routine is designed to determine whether a specified
 C     type of occultation or transit is in progress at a specified
-C     epoch. Two methods of modeling the shapes of the target
+C     epoch. Three methods of modeling the shapes of the target
 C     bodies are supported:
 C
 C        1)  Model both target bodies as triaxial ellipsoids. For this
@@ -142,8 +185,13 @@ C            partial, full or annular. See the entry header for
 C            ZZGFOCIN for an explanation of these terms.
 C
 C        2)  Treat one target body as a point object and the other
-C            target body is a triaxial ellipsoid. The only supported
+C            target body as a triaxial ellipsoid. The only supported
 C            occultation type is "ANY" for this case.
+C
+C        3)  Treat one target body as a point object and the other
+C            target body as an extended shape modeled by DSK data.
+C            The only supported occultation type is "ANY" for this
+C            case.
 C
 C     This routine contains two entry points that support searches
 C     for occultations performed using ZZGFSOLV: 
@@ -178,6 +226,27 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 21-FEB-2017 (NJB)
+C
+C        Modified FAILED tests.
+C
+C        31-DEC-2016 (NJB)
+C
+C        Corrected long error message for blank frame string.
+C        Previously the order of ERRCH and SIGERR calls was 
+C        inverted.
+C
+C        Updated long error message for incorrect body-fixed
+C        frame center, so the ID of the target body is included.
+C
+C        24-FEB-2016 (NJB)
+C
+C        DSK capability was integrated.
+C
+C        04-MAR-2015 (NJB)
+C 
+C        Initial updates to support surfaces represented by DSKs. 
+C
 C-    SPICELIB Version 1.1.0, 18-MAY-2014 (NJB) 
 C
 C        Bug fix: in entry point ZZGFOCIN, corrected long error message
@@ -200,6 +269,7 @@ C
       INTEGER               ISRCHC
       INTEGER               ZZOCCED
 
+      LOGICAL               EQSTR
       LOGICAL               FAILED
       LOGICAL               RETURN
 
@@ -208,6 +278,7 @@ C
 C     Local parameters
 C
 C
+
 C     ALPHA is a bound for the fraction of the speed of light
 C     at which target body may move, relative to the solar
 C     system barycenter.
@@ -234,18 +305,25 @@ C
 C     Local variables
 C
       CHARACTER*(FRNMLN)    FIXFRM
+      CHARACTER*(CVTLEN)    PNTDEF
       CHARACTER*(POSLEN)    POSNAM
       CHARACTER*(SHPLEN)    SHAPE
+      CHARACTER*(SHPLEN)    SHPSTR
+      CHARACTER*(SUBLEN)    SUBTYP
       CHARACTER*(FRNMLN)    SVBFRM
+      CHARACTER*(MTHLEN)    SVBMTH
       CHARACTER*(BDNMLN)    SVBNAM
       CHARACTER*(SHPLEN)    SVBSHP
       CHARACTER*(CORLEN)    SVCORR
       CHARACTER*(FRNMLN)    SVFFRM
+      CHARACTER*(MTHLEN)    SVFMTH
       CHARACTER*(BDNMLN)    SVFNAM
       CHARACTER*(SHPLEN)    SVFSHP
       CHARACTER*(BDNMLN)    SVONAM
       CHARACTER*(OCLLN)     SVTYPE
       CHARACTER*(OCLLN)     SVTYPS ( NOCTYP )
+      CHARACTER*(TMTLEN)    TRMTYP
+
 
       DOUBLE PRECISION      BCKFRT ( 3 )
       DOUBLE PRECISION      BCKOBS ( 3 )
@@ -290,8 +368,10 @@ C
       INTEGER               IDOBS
       INTEGER               LOC
       INTEGER               N
+      INTEGER               NSURF
       INTEGER               OCCNUM
       INTEGER               OCCODE
+      INTEGER               SRFLST ( MAXSRF )
       INTEGER               SVBACK
       INTEGER               SVFRNT
       INTEGER               SVOBS
@@ -300,17 +380,23 @@ C
       LOGICAL               ATTBLK ( NABCOR )
       LOGICAL               FOUND
       LOGICAL               PNTOCC
+      LOGICAL               PRI
+
+      INTEGER               NCALLS
+      SAVE                  NCALLS
 
 C
 C     Saved variables
 C 
       SAVE                  SVBACK
       SAVE                  SVBFRM
+      SAVE                  SVBMTH
       SAVE                  SVBNAM
       SAVE                  SVBRAD
       SAVE                  SVBSHP
       SAVE                  SVCORR
-      SAVE                  SVFFRM 
+      SAVE                  SVFFRM
+      SAVE                  SVFMTH
       SAVE                  SVFNAM
       SAVE                  SVFRAD
       SAVE                  SVFRNT
@@ -325,6 +411,9 @@ C
       SAVE                  SVTYPE
       SAVE                  SVTYPS
      
+
+      DATA NCALLS / 0 /
+
 C
 C     Initial values
 C
@@ -437,48 +526,39 @@ C
 C                Supported values of OCCTYP and corresponding
 C                definitions are:
 C
-C                   'FULL'               denotes the full occultation
-C                                        of the body designated by 
-C                                        BACK by the body designated
-C                                        by FRONT, as seen from
-C                                        the location of the observer.
-C                                        In other words, the occulted
-C                                        body is completely invisible
-C                                        as seen from the observer's
-C                                        location.
 C
-C                   'ANNULAR'            denotes an annular
-C                                        occultation: the body
-C                                        designated by FRONT blocks
-C                                        part of, but not the limb of,
-C                                        the body designated by BACK,
-C                                        as seen from the location of
-C                                        the observer.
+C                   'FULL'      denotes the full occultation of the
+C                               body designated by BACK by the body
+C                               designated by FRONT, as seen from the
+C                               location of the observer. In other
+C                               words, the occulted body is completely
+C                               invisible as seen from the observer's
+C                               location.
 C
-C                   'PARTIAL'            denotes an partial,
-C                                        non-annular occultation: the
-C                                        body designated by FRONT
-C                                        blocks part, but not all, of
-C                                        the limb of the body
-C                                        designated by BACK, as seen
-C                                        from the location of the
-C                                        observer.
+C                   'ANNULAR'   denotes an annular occultation: the
+C                               body designated by FRONT blocks part
+C                               of, but not the limb of, the body
+C                               designated by BACK, as seen from the
+C                               location of the observer.
 C
-C                   'ANY'                denotes any of the above three
-C                                        types of occultations:
-C                                        'PARTIAL', 'ANNULAR', or
-C                                        'FULL'.
+C                   'PARTIAL'   denotes a partial, non-annular
+C                               occultation: the body designated by
+C                               FRONT blocks part, but not all, of the
+C                               limb of the body designated by BACK, as
+C                               seen from the location of the observer.
 C
-C                                        'ANY' should be used to search
-C                                        for times when the body 
-C                                        designated by FRONT blocks
-C                                        any part of the body designated
-C                                        by BACK.
+C                   'ANY'       denotes any of the above three types of
+C                               occultations: 'PARTIAL', 'ANNULAR', or
+C                               'FULL'.
 C
-C                                        The option 'ANY' MUST be used
-C                                        if either the front or back
-C                                        target body is modeled as
-C                                        a point.
+C                               'ANY' should be used to search for
+C                               times when the body designated by FRONT
+C                               blocks any part of the body designated
+C                               by BACK.
+C
+C                               The option 'ANY' must be used if either
+C                               the front or back target body is
+C                               modeled as a point.
 C
 C                Case and leading or trailing blanks are not
 C                significant in the string OCCTYP.
@@ -494,32 +574,67 @@ C                Case and leading or trailing blanks are not
 C                significant in the string FRONT.
 C
 C
-C     FSHAPE     is a string indicating the geometric model used
-C                to represent the shape of the front body. The
+C
+C     FSHAPE     is a string indicating the geometric model used to
+C                represent the shape of the front target body. The
 C                supported options are:
 C
-C                   'ELLIPSOID'     Use a triaxial ellipsoid model,
-C                                   with radius values provided via the
-C                                   kernel pool. A kernel variable 
-C                                   having a name of the form
+C                   'ELLIPSOID'    
 C
-C                                      'BODYnnn_RADII' 
+C                       Use a triaxial ellipsoid model with radius
+C                       values provided via the kernel pool. A kernel
+C                       variable having a name of the form
 C
-C                                   where nnn represents the NAIF
-C                                   integer code associated with the
-C                                   body, must be present in the kernel
-C                                   pool. This variable must be
-C                                   associated with three numeric
-C                                   values giving the lengths of the
-C                                   ellipsoid's X, Y, and Z semi-axes.
+C                          'BODYnnn_RADII'
 C
-C                   'POINT'         Treat the body as a single point.
-C                                   When a point target is specified,
-C                                   the occultation type must be
-C                                   set to 'ANY'.
-C                                   
-C                At least one of the target bodies FRONT and BACK must
-C                be modeled as an ellipsoid.
+C                       where nnn represents the NAIF integer code
+C                       associated with the body, must be present in
+C                       the kernel pool. This variable must be
+C                       associated with three numeric values giving the
+C                       lengths of the ellipsoid's X, Y, and Z
+C                       semi-axes.
+C
+C                   'POINT'       
+C
+C                       Treat the body as a single point. When a point
+C                       target is specified, the occultation type must
+C                       be set to 'ANY'.
+C
+C                   'DSK/UNPRIORITIZED[/SURFACES = <surface list>]'
+C
+C                       Use topographic data provided by DSK files to
+C                       model the body's shape. These data must be
+C                       provided by loaded DSK files.
+C
+C                       The surface list specification is optional. The
+C                       syntax of the list is
+C
+C                          <surface 1> [, <surface 2>...]
+C
+C                       If present, it indicates that data only for the
+C                       listed surfaces are to be used; however, data
+C                       need not be available for all surfaces in the
+C                       list. If absent, loaded DSK data for any surface
+C                       associated with the target body are used.
+C
+C                       The surface list may contain surface names or
+C                       surface ID codes. Names containing blanks must
+C                       be delimited by double quotes, for example
+C
+C                          SURFACES = "Mars MEGDR 128 PIXEL/DEG"
+C                                         
+C                       If multiple surfaces are specified, their names
+C                       or IDs must be separated by commas.
+C
+C                       See the Particulars section below for details
+C                       concerning use of DSK data.
+C
+C                The combinations of the shapes of the target bodies
+C                FRONT and BACK must be one of:
+C
+C                   One ELLIPSOID, one POINT
+C                   Two ELLIPSOIDs
+C                   One DSK, one POINT
 C
 C                Case and leading or trailing blanks are not
 C                significant in the string FSHAPE.
@@ -630,33 +745,47 @@ C     4)  If both of the body model specifiers FSHAPE and BSHAPE
 C         specify point targets, the error SPICE(INVALIDSHAPECOMBO)
 C         will be signaled.
 C
-C     5)  If an unrecognized value of OCCTYP is seen, the error
+C     5)  If one of the target shape arguments FSHAPE and BSHAPE
+C         specifies a DSK model, and the other argument does not
+C         specify a point target, the error SPICE(INVALIDSHAPECOMBO)
+C         will be signaled.
+C
+C     6)  If an unrecognized value of OCCTYP is seen, the error
 C         SPICE(INVALIDOCCTYPE) is signaled.
 C
-C     6)  If one target body is modeled as a point and OCCTYP is not
+C     7)  If one target body is modeled as a point and OCCTYP is not
 C         set to 'ANY', the error SPICE(BADTYPESHAPECOMBO) is signaled.
 C
-C     7)  If a target indicated to be an ellipsoid by its shape
+C     8)  If a target indicated to be an ellipsoid by its shape
 C         specification argument does not have three associated
 C         positive radii, the error SPICE(DEGENERATECASE) will be
 C         signaled.
 C
-C     8)  If the number of radii associated with a target body is
+C     9)  If the number of radii associated with a target body is
 C         not three, the error SPICE(BADRADIUSCOUNT) will be 
 C         signaled.
 C
-C     9)  If a target body-fixed reference frame associated with a 
+C     10) If a target body-fixed reference frame associated with a 
 C         non-point target is not recognized, the error 
 C         SPICE(INVALIDFRAME) will be signaled.
 C
-C     10) If a target body-fixed reference frame is not centered at
+C     11) If a target body-fixed reference frame is not centered at
 C         the corresponding target body, the error 
 C         SPICE(INVALIDFRAME) will be signaled.
 C
-C     11) If the aberration correction string is invalid, the error
+C     12) If the aberration correction string is invalid, the error
 C         will be diagnosed by a routine in the call tree of this
 C         routine.                 
 C         
+C     13) If either FSHAPE or BSHAPE specifies that the target surface
+C         is represented by DSK data, and no DSK files are loaded for
+C         the specified target, the error is signaled by a routine in
+C         the call tree of this routine.
+C
+C     14) If either FSHAPE or BSHAPE specifies that the target surface
+C         is represented by DSK data, but the shape specification is
+C         invalid, the error is signaled by a routine in the call tree
+C         of this routine.
 C$ Files
 C
 C     See the header of the umbrella routine ZZGFOCU.
@@ -687,6 +816,18 @@ C     N.J. Bachman   (JPL)
 C     E.D. Wright    (JPL)
 C 
 C$ Version
+C
+C-    SPICELIB Version 2.0.0, 21-FEB-2017 (NJB)
+C
+C        Modified FAILED tests.
+C
+C        20-FEB-2016 (NJB)
+C
+C        DSK capability was integrated.
+C
+C        04-MAR-2015 (NJB)
+C 
+C        Initial updates to support surfaces represented by DSKs. 
 C
 C-    SPICELIB Version 1.1.0, 18-MAY-2014 (NJB) 
 C
@@ -798,62 +939,139 @@ C
 C
 C     Store the ID codes, shape specifications, and body-fixed,
 C     body-centered frame names of the objects involved in this event.
+C     The shape arguments must be parsed in case they contain
+C     DSK specifications.
 C
       SVFRNT = IDFRNT
       SVFFRM = FFRAME
 
-      CALL LJUST ( FSHAPE, SVFSHP )
-      CALL UCASE ( SVFSHP, SVFSHP )
 
       SVBACK = IDBACK
       SVBFRM = BFRAME
 
-      CALL LJUST ( BSHAPE, SVBSHP )
-      CALL UCASE ( SVBSHP, SVBSHP )
-
       SVOBS  = IDOBS
 
 C
-C     Note for maintenance programmer: these checks will
-C     require modification to handle DSK-based shapes.
+C     Save the input shape strings. These will be examined later,
+C     but we need them in their original form for computations
+C     involving DSK data. In the variable names below, "MTH"
+C     stands for "method"---the name used in SPICE geometry
+C     APIs for this type of input string.
+C     
+      SVFMTH = FSHAPE
+      SVBMTH = BSHAPE
+
 C
-      IF (      ( SVFSHP .NE. PTSHAP ) 
-     .    .AND. ( SVFSHP .NE. EDSHAP )  ) THEN 
+C     Parse the front body shape string.
+C
+      IF (  EQSTR( FSHAPE, 'POINT' )  ) THEN
 
-         CALL SETMSG ( 'The front target shape specification, '
-     .   //            '''#'', is not a recognized.'           )
-         CALL ERRCH  ( '#', FSHAPE                             )
-         CALL SIGERR ( 'SPICE(INVALIDSHAPE)'                   )
-         CALL CHKOUT ( 'ZZGFOCIN'                              )
-         RETURN
+         SVFSHP = PTSHAP
+
+      ELSE IF (  EQSTR( FSHAPE, 'ELLIPSOID' )  ) THEN
+
+         SVFSHP = EDSHAP
+
+      ELSE
+
+         CALL ZZPRSMET ( IDFRNT, SVFMTH, MAXSRF, SHPSTR, SUBTYP,
+     .                   PRI,    NSURF,  SRFLST, PNTDEF, TRMTYP )
+
+         IF ( FAILED() ) THEN
+            CALL CHKOUT ( 'ZZGFOCIN' )
+            RETURN
+         END IF
+
+         IF (  EQSTR( SHPSTR, 'DSK' )  ) THEN
+
+            SVFSHP = DSSHAP
+
+         ELSE
+
+            CALL SETMSG ( 'Front target shape from FSHAPE '
+     .      //            'string was <#>. Valid shapes are '
+     .      //            'ELLIPSOID, POINT, and DSK.'       )
+            CALL ERRCH  ( '#', FSHAPE                        )
+            CALL SIGERR ( 'SPICE(INVALIDSHAPE)'              )
+            CALL CHKOUT ( 'ZZGFOCIN'                         )
+            RETURN
+
+         END IF
 
       END IF
 
-      IF (      ( SVBSHP .NE. PTSHAP ) 
-     .    .AND. ( SVBSHP .NE. EDSHAP )  ) THEN 
 
-         CALL SETMSG ( 'The back target shape specification, '
-     .   //            '''#'', is not a recognized.'           )
-         CALL ERRCH  ( '#', BSHAPE                             )
-         CALL SIGERR ( 'SPICE(INVALIDSHAPE)'                   )
-         CALL CHKOUT ( 'ZZGFOCIN'                              )
-         RETURN
+C
+C     Parse the back body shape string.
+C
+      IF (  EQSTR( BSHAPE, 'POINT' )  ) THEN
+
+         SVBSHP = PTSHAP
+
+      ELSE IF (  EQSTR( BSHAPE, 'ELLIPSOID' )  ) THEN
+
+         SVBSHP = EDSHAP
+
+      ELSE
+
+         CALL ZZPRSMET ( IDFRNT, SVBMTH, MAXSRF, SHPSTR, SUBTYP,
+     .                   PRI,    NSURF,  SRFLST, PNTDEF, TRMTYP )
+
+         IF ( FAILED() ) THEN
+            CALL CHKOUT ( 'ZZGFOCIN' )
+            RETURN
+         END IF
+
+         IF (  EQSTR( SHPSTR, 'DSK' )  ) THEN
+
+            SVBSHP = DSSHAP
+
+         ELSE
+
+            CALL SETMSG ( 'Back target shape from BSHAPE '
+     .      //            'string was <#>. Valid shapes are '
+     .      //            'ELLIPSOID, POINT, and DSK.'       )
+            CALL ERRCH  ( '#', BSHAPE                        )
+            CALL SIGERR ( 'SPICE(INVALIDSHAPE)'              )
+            CALL CHKOUT ( 'ZZGFOCIN'                         )
+            RETURN
+
+         END IF
 
       END IF
 
-      IF (      ( SVFSHP .EQ. PTSHAP ) 
-     .    .AND. ( SVBSHP .EQ. PTSHAP )  ) THEN 
+C
+C     Check for invalid shape combinations.
+C
+      IF (       ( SVFSHP .EQ. PTSHAP ) 
+     .     .AND. ( SVBSHP .EQ. PTSHAP ) ) THEN
 
-         CALL SETMSG ( 'The front and back target shape '
-     .   //            'specifications are both PTSHAP; '
-     .   //            'at least one of these targets '
-     .   //            'must be an extended object.'     )
-         CALL SIGERR ( 'SPICE(INVALIDSHAPECOMBO)'        )
-         CALL CHKOUT ( 'ZZGFOCIN'                        )
+         CALL SETMSG ( 'Both front and back objects have '
+     .   //            'POINT shape specifications; only '
+     .   //            'one point shape is allowed. The '
+     .   //            'other shape must be ELLIPSOID or '
+     .   //            'DSK.'                             )
+         CALL SIGERR ( 'SPICE(INVALIDSHAPECOMBO)'         )
+         CALL CHKOUT ( 'ZZGFOCIN'                         )
          RETURN
 
-      END IF
+      ELSE IF (      (        ( SVFSHP .EQ. DSSHAP ) 
+     .                  .AND. ( SVBSHP .NE. PTSHAP ) )
+     .          .OR. (        ( SVBSHP .EQ. DSSHAP ) 
+     .                  .AND. ( SVFSHP .NE. PTSHAP ) )  ) THEN
+ 
+         CALL SETMSG ( 'Front target shape from FSHAPE '
+     .   //            'string was <#>; back target shape '            
+     .   //            'from BSHAPE was <#>. When one shape '
+     .   //            'is DSK, the other must be POINT.'   )
+         CALL ERRCH  ( '#', SVFSHP                          )
+         CALL ERRCH  ( '#', SVBSHP                          )
+         CALL SIGERR ( 'SPICE(INVALIDSHAPECOMBO)'           )
+         CALL CHKOUT ( 'ZZGFOCIN'                           )
+         RETURN
 
+       END IF
+  
 C
 C     Save a single upper-case character representing the occultation
 C     type string.
@@ -970,6 +1188,11 @@ C           Fetch and check the radii.
 C
             CALL BODVCD ( TRGID, 'RADII', 3, N, RADII )
 
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'ZZGFOCIN' )
+               RETURN
+            END IF
+
 C
 C           Check the count of the radii.
 C
@@ -1035,18 +1258,29 @@ C
                RETURN
             END IF
 
+         END IF
 C
-C           The target is ellipsoidal; there must be 
-C           a target body-fixed frame associated with this
-C           body.
+C        We've performed radii checks for an ellipsoidal target.
+C        Minimum and maximum bounding radii are set, if the target
+C        shape is modeled as an ellipsoid. 
+C
+C
+C        Check body-fixed frame for extended targets.
+C
+         IF (  ( SHAPE .EQ. EDSHAP ) .OR. ( SHAPE .EQ. DSSHAP )  ) THEN
+C
+C           The target is ellipsoidal or is modeled using DSK data;
+C           there must be a target body-fixed frame associated with
+C           this body.
 C
             IF ( FIXFRM .EQ. ' ' ) THEN
 
-               CALL SETMSG ( 'The # target is modeled as an '
-     .         //            'ellipsoid, but the associated '
+               CALL SETMSG ( 'The # target shape is represented '
+     .         //            'by an ellipsoid or by DSK data, '
+     .        //             'but the associated '
      .         //            'body-fixed frame name is blank.' )
-               CALL SIGERR ( 'SPICE(INVALIDFRAME)'             )
                CALL ERRCH  ( '#',  POSNAM                      )
+               CALL SIGERR ( 'SPICE(INVALIDFRAME)'             )
                CALL CHKOUT ( 'ZZGFOCIN'                        )
                RETURN
 
@@ -1055,6 +1289,11 @@ C
 C              Look up the target's body-fixed frame ID code.
 C
                CALL NAMFRM ( FIXFRM, FFRMID )
+
+               IF ( FAILED() ) THEN
+                  CALL CHKOUT ( 'ZZGFOCIN' )
+                  RETURN
+               END IF
 
                IF ( FFRMID .EQ. 0 ) THEN
 
@@ -1073,6 +1312,11 @@ C              Obtain the center of the frame and verify it's the
 C              Ith target.
 C
                CALL FRINFO ( FFRMID, CENTER, FRCLSS, CLSSID, FOUND )
+
+               IF ( FAILED() ) THEN
+                  CALL CHKOUT ( 'ZZGFOCIN' )
+                  RETURN
+               END IF
 
                IF ( .NOT. FOUND ) THEN
 C
@@ -1097,10 +1341,11 @@ C                 The body-fixed frame for the current target
 C                 isn't actually centered on the body.
 C
                   CALL SETMSG ( 'Supposed body-fixed frame # for '
-     .            //            '# target is actually centered '
+     .            //            '# target # is actually centered '
      .            //            'on body #.'                       )
                   CALL ERRCH  ( '#',  FIXFRM                       )
                   CALL ERRCH  ( '#',  POSNAM                       )
+                  CALL ERRINT ( '#',  TRGID                        )
                   CALL ERRINT ( '#',  CENTER                       )
                   CALL SIGERR ( 'SPICE(INVALIDFRAME)'              )
                   CALL CHKOUT ( 'ZZGFOCIN'                         )
@@ -1108,14 +1353,44 @@ C
 
                END IF
 
-
             END IF
-C
-C           We've performed radii and frame checks for an ellipsoidal
-C           target.
-C
 
-         ELSE IF ( SHAPE .EQ. PTSHAP ) THEN
+         END IF
+C
+C        We've performed frame checks for an extended target.
+C
+C
+C        Obtain radii of inner and outer bounding spheres for 
+C        DSK targets.
+C
+         IF ( SHAPE .EQ. DSSHAP ) THEN
+C
+C           Note that TRGID and FFRMID refer to the current
+C           target (out of two); "FFRMID" means "fixed frame ID."
+C
+            CALL ZZSUDSKI ( TRGID, NSURF, SRFLST, FFRMID )
+
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'ZZGFOCIN' )
+               RETURN
+            END IF
+
+            IF ( I .EQ. 1 ) THEN
+
+               CALL ZZMINRAD ( SVMNFR )
+               CALL ZZMAXRAD ( SVMXFR )
+            ELSE
+               CALL ZZMINRAD ( SVMNBR )
+               CALL ZZMAXRAD ( SVMXBR )
+            END IF
+
+         END IF
+
+C
+C        Initialize bounding radii and body-fixed frame
+C        names for point targets.
+C
+         IF ( SHAPE .EQ. PTSHAP ) THEN
 C
 C           Zero out radius values for this target; set the
 C           frame to blank.
@@ -1138,23 +1413,11 @@ C
 
             END IF
 
-         ELSE
-C
-C           We have an unsupported target shape.
-C
-            CALL SETMSG ( 'The # target body has shape #; the only '
-     .      //            'supported shapes are ELLIPSOID and '
-     .      //            'POINT.'                                  )
-            CALL ERRCH  ( '#',  POSNAM                              )
-            CALL ERRCH  ( '#',  SHAPE                               )
-            CALL SIGERR ( 'SPICE(INVALIDSHAPE)'                     )
-            CALL CHKOUT ( 'ZZGFOCIN'                                )
-            RETURN
-
          END IF
 C
 C        We've performed shape, and if applicable, frame and radii 
-C        checks for the Ith target.
+C        checks for the Ith target. Bounding radii have been obtained
+C        for extended targets.
 C
       END DO
 C
@@ -1294,6 +1557,18 @@ C     W.L. Taber     (JPL)
 C     E.D. Wright    (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.0, 21-FEB-2017 (NJB)
+C
+C        Modified FAILED tests.
+C
+C        20-FEB-2016 (NJB)
+C
+C        DSK capability was integrated.
+C
+C        04-MAR-2015 (NJB)
+C 
+C        Initial updates to support surfaces represented by DSKs. 
 C
 C-    SPICELIB Version 1.0.0, 30-DEC-2008 (NJB) (LSE) (WLT) (EDW)
 C
@@ -1441,17 +1716,21 @@ C
 
       ELSE IF (     (       ( SVFSHP .EQ. EDSHAP ) 
      .                .AND. ( SVBSHP .EQ. PTSHAP ) )
+     .         .OR. (       ( SVFSHP .EQ. DSSHAP ) 
+     .                .AND. ( SVBSHP .EQ. PTSHAP ) )  
      .         .OR. (       ( SVFSHP .EQ. PTSHAP ) 
-     .                .AND. ( SVBSHP .EQ. EDSHAP ) )   ) THEN
+     .                .AND. ( SVBSHP .EQ. EDSHAP ) )  
+     .         .OR. (       ( SVFSHP .EQ. PTSHAP ) 
+     .                .AND. ( SVBSHP .EQ. DSSHAP ) )  ) THEN
 C
 C        One of the targets is modeled as a point; the other is
-C        modeled as an ellipsoid. 
+C        modeled as an ellipsoid or a DSK shape. 
 C
-C        If the front target is an ellipsoid and the back target
-C        is a point, we'll classify the geometry as a "point
-C        occultation." Otherwise we have a "point transit" case.
-C        We'll set the logical flag PNTOCC to .TRUE. to indicate
-C        a point occultation.
+C        If the front target is an ellipsoid or a DSK shape and the
+C        back target is a point, we'll classify the geometry as a
+C        "point occultation." Otherwise we have a "point transit" case.
+C        We'll set the logical flag PNTOCC to .TRUE. to indicate a
+C        point occultation.
 C
          PNTOCC = SVBSHP .EQ. PTSHAP
 
@@ -1476,7 +1755,7 @@ C
 
          IF ( PNTOCC ) THEN
 C
-C           The front target is an ellipsoid.
+C           The front target is an extended shape.
 C
             IF ( FDIST .LE. SVMNFR ) THEN
 C
@@ -1506,7 +1785,7 @@ C
 
          ELSE
 C
-C           The back target is an ellipsoid.
+C           The back target is an extended shape.
 C
             IF ( BDIST .LE. SVMNBR ) THEN
 C
@@ -1544,7 +1823,7 @@ C
 
 C
 C        Find angular radius of the outer bounding sphere of the
-C        ellipsoid, as seen by the observer. 
+C        extended target, as seen by the observer. 
 C
 C        In computing this angular radius, scale up the bounding
 C        sphere to compensate for the light time error we've made
@@ -1552,19 +1831,19 @@ C        by computing light time to the target's center. The
 C        correct value to use is light time to the limb point having
 C        minimum angular separation from the point target.
 C        
-C        Presuming the ellipsoidal target can move no faster than
+C        Presuming the extended target can move no faster than
 C        alpha*c (where c represents the speed of light in a vacuum),
 C        and considering the fact that the light time error cannot
 C        exceed r/c, where r is the radius of the outer bounding sphere
 C        of the ellipsoid, we find that the magnitude of the position
-C        error of the ellipsoid cannot exceed alpha*r. Then the
-C        correctly positioned ellipsoid---that is, located at
+C        error of the extended target cannot exceed alpha*r. Then the
+C        correctly positioned target---that is, located at
 C        the position corresponding to the correct light time 
 C        correction---must be contained in the outer bounding
 C        sphere we've found, if we scale the sphere up by 1+alpha.
 C
 C        Perform the test only if the observer is outside the
-C        outer bounding sphere of the ellipsoidal target.
+C        outer bounding sphere of the extended target.
 C
          IF ( PNTOCC ) THEN
 
@@ -1579,6 +1858,11 @@ C
 
             MAXANG = DASINE ( SRAD / TDIST,  ATOL )
 
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'ZZGFOCST' )
+               RETURN
+            END IF
+
             IF ( TRGSEP .GT. MAXANG ) THEN
 C
 C              No occultation is possible.
@@ -1590,12 +1874,6 @@ C
 
             END IF
 
-         END IF
-
-
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'ZZGFOCST' )
-            RETURN
          END IF
 
 C
@@ -1689,15 +1967,17 @@ C
 C        If we've reached this point, we have a situation where we
 C        can't classify the geometry using bounding spheres. Instead,
 C        we'll see whether the observer-point target vector intersects
-C        the ellipsoidal body.
+C        the extended body.
 C 
          IF ( PNTOCC ) THEN
 C
-C           The front body is the ellipsoid.
+C           The front body is the extended one.
 C
-            CALL SINCPT ( 'Ellipsoid', SVFNAM,  TIME,    SVFFRM, 
-     .                    SVCORR,      SVONAM,  'J2000', BCKPOS, 
-     .                    SPOINT,      TRGEPC,  SRFVEC,  FOUND )
+            NCALLS = NCALLS + 1
+
+            CALL SINCPT ( SVFMTH, SVFNAM,  TIME,    SVFFRM, 
+     .                    SVCORR, SVONAM,  'J2000', BCKPOS, 
+     .                    SPOINT, TRGEPC,  SRFVEC,  FOUND )
 
 
             IF ( FAILED()) THEN
@@ -1725,11 +2005,11 @@ C
             
          ELSE
 C
-C           The back body is the ellipsoid.
+C           The back body is the extended one.
 C
-            CALL SINCPT ( 'Ellipsoid', SVBNAM,  TIME,    SVBFRM, 
-     .                    SVCORR,      SVONAM,  'J2000', FRTPOS, 
-     .                    SPOINT,      TRGEPC,  SRFVEC,  FOUND )
+            CALL SINCPT ( SVBMTH, SVBNAM,  TIME,    SVBFRM, 
+     .                    SVCORR, SVONAM,  'J2000', FRTPOS, 
+     .                    SPOINT, TRGEPC,  SRFVEC,  FOUND )
 
             IF ( FAILED()) THEN
                CALL CHKOUT ( 'ZZGFOCST' )
@@ -1775,5 +2055,5 @@ C
       END IF
 
       CALL CHKOUT ( 'ZZGFOCST' )
-      RETURN
+      RETURN      
       END

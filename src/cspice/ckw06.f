@@ -243,8 +243,8 @@ C                                   differentiating the interpolating
 C                                   polynomials.
 C
 C                       Subtype 2:  Hermite interpolation, 14-element
-C                                   packets.  Quaternion and angular
-C                                   angular velocity vector, as well as
+C                                   packets. Quaternion and angular
+C                                   velocity vector, as well as
 C                                   derivatives of each, are provided.
 C                                   The quaternion comes first, then
 C                                   quaternion derivatives, then
@@ -259,9 +259,12 @@ C
 C                    Angular velocity is always specified relative to
 C                    the base frame. 
 C
-C                    Units of angular velocity and of quaternion
-C                    derivatives are radians/second and 1/second
-C                    respectively.
+C                    Units of the input data are:
+C
+C                       Quaternions                unitless
+C                       Quaternion derivatives     1/TDB second
+C                       Angular velocity           radians/TDB second
+C                       Angular acceleration       radians/TDB second**2
 C
 C                    For the Hermite subtypes (0 and 2), quaternion
 C                    representations must be selected so that, for
@@ -381,8 +384,9 @@ C         increasing order, the error SPICE(BOUNDSOUTOFORDER) will be
 C         signaled.
 C
 C     7)  If the first interval start time IVLBDS(1) is greater than
-C         FIRST, or if the last interval end time IVLBDS(N+1) is less
-C         than LAST, the error SPICE(COVERAGEGAP) will be signaled.
+C         FIRST, or if the last interval end time IVLBDS(NMINI+1) is
+C         less than LAST, the error SPICE(COVERAGEGAP) will be
+C         signaled.
 C
 C     8)  If any packet count in the array NPKTS is not at least 2, the
 C         error SPICE(TOOFEWPACKETS) will be signaled.
@@ -443,6 +447,9 @@ C
 C         If a pair of quaternions violating this condition is found
 C         in the input array PACKTS, the error SPICE(BADQUATSIGN) will
 C         be signaled.
+C
+C    18)  If any element of the input RATES array is non-positive, the
+C         error SPICE(INVALIDSCLKRATE) will be signaled.
 C
 C$ Files
 C
@@ -693,6 +700,15 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 11-AUG-2015 (NJB) 
+C
+C        Added check for invalid SCLK rates.
+C
+C        Corrected error in header Exceptions section: changed 
+C        subscript N+1 to NMINI+1. Corrected typo in description
+C        of subtype 2 data. Added mention of angular acceleration
+C        units.
+C     
 C-    SPICELIB Version 1.0.0, 14-MAR-2014 (NJB) (BVS)
 C
 C-&
@@ -1014,6 +1030,21 @@ C
             WINSIZ = ( DEGRES(I) + 1 ) / 2
          END IF
  
+C
+C        Make sure the SCLK rates in this mini-segment are positive.
+C
+         IF ( RATES(I) .LE. 0.D0 ) THEN
+
+            CALL SETMSG ( 'SCLK rate at index # was #; rate must '
+     .      //            'be positive.'                           )
+            CALL ERRINT ( '#',  I                                  )
+            CALL ERRDP  ( '#',  RATES(I)                           )
+            CALL SIGERR ( 'SPICE(INVALIDSCLKRATE)'                 )
+            CALL CHKOUT ( 'CKW06'                                  )
+            RETURN
+
+         END IF
+
 C
 C        Update the packet range pointers for this mini-segment.
 C

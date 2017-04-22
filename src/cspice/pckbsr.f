@@ -341,6 +341,10 @@ C     B.V. Semenov    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 2.0.0, 17-MAR-2014 (NJB)
 C
 C        Updated segment pool initialization condition in entry
@@ -403,7 +407,7 @@ C           7) In PCKSFS, a subscript bound violation in a loop
 C              termination test was corrected.
 C
 C        The "re-use interval" feature was introduced to improve speed
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.  For each body, the associated re-use
 C        interval marks the time interval containing the previous
 C        request time for which the previously returned segment provides
@@ -768,7 +772,7 @@ C        by the parameter FTSIZE in DAFAH, an error is signaled by a
 C        routine in the call tree of this routine.
 C
 C     2) If an attempt is made to load more files than is specified
-C        by the local paramater FTSIZE, and if the DAF system has
+C        by the local parameter FTSIZE, and if the DAF system has
 C        room to load another file, the error SPICE(PCKFILETABLEFULL)
 C        signaled.  The current setting of FTSIZE does not allow this
 C        situation to arise:  the DAF system will trap the error
@@ -806,6 +810,10 @@ C     R.E. Thurman    (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 2.0.0, 17-MAR-2014 (NJB)
 C
@@ -1045,7 +1053,7 @@ C
 C
 C              The highest file searched for body I is not in the file
 C              table.  This occurs when the highest file searched has
-C              been unloaded.  Note that this assigment makes all files
+C              been unloaded.  Note that this assignment makes all files
 C              appear to be "new" when a lookup for body I is performed.
 C
                BTHFS(I) = 0
@@ -1207,6 +1215,10 @@ C     R.E. Thurman    (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 4.1.2, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 4.1.1, 03-JAN-2014 (EDW)
 C
@@ -1481,6 +1493,10 @@ C     R.E. Thurman    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 4.2.2, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 4.2.1, 03-JAN-2014 (EDW)
 C
 C        Minor edits to Procedure; clean trailing whitespace.
@@ -1525,7 +1541,7 @@ C              'SEARCH W/O BUFFERING' block; it finds the start of a
 C              partial list that is to be freed.
 C
 C        The "re-use interval" feature was introduced to improve speed
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:
@@ -2053,7 +2069,7 @@ C           1) We can have a NEW BODY
 C
 C           2) We have checked the current list (CHECK LIST) for
 C              this body, didn't find an applicable segment and
-C              have some files left that have not been seached.
+C              have some files left that have not been searched.
 
             FINDEX = NFT
 

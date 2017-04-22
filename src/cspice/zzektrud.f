@@ -112,7 +112,7 @@ C         file, the error will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the input key is out of range, the error
-C         SPICE(INVALIDINDEX) is signalled.
+C         SPICE(INVALIDINDEX) is signaled.
 C
 C$ Files
 C
@@ -164,10 +164,15 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.1.0, 18-JUN-1999 (WLT)
 C
 C        Fixed calls to CHKIN and CHKOUT so that the same name
-C        is used throught the routine.
+C        is used throughout the routine.
 C
 C-    Beta Version 1.0.0, 20-OCT-1995 (NJB)
 C
@@ -220,7 +225,6 @@ C
       INTEGER               TOFFST
       INTEGER               TOTKEY
       INTEGER               TPAGE  ( PGSIZI )
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -245,11 +249,10 @@ C
       IF (  ( KEY .LT. 1 ) .OR. ( KEY .GT. TOTKEY)  ) THEN
  
          CALL CHKIN  ( 'ZZEKTRUD'                                )
-         CALL DASHLU ( HANDLE,  UNIT                             )
          CALL SETMSG ( 'Key = #. Valid range is 1:#.  File = #.' )
          CALL ERRINT ( '#',     KEY                              )
          CALL ERRINT ( '#',     TOTKEY                           )
-         CALL ERRFNM ( '#',     UNIT                             )
+         CALL ERRHAN ( '#',     HANDLE                           )
          CALL CHKOUT ( 'ZZEKTRUD'                                )
          RETURN
  
@@ -430,13 +433,12 @@ C
             IF ( TNKEYS .LT. MNKEYC ) THEN
  
                CALL CHKIN  ( 'ZZEKTRUD'                            )
-               CALL DASHLU ( HANDLE,  UNIT                         )
                CALL SETMSG ( 'Node = #. Tree = #. File = #. Key ' //
      .                       'count = #; max allowed, including ' //
      .                       'overflow, is #.'                     )
                CALL ERRINT ( '#',   TARGET                         )
                CALL ERRINT ( '#',   TREE                           )
-               CALL ERRFNM ( '#',   UNIT                           )
+               CALL ERRHAN ( '#',   HANDLE                         )
                CALL ERRINT ( '#',   TNKEYS                         )
                CALL ERRINT ( '#',   MXKEYC + 1                     )
                CALL SIGERR ( 'SPICE(BUG)'                          )
@@ -484,8 +486,7 @@ C           Write the target page back out.
 C
             CALL ZZEKPGWI ( HANDLE, TARGET, TPAGE )
  
- 
- 
+  
          ELSE
 C
 C           The node containing KEY is not a leaf node.  Therefore,
@@ -542,7 +543,6 @@ C
                TPAGE (TRDATC+KEYIDX)  =  LPAGE (TRDATC+PREV)
  
             END IF
- 
  
 C
 C           The keys and data pointers in the leaf must be shifted

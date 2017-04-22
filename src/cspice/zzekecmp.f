@@ -121,7 +121,7 @@ C         as described in this header section, no attempt is made to
 C         handle these errors.
 C
 C     4)  If the data type code in the input column descriptor is not
-C         recognized, the error SPICE(INVALIDDATATYPE) is signalled.
+C         recognized, the error SPICE(INVALIDDATATYPE) is signaled.
 C         The function value is EQ in this case.
 C
 C$ Files
@@ -141,7 +141,7 @@ C
 C$ Restrictions
 C
 C     1)  This routine must execute quickly.  Therefore, it checks in
-C         only if it detects an error.  If an error is signalled by a
+C         only if it detects an error.  If an error is signaled by a
 C         routine called by this routine, this routine will not appear
 C         in the SPICELIB traceback display.  Also, in the interest
 C         of speed, this routine does not test the value of the SPICELIB
@@ -163,6 +163,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    SPICELIB Version 1.1.0, 26-MAY-2010 (NJB)
 C
@@ -187,7 +192,6 @@ C
       INTEGER               IVAL   ( 2 )
       INTEGER               LHSTYP
       INTEGER               RHSTYP
-      INTEGER               UNIT
  
       LOGICAL               FOUND
       LOGICAL               NULL   ( 2 )
@@ -218,13 +222,11 @@ C
  
  
          IF ( .NOT. FOUND ) THEN
- 
-            CALL DASHLU ( HANS(1), UNIT )
- 
+  
             CALL CHKIN  ( 'ZZEKECMP'                                  )
             CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX = #. '//
      .                    'Column entry element was not found.'       )
-            CALL ERRFNM ( '#',  UNIT                                  )
+            CALL ERRHAN ( '#',  HANS(1)                               )
             CALL ERRINT ( '#',  CLDSCS(ORDIDX,1)                      )
             CALL ERRINT ( '#',  ROWS(1)                               )
             CALL ERRINT ( '#',  ELTS(1)                               )
@@ -243,12 +245,10 @@ C
  
             IF ( .NOT. FOUND ) THEN
  
-               CALL DASHLU ( HANS(2), UNIT )
- 
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(2)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,2)                    )
                CALL ERRINT ( '#',  ROWS(2)                             )
                CALL ERRINT ( '#',  ELTS(2)                             )
@@ -287,12 +287,10 @@ C
  
             IF ( .NOT. FOUND ) THEN
  
-               CALL DASHLU ( HANS(2), UNIT )
- 
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(2)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,2)                    )
                CALL ERRINT ( '#',  ROWS(2)                             )
                CALL ERRINT ( '#',  ELTS(2)                             )
@@ -349,12 +347,10 @@ C
  
          IF ( .NOT. FOUND ) THEN
  
-            CALL DASHLU ( HANS(1), UNIT )
- 
             CALL CHKIN  ( 'ZZEKECMP'                                  )
             CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX = #. '//
      .                    'Column entry element was not found.'       )
-            CALL ERRFNM ( '#',  UNIT                                  )
+            CALL ERRHAN ( '#',  HANS(1)                               )
             CALL ERRINT ( '#',  CLDSCS(ORDIDX,1)                      )
             CALL ERRINT ( '#',  ROWS(1)                               )
             CALL ERRINT ( '#',  ELTS(1)                               )
@@ -372,12 +368,10 @@ C
  
             IF ( .NOT. FOUND ) THEN
  
-               CALL DASHLU ( HANS(2), UNIT )
- 
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(2)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,2)                    )
                CALL ERRINT ( '#',  ROWS(2)                             )
                CALL ERRINT ( '#',  ELTS(2)                             )
@@ -417,12 +411,10 @@ C
  
             IF ( .NOT. FOUND ) THEN
  
-               CALL DASHLU ( HANS(2), UNIT )
- 
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(2)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,2)                    )
                CALL ERRINT ( '#',  ROWS(2)                             )
                CALL ERRINT ( '#',  ELTS(2)                             )
@@ -496,13 +488,11 @@ C
  
  
             IF ( .NOT. FOUND ) THEN
- 
-               CALL DASHLU ( HANS(I), UNIT )
- 
+  
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(I)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,I)                    )
                CALL ERRINT ( '#',  ROWS(I)                             )
                CALL ERRINT ( '#',  ELTS(I)                             )
@@ -568,12 +558,10 @@ C
  
             IF ( .NOT. FOUND ) THEN
  
-               CALL DASHLU ( HANS(I), UNIT )
- 
                CALL CHKIN  ( 'ZZEKECMP'                                )
                CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX  '  //
      .                       '= #.Column entry element was not found.' )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANS(I)                             )
                CALL ERRINT ( '#',  CLDSCS(ORDIDX,I)                    )
                CALL ERRINT ( '#',  ROWS(I)                             )
                CALL ERRINT ( '#',  ELTS(I)                             )

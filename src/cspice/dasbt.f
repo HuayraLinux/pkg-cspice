@@ -72,19 +72,15 @@ C$ Parameters
 C
 C      None.
 C
-C$ Files
-C
-C     See arguments BINFIL, XFRLUN.
-C
 C$ Exceptions
 C
 C     1)   If the binary DAS file specified by the filename BINFIL
 C          cannot be opened for read access, an appropriate error
-C          message will be signalled by a DAS file access routine that
+C          message will be signaled by a DAS file access routine that
 C          is called by this routine.
 C
 C     2)   If for some reason the DAS transfer file cannot be written
-C          to, the error SPICE(FILEWRITEFAILED) is signalled.
+C          to, the error SPICE(FILEWRITEFAILED) is signaled.
 C
 C     3)   If, for any reason, the DAS file cannot be read, a DAS file
 C          access routine will signal an error with appropriate error
@@ -98,9 +94,13 @@ C          binary DAS file BINFIL.
 C
 C     5)   If the values for the number of reserved records or the
 C          number of reserved characters in a DAS file is nonzero,
-C          the error SPICE(BADDASFILE) will be signalled. THIS ERROR
-C          IS SIGNALLED ONLY BECAUSE THE RESERVED RECORD AREA HAS
+C          the error SPICE(BADDASFILE) will be signaled. THIS ERROR
+C          IS SIGNALED ONLY BECAUSE THE RESERVED RECORD AREA HAS
 C          NOT YET BEEN IMPLEMENTED.
+C
+C$ Files
+C
+C     See arguments BINFIL, XFRLUN.
 C
 C$ Particulars
 C
@@ -159,6 +159,11 @@ C
 C     K.R. Gehringer  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 3.1.0, 05-FEB-1995 (NJB)
+C
+C        Updated to support integration with the handle manager
+C        subsystem.
 C
 C-    SPICELIB Version 3.0.0, 13-AUG-1994 (KRG)
 C
@@ -479,11 +484,11 @@ C        <EOF>
 C
 C     This routine will check the SPICELIB function FAILED() after
 C     each call, or consecutive sequence of calls, to data encoding
-C     routines, and if an error was signalled it will simply check out
+C     routines, and if an error was signaled it will simply check out
 C     and return to the caller.
 C
 C     This routine will check the SPICELIB function FAILED() after
-C     each DAS file access call, and if an error was signalled it will
+C     each DAS file access call, and if an error was signaled it will
 C     simply check out and return to the caller.
 C
 C     We begin by opening the binary DAS file specified by BINFIL for
@@ -512,7 +517,7 @@ C     Convert the DAS file handle into its equivalent Fortran logical
 C     unit. We need the logical unit so that we can read the reserved
 C     records and the comment records.
 C
-      CALL DASHLU ( HANDLE, DASLUN )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., DASLUN )
  
       IF ( FAILED() ) THEN
 C
@@ -896,7 +901,7 @@ C              We want to check failed here because were in a loop.
 C              We should exit the loop, and the routine, as soon as
 C              an error is detected, so we don't continue doing things
 C              for a long time. Attempt to close the binary DAS file
-C              that we opened and then returrn to the caller.
+C              that we opened and then return to the caller.
 C
                CALL DASCLS ( HANDLE  )
                CALL CHKOUT ( 'DASBT' )
@@ -1025,7 +1030,7 @@ C              We want to check failed here because were in a loop.
 C              We should exit the loop, and the routine, as soon as
 C              an error is detected, so we don't continue doing things
 C              for a long time. Attempt to close the binary DAS file
-C              that we opened and then returrn to the caller.
+C              that we opened and then return to the caller.
 C
                CALL DASCLS ( HANDLE  )
                CALL CHKOUT ( 'DASBT' )
@@ -1154,7 +1159,7 @@ C              We want to check failed here because were in a loop.
 C              We should exit the loop, and the routine, as soon as
 C              an error is detected, so we don't continue doing things
 C              for a long time. Attempt to close the binary DAS file
-C              that we opened and then returrn to the caller.
+C              that we opened and then return to the caller.
 C
                CALL DASCLS ( HANDLE  )
                CALL CHKOUT ( 'DASBT' )

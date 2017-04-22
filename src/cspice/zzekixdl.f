@@ -122,6 +122,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 10-OCT-1995 (NJB)
 C
 C-&
@@ -143,16 +148,15 @@ C
       INTEGER               IDXTYP
       INTEGER               RECNO
       INTEGER               TREE
-      INTEGER               UNIT
  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKIXDL' )
       END IF
+
+      CALL CHKIN ( 'ZZEKIXDL' )
  
  
       IDXTYP  =  COLDSC ( IXTIDX )
@@ -195,11 +199,10 @@ C        This routine should not have been called if the column in
 C        question is not indexed.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
  
          CALL SETMSG ( 'Column was not indexed. File = #; ' //
      .                 'RECNO = #; COLIDX = #.'              )
-         CALL ERRFNM ( '#',  UNIT                            )
+         CALL ERRHAN ( '#',  HANDLE                          )
          CALL ERRINT ( '#',  RECNO                           )
          CALL ERRINT ( '#',  COLDSC(ORDIDX)                  )
          CALL SIGERR ( 'SPICE(BUG)'                          )

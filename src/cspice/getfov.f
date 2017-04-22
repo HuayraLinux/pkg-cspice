@@ -1,4 +1,4 @@
-C$Procedure GETFOV ( Fetch instrument FOV parameters )
+C$Procedure GETFOV ( Get instrument FOV parameters )
  
       SUBROUTINE GETFOV ( INSTID,
      .                    ROOM,
@@ -10,8 +10,8 @@ C$Procedure GETFOV ( Fetch instrument FOV parameters )
  
 C$ Abstract
 C
-C     This subroutine returns the field-of-view (FOV) parameters for
-C     a specified instrument.
+C     Return the field-of-view (FOV) parameters for a specified
+C     instrument. The instrument is specified by its NAIF ID code.
 C
 C$ Disclaimer
 C
@@ -45,6 +45,7 @@ C
 C$ Keywords
 C
 C     INSTRUMENT
+C     FOV
 C
 C$ Declarations
  
@@ -105,15 +106,15 @@ C                case, the boresight points along the axis of symmetry
 C                of the rectangular pyramid.
 C
 C                If the value of SHAPE is 'CIRCLE' the field of view of
-C                the instrument is a circular cone about the boresight
-C                vector. The vertex of the cone is at the instrument
-C                focal point. A single vector will be returned in
-C                BOUNDS.  This vector will be parallel to a ray that
-C                lies in the cone that makes up the boundary of the
-C                field of view.
+C                the instrument is a circular cone centered on the
+C                boresight vector. The vertex of the cone is at the
+C                instrument focal point. A single vector will be
+C                returned in BOUNDS. This vector will be parallel to a
+C                ray that lies in the cone that makes up the boundary
+C                of the field of view.
 C
 C                If the value of SHAPE is 'ELLIPSE' the field of view
-C                of the instrument is a elliptical cone with the
+C                of the instrument is an elliptical cone with the
 C                boresight vector as the axis of the cone.  In this
 C                case two vectors are returned in BOUNDS. One of the
 C                vectors returned in BOUNDS points to the end of the
@@ -125,8 +126,16 @@ C
 C     FRAME      is the name of the reference frame in which the field
 C                of view boundary vectors are defined.
 C
-C     BSIGHT     is a vector that points in the direction of the
-C                center of the field of view.  The length of BSIGHT
+C     BSIGHT     is a vector representing the principal instrument view
+C                direction that can be
+C
+C                   -  the central pixel view direction,
+C                   -  the optical axis direction,
+C                   -  the FOV geometric center view direction,
+C                   -  an axis of the FOV frame,
+C
+C                or any other vector specified for this purpose
+C                in the IK FOV definition. The length of BSIGHT
 C                is not specified other than being non-zero.
 C
 C     N          is the number of boundary vectors returned.
@@ -136,6 +145,10 @@ C                the instrument field of view.  (See the discussion
 C                accompanying shape for an expansion of the term
 C                "corner of the field of view.")  Note that the vectors
 C                returned in BOUNDS are not necessarily unit vectors.
+C                Their magnitudes will be as set in the IK (for
+C                'CORNER'-style FOV specifications) or the same as the
+C                magnitude of the boresight (for 'ANGLES'-style FOV
+C                specifications.)
 C
 C$ Parameters
 C
@@ -145,79 +158,73 @@ C                specification cases. (see Particulars for further
 C                discussion).
 C$ Exceptions
 C
-C     1) The error SPICE(FRAMEMISSING) is signaled if the frame
-C        associated with the instrument can not be found in the kernel
-C        pool.
+C     1) If the frame associated with the instrument can not be found,
+C        the error SPICE(FRAMEMISSING) is signaled.
 C
-C     2) The error SPICE(SHAPEMISSING) is signaled if the shape of the
-C        instrument field of view can not be found in the kernel pool.
+C     2) If the SHAPE of the instrument field of view can not be found
+C        in the kernel pool, the error SPICE(SHAPEMISSING) is signaled
+C        signaled.
 C
-C     3) The error 'SPICE(SHAPENOTSUPPORTED)' is signaled if the shape
-C        specified by the instrument kernel is not one of the four
-C        values: 'CIRCLE', 'POLYGON', 'ELLIPSE', 'RECTANGLE'.   If the
-C        ANGLES specification is used it must be: 'CIRCLE', 'ELLIPSE',
-C        or 'RECTANGLE'.
+C     3) If the SHAPE specified by the instrument kernel is not one of
+C        the four values: 'CIRCLE', 'POLYGON', 'ELLIPSE', or
+C        'RECTANGLE', the error 'SPICE(SHAPENOTSUPPORTED)' is 
+C        signaled. If the ANGLES specification is used, SHAPE must be
+C        one of the three values: 'CIRCLE', 'ELLIPSE', or 'RECTANGLE'.
 C
-C     4) The error 'SPICE(BORESIGHTMISSING)' is signaled if
-C        the direction of the boresight cannot be located in the
-C        kernel pool.
+C     4) If the direction of the boresight cannot be located in the
+C        kernel pool, the error 'SPICE(BORESIGHTMISSING)' is signaled.
 C
-C     5) The error 'SPICE(BADBORESIGHTSPEC)' is signaled if
-C        the number of components for the boresight vector
-C        in the kernel pool is not 3.
+C     5) If the number of components for the boresight vector in the
+C        kernel pool is not 3, the error 'SPICE(BADBORESIGHTSPEC)' is 
+C        signaled.
 C
-C     6) The error 'SPICE(BOUNDARYMISSING)' is signaled if
-C        the boundary vectors for the edge of the field of view
-C        cannot be found in the kernel pool.
+C     6) If the ANGLES specification is not present in the kernel pool
+C        and the boundary vectors for the edge of the field of view
+C        cannot be found in the kernel pool, the error
+C        'SPICE(BOUNDARYMISSING)' is signaled. 
 C
-C     7) The error 'SPICE(BOUNDARYTOOBIG)' is signaled if there
-C        is insufficient room (as specified by the variable ROOM)
-C        to return all of the vectors associated with the boundary
-C        of the field of view.
+C     7) If there is insufficient room (as specified by the variable
+C        ROOM) to return all of the vectors associated with the
+C        boundary of the field of view, the error
+C        'SPICE(BOUNDARYTOOBIG)' is signaled.
 C
-C     8) The error 'SPICE(BADBOUNDARY)' is signaled if the number
-C        of components of vectors making up the field of view is
-C        not a multiple of 3.
+C     8) If the number of components of vectors making up the field of
+C        view is not a multiple of 3, the error 'SPICE(BADBOUNDARY)' is
+C        signaled. 
 C
-C     9) The error 'SPICE(BADBOUNDARY)' is signaled if the number
-C        of components of vectors making up the field of view is
-C        not compatible with the shape specified for the field of
-C        view.
+C     9) If the number of components of vectors making up the field of
+C        view is not compatible with the shape specified for the field
+C        of view, the error 'SPICE(BADBOUNDARY)' is signaled.
 C
-C    10) The error 'SPICE(REFVECTORMISSING)' is signaled if the
-C        reference vector for the ANGLES spec can not be found
-C        in the kernel pool.
+C    10) If the reference vector for the ANGLES specification can not be
+C        found in the kernel pool, the error 'SPICE(REFVECTORMISSING)'
+C        is signaled. 
 C
-C    11) The error 'SPICE(BADREFVECTORSPEC)' is signaled if the
-C        reference vector stored in the kernel pool to support
-C        the ANGLES spec contains an in correct number of components,
-C        contains 3 character components, or is parallel to the
-C        boresight.
+C    11) If the reference vector stored in the kernel pool to support
+C        the ANGLES specification contains an incorrect number of
+C        components, contains 3 character components, or is parallel to
+C        the boresight, the error 'SPICE(BADREFVECTORSPEC)' is signaled.
 C
-C    12) The error 'SPICE(REFANGLEMISSING)' is signaled if the
-C        reference angle stored in the kernel pool to support
-C        the ANGLES spec is absent from the kernel pool.
+C    12) If the ANGLES specification is present in the kernel pool and
+C        the reference angle stored in the kernel pool to support the
+C        ANGLES specification is absent from the kernel pool, the error 
+C        'SPICE(REFANGLEMISSING)' is signaled.
 C
-C    13) The error 'SPICE(UNITSMISSING)' is signaled if the
-C        keyword that stores the angular units for the angles
-C        used in the ANGLES spec is absent from the kernel pool.
+C    13) If the keyword that stores the angular units for the angles
+C        used in the ANGLES specification is absent from the kernel
+C        pool, the error 'SPICE(UNITSMISSING)' is signaled.
 C
-C    14) The error 'SPICE(CROSSANGLEMISSING)' is signaled if the
-C        keyword that stores the cross angle for the ANGLES spec
-C        is needed and is absent from the kernel pool.
+C    14) If the keyword that stores the cross angle for the ANGLES 
+C        specification is needed and is absent from the kernel pool, the
+C        error 'SPICE(CROSSANGLEMISSING)' is signaled.
 C
-C    15) The error 'SPICE(BADBOUNDARY)' is signaled if the angles
-C        for the RECTANGLE/ANGLES spec case have cosines that
-C        are less than those stored in the parameter MINCOS.
+C    15) If the angles for the RECTANGLE/ANGLES specification case have
+C        cosines that are less than those stored in the parameter 
+C        MICOS, the error 'SPICE(BADBOUNDARY)' is signaled.
 C
-C    16) The error 'SPICE(UNSUPPORTEDSPEC)' is signaled if the
-C        class specification contains something other than 'ANGLES'
-C        or 'CORNERS'.
-C
-C    17) In the event that the CLASS_SPEC keyword is absent from the
-C        kernel pool for the instrument whose FOV is sought, this
-C        module assumes the default CORNERS specification is to be
-C        utilized.
+C    16) If the class specification contains something other than
+C        'ANGLES' or 'CORNERS', the error 'SPICE(UNSUPPORTEDSPEC)' is
+C        signaled.
 C
 C$ Files
 C
@@ -227,14 +234,14 @@ C     routine.
 C
 C$ Particulars
 C
-C     This routine provides a common interface to retrieving
-C     the geometric characteristics of an instrument field of
-C     view for a wide variety of remote sensing instruments
+C     This routine provides a common interface for retrieving from the
+C     kernel pool the geometric characteristics of an instrument field
+C     of view for a wide variety of remote sensing instruments
 C     across many different space missions.
 C
 C     Given the NAIF instrument ID, (and having "loaded" the
 C     instrument field of view description via the routine FURNSH)
-C     this routine returns the bore-sight of the instrument, the
+C     this routine returns the boresight of the instrument, the
 C     "shape" of the field of view, a collection of vectors
 C     that point along the edges of the field of view, and the
 C     name of the reference frame in which these vectors are defined.
@@ -242,7 +249,7 @@ C
 C     Currently this routine supports two classes of specifications
 C     for FOV definitions: "corners" and "angles".
 C
-C     The "corners" specification requires the following keywords
+C     The "corners" specification requires that the following keywords
 C     defining the shape, boresight, boundary vectors, and reference
 C     frame of the FOV be provided in one of the text kernel files
 C     (normally an IK file) loaded into the kernel pool (in the
@@ -277,14 +284,20 @@ C        INS<INSTID>_FOV_BOUNDARY   or
 C        INS<INSTID>_FOV_BOUNDARY_CORNERS   must be set to one (for
 C                                           FOV_SHAPE = 'CIRCLE'), two
 C                                           (for FOV_SHAPE =
-C                                           'ELLIPSE'), three (for
+C                                           'ELLIPSE'), four (for
 C                                           FOV_SHAPE = 'RECTANGLE'),
 C                                           or three or more (for
 C                                           'POLYGON') 3D vectors
 C                                           defining the corners of the
 C                                           FOV in the FOV frame
 C                                           specified in the FOV_FRAME
-C                                           keyword.
+C                                           keyword. The vectors should
+C                                           be listed in either
+C                                           clockwise or 
+C                                           counterclockwise order.
+C                                           This is required by some
+C                                           SPICE routines that make
+C                                           use of FOV specifications.
 C
 C     The "angles" specification requires the following keywords
 C     defining the shape, boresight, reference vector, reference and
@@ -293,7 +306,7 @@ C     kernel files (normally an IK file) loaded into the kernel
 C     pool (in the keywords below <INSTID> is replaced with the
 C     instrument ID as passed into the module):
 C
-C        INS<INSTID>_FOV_CLASS_SPEC         must be set to  'ANGLES' to
+C        INS<INSTID>_FOV_CLASS_SPEC         must be set to 'ANGLES' to
 C                                           indicate the "angles"-class
 C                                           specification.
 C
@@ -330,7 +343,10 @@ C                                           FOV angular extent in the
 C                                           plane defined by the 
 C                                           boresight and the vector
 C                                           specified in the
-C                                           FOV_REF_VECTOR keyword.
+C                                           FOV_REF_VECTOR keyword. The
+C                                           the FOV angular half-extents
+C                                           are measured from the
+C                                           boresight vector. 
 C
 C        INS<INSTID>_FOV_CROSS_ANGLE        must be set to the angle
 C                                           that is 1/2 of the total
@@ -340,7 +356,10 @@ C                                           boresight and perpendicular
 C                                           to the plane defined by the
 C                                           boresight and the vector
 C                                           specified in the
-C                                           FOV_REF_VECTOR keyword.
+C                                           FOV_REF_VECTOR keyword. The
+C                                           the FOV angular half-extents
+C                                           are measured from the
+C                                           boresight vector. 
 C                                           This keyword is not
 C                                           required for FOV_SHAPE =
 C                                           'CIRCLE'.
@@ -360,6 +379,12 @@ C     software to further manipulate the vectors retrieved by this
 C     routine.
 C
 C$ Examples
+C
+C     The numerical results shown for this example may differ across 
+C     platforms. The results depend on the SPICE kernels used as input, 
+C     the compiler and supporting libraries, and the machine specific 
+C     arithmetic implementation. Note that output generated by FORTRAN 
+C     list-directed format statements (* format) is platform-dependent.
 C
 C     The example program in this section loads the IK file
 C     'example.ti' with the following contents defining four FOVs of
@@ -477,7 +502,8 @@ C        END DO
 C        
 C        END
 C
-C     The program produces the following output:
+C     When this program was executed on a PC/Linux/g77 platform, the
+C     output was:
 C
 C        --------------------------------------
 C        Instrument ID:  -999001
@@ -492,7 +518,7 @@ C            FOV shape: ELLIPSE
 C            FOV frame: SC999_INST002
 C        FOV boresight:   1.  0.  0.
 C          FOV corners:
-C                         1.  0.  0.01745506
+C                         1.  0.          0.01745506
 C                         1.  0.03492077  0.
 C        --------------------------------------
 C        Instrument ID:  -999003
@@ -508,19 +534,20 @@ C        --------------------------------------
 C        Instrument ID:  -999004
 C            FOV shape: POLYGON
 C            FOV frame: SC999_INST004
-C        FOV boresight:   0.  1.  0.
+C        FOV boresight:   0.   1.  0.
 C          FOV corners:
-C                         0.  0.8  0.5
+C                         0.   0.8  0.5
 C                         0.4  0.8 -0.2
 C                        -0.4  0.8 -0.2
 C        --------------------------------------
 C
 C$ Restrictions
 C
-C     An I-kernel for the instrument specified in INSTID must have been
+C     This routine will not operate unless an I-kernel for the 
+C     instrument with the NAIF ID specified in INSTID have been
 C     loaded via a call to FURNSH prior to calling this routine and
-C     must contain the specification for the instrument field of view
-C     consistent with the expectations of this routine.
+C     this IK contains the specification for the instrument field of 
+C     view consistent with the expectations of this routine.
 C
 C$ Literature_References
 C
@@ -528,13 +555,23 @@ C     None.
 C
 C$ Author_and_Institution
 C
-C     C.H. Acton   (JPL)
-C     N.J. Bachman (JPL)
-C     B.V. Semenov (JPL)
-C     W.L. Taber   (JPL)
-C     F.S. Turner  (JPL)
+C     C.H. Acton      (JPL)
+C     N.J. Bachman    (JPL)
+C     J. Diaz del Rio (ODC Space)
+C     B.V. Semenov    (JPL)
+C     W.L. Taber      (JPL)
+C     F.S. Turner     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.1.2  22-MAR-2017 (JDR) (BVS)
+C
+C        Header updates: made various header changes to make it 
+C        compliant with the SPICE standard header format; updated 
+C        BSIGHT description; added explanation of output boundary 
+C        vector magnitudes; made other minor header corrections.
+C
+C        Updated code to remove unnecessary lines.
 C
 C-    SPICELIB Version 2.1.1  05-FEB-2009 (BVS)
 C
@@ -585,6 +622,11 @@ C
 C-&
 
 C$ Revisions
+C
+C-    SPICELIB Version 2.2.0  09-SEP-2015 (JDR)
+C
+C        Updated to remove unnecessary lines of code in the SPICE
+C        error handling IF-THEN-ELSE statements
 C
 C-    SPICELIB Version 2.1.0  23-OCT-2005 (NJB) (BVS)
 C
@@ -716,9 +758,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'GETFOV' )
       END IF
+
+      CALL CHKIN ( 'GETFOV' )
  
       KWBOUN = 'INS#_FOV_BOUNDARY'
       KWBORE = 'INS#_BORESIGHT'

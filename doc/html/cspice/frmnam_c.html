@@ -231,7 +231,7 @@
  
       if ( <a href="iswhsp_c.html">iswhsp_c</a>(frname) )  
       { 
-         sprintf ( frname, &quot;%ld&quot;, frcode );
+         sprintf ( frname, &quot;%d&quot;, (int)frcode );
       }
 
       printf ( &quot;Concerning reference frame: %s\n&quot;, frname );
@@ -259,6 +259,11 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.3, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.2, 08-JAN-2014 (BVS) 
 
        Fixed typo in Examples (frname_c -&gt; <b>frmnam_c</b>). Reordered
@@ -284,7 +289,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:34 2014</pre>
+   <pre>Wed Apr  5 17:54:35 2017</pre>
 
 </body>
 </html>

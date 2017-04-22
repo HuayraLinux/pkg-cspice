@@ -42,6 +42,8 @@ C     EK
 C     PRIVATE
 C
 C$ Declarations
+
+      IMPLICIT NONE
  
       INCLUDE 'ekpage.inc'
       INCLUDE 'ektree.inc'
@@ -94,11 +96,11 @@ C         file, the error will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the input tree is not empty, the error SPICE(NONEMPTYTREE)
-C         is signalled.
+C         is signaled.
 C
 C     4)  If the depth of the tree needed to hold the number of values
 C         indicated by SIZE exceeds the maximum depth limit, the error
-C         SPICE(COUNTTOOLARGE) is signalled.
+C         SPICE(COUNTTOOLARGE) is signaled.
 C
 C$ Files
 C
@@ -140,6 +142,13 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 05-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN
+C
+C        Cleaned up use of unnecessary variables and unneeded
+C        declarations.
 C
 C-    Beta Version 1.1.0, 18-JUN-1999 (WLT)
 C
@@ -193,22 +202,20 @@ C
       INTEGER               STNEXT ( TRMXDP )
       INTEGER               STNKEY ( TRMXDP )
       INTEGER               STNODE ( TRMXDP )
-      INTEGER               STSBSZ ( TRMXDP )
       INTEGER               STNBAS ( TRMXDP )
       INTEGER               SUBD
       INTEGER               SUBSIZ
       INTEGER               TOTNOD
       INTEGER               TSIZE
-      INTEGER               UNIT
  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKTR1S' )
       END IF
+
+      CALL CHKIN ( 'ZZEKTR1S' )
  
 C
 C     Make sure the input tree is empty.
@@ -217,12 +224,10 @@ C
  
       IF ( TSIZE .GT. 0 ) THEN
  
-         CALL DASHLU (  HANDLE,  UNIT  )
- 
          CALL SETMSG ( 'Tree has size #; should be empty.' //
      .                 'EK = #; TREE = #.'                 )
          CALL ERRINT ( '#',  TSIZE                         )
-         CALL ERRFNM ( '#',  UNIT                          )
+         CALL ERRHAN ( '#',  HANDLE                        )
          CALL ERRINT ( '#',  TREE                          )
          CALL SIGERR ( 'SPICE(NONEMPTYTREE)'               )
          CALL CHKOUT ( 'ZZEKTR1S'                          )
@@ -304,13 +309,11 @@ C     If the tree must be deeper than we expected, we've a problem.
 C
       IF ( D .GT. TRMXDP ) THEN
  
-         CALL DASHLU (  HANDLE,  UNIT  )
- 
          CALL SETMSG ( 'Tree has depth #; max supported depth is #.' //
      .                 'EK = #; TREE = #.'                           )
          CALL ERRINT ( '#',  D                                       )
          CALL ERRINT ( '#',  TRMXDP                                  )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL ERRINT ( '#',  TREE                                    )
          CALL SIGERR ( 'SPICE(COUNTTOOLARGE)'                        )
          CALL CHKOUT ( 'ZZEKTR1S'                                    )
@@ -337,9 +340,6 @@ C
 C        Item                                 Stack Variable
 C        ----                                 ---------------
 C        Node number                          STNODE
-C
-C        Size, in keys, of the
-C        subtree headed by node               STSBSZ
 C
 C        Number of keys in node               STNKEY
 C
@@ -694,7 +694,6 @@ C
 C              Push our current state.
 C
                STNODE ( LEVEL )  = NODE
-               STSBSZ ( LEVEL )  = SUBSIZ
                STNKEY ( LEVEL )  = NKEYS
                STLSIZ ( LEVEL )  = BIGSIZ
                STNBIG ( LEVEL )  = NBIG

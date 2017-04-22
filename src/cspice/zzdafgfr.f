@@ -1,4 +1,4 @@
-C$Procedure ZZDAFGFR ( Private --- DAF Get Data Record )
+C$Procedure ZZDAFGFR ( Private --- DAF Get File Record )
  
       SUBROUTINE ZZDAFGFR ( HANDLE, IDWORD, ND,   NI,   IFNAME,
      .                      FWARD,  BWARD,  FREE, FOUND         )
@@ -113,13 +113,6 @@ C$ Parameters
 C
 C     None.
 C
-C$ Files
-C
-C     This routine reads data from the DAF associated with HANDLE.
-C     This action may result in connecting a logical unit to the
-C     file, if the handle manager has rotated the file out of the
-C     unit table.
-C
 C$ Exceptions
 C
 C     1) SPICE(HANDLENOTFOUND) is signaled if HANDLE can not be
@@ -129,6 +122,13 @@ C
 C     2) Routines in the call tree of this routine may trap and
 C        signal errors.  The output arguments are unmodified in
 C        these cases.
+C
+C$ Files
+C
+C     This routine reads data from the DAF associated with HANDLE.
+C     This action may result in connecting a logical unit to the
+C     file, if the handle manager has rotated the file out of the
+C     unit table.
 C
 C$ Particulars
 C
@@ -157,15 +157,20 @@ C        FOUND is returned as FALSE whenever an error occurs.  An
 C        incompletely translated or extracted file record is NOT
 C        FOUND.
 C
-C$ Author_and_Institution
-C
-C     F.S. Turner     (JPL)
-C
 C$ Literature_References
 C
 C     None.
 C
+C$ Author_and_Institution
+C
+C     F.S. Turner     (JPL)
+C
 C$ Version
+C
+C-    SPICELIB Version 1.0.1, 24-JUL-2014 (NJB)
+C
+C        Corrected typo in Procedure line of header.
+C        Re-ordered header sections.
 C
 C-    SPICELIB Version 1.0.0, 12-NOV-2001 (FST)
 C

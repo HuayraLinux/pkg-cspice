@@ -711,7 +711,7 @@
          {
             if ( i &lt; NCORNR )
             {
-               sprintf ( title, &quot;Corner vector %ld&quot;, i );
+               sprintf ( title, &quot;Corner vector %d&quot;, (int)i );
 
                <a href="vequ_c.html">vequ_c</a> ( bounds[i], dvec );
             }
@@ -971,6 +971,11 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.4, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.3, 19-MAY-2010 (BVS)
 
         Index line now states that this routine is deprecated.
@@ -1001,7 +1006,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:45 2014</pre>
+   <pre>Wed Apr  5 17:54:44 2017</pre>
 
 </body>
 </html>

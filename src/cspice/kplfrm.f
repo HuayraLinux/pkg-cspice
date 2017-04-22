@@ -404,6 +404,13 @@ C     N.J. Bachman    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 18-JUN-2015 (NJB)
+C
+C        Bug fix: previous algorithm failed if the number of frame
+C        names fetched from the kernel pool on a single call exceeded
+C        twice the kernel variable buffer size. The count of 
+C        fetched names is now maintained correctly.
+C
 C-    SPICELIB Version 1.0.0, 22-MAY-2012 (NJB)
 C
 C-&
@@ -450,6 +457,7 @@ C
       INTEGER               M
       INTEGER               N
       INTEGER               TO
+      INTEGER               TOTAL
       INTEGER               W
 
       LOGICAL               FOUND
@@ -508,7 +516,12 @@ C
       
       CALL GNPOOL ( KVTEMP, 1, BUFSIZ, N, KVBUFF, FOUND )
 
+      TOTAL = 0
+
       DO WHILE ( N .GT. 0 )
+
+         TOTAL = TOTAL + N
+
 C
 C        At least one kernel variable was found by the last
 C        GNPOOL call. Each of these variables is a possible
@@ -660,7 +673,7 @@ C        frame names.
 C
 C        Fetch next batch of potential frame names.
 C
-         CALL GNPOOL ( KVTEMP, N+1, BUFSIZ, N, KVBUFF, FOUND )
+         CALL GNPOOL ( KVTEMP, TOTAL+1, BUFSIZ, N, KVBUFF, FOUND )
 
       END DO
 C

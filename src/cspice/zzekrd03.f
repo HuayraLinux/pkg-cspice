@@ -156,6 +156,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.4.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Bug fix: changed max column index in long error
+C        message from NREC to NCOLS.
+C
 C-    SPICELIB Version 1.3.0, 31-MAY-2010 (NJB)
 C
 C        Bug fix: call to DASRDI was overwriting local memory. This
@@ -230,13 +238,11 @@ C
       INTEGER               L
       INTEGER               N
       INTEGER               NCOLS
-      INTEGER               NREC
       INTEGER               P
       INTEGER               PBASE
       INTEGER               RELPTR
       INTEGER               PTRLOC
       INTEGER               RECNO
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -249,16 +255,15 @@ C
       IF (  ( COLIDX .LT. 1 ) .OR. ( COLIDX .GT. NCOLS )  ) THEN
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
- 
+
          CALL CHKIN  ( 'ZZEKRD03'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' //
      .                 'SEGNO = #; RECNO = #; EK = #'          )
          CALL ERRINT ( '#',  COLIDX                            )
-         CALL ERRINT ( '#',  NREC                              )
+         CALL ERRINT ( '#',  NCOLS                             )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                    )
          CALL ERRINT ( '#',  RECNO                             )
-         CALL ERRFNM ( '#',  UNIT                              )
+         CALL ERRHAN ( '#',  HANDLE                            )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKRD03'                              )
          RETURN
@@ -359,8 +364,8 @@ C
 C        The data value is absent.  This is an error.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU   (  HANDLE,  UNIT           )
-         CALL ZZEKCNAM ( HANDLE,   COLDSC, COLUMN )  
+
+         CALL ZZEKCNAM ( HANDLE, COLDSC, COLUMN )  
  
          CALL CHKIN  ( 'ZZEKRD03'                                    )
          CALL SETMSG ( 'Attempted to read uninitialized column '    //
@@ -369,7 +374,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                          )
          CALL ERRCH  ( '#',  COLUMN                                  )
          CALL ERRINT ( '#',  RECNO                                   )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL SIGERR ( 'SPICE(UNINITIALIZED)'                        )
          CALL CHKOUT ( 'ZZEKRD03'                                    )
          RETURN
@@ -380,7 +385,7 @@ C
 C        The data pointer is corrupted.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU   (  HANDLE,  UNIT           )
+
          CALL ZZEKCNAM ( HANDLE,   COLDSC, COLUMN )  
  
          CALL CHKIN  ( 'ZZEKRD03'                                )
@@ -389,7 +394,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                      )
          CALL ERRCH  ( '#',  COLUMN                              )
          CALL ERRINT ( '#',  RECNO                               )
-         CALL ERRFNM ( '#',  UNIT                                )
+         CALL ERRHAN ( '#',  HANDLE                              )
          CALL SIGERR ( 'SPICE(BUG)'                              )
          CALL CHKOUT ( 'ZZEKRD03'                                )
          RETURN

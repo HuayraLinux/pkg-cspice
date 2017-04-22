@@ -246,6 +246,11 @@ C     W.L. Taber     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 19-APR-2016 (NJB)
+C
+C        Re-implemented ellipsoid surface point computation
+C        using EDPNT.
+C
 C-    SPICELIB Version 1.1.0, 03-NOV-2005 (NJB)
 C
 C        Call to BODVAR was replaced with call to BODVCD.
@@ -265,7 +270,7 @@ C-&
  
 C$ Index_Entries
 C
-C     convert bodyfixed latitudinal coordinates to rectangular
+C     convert body-fixed latitudinal coordinates to rectangular
 C     convert surface latitudinal coordinates to rectangular
 C     surface point latitudinal coordinates to rectangular
 C
@@ -280,34 +285,19 @@ C
 C
 C     Local variables
 C
-      DOUBLE PRECISION      ORIGIN ( 3 )
       DOUBLE PRECISION      RADII  ( 3 )
       DOUBLE PRECISION      UVEC   ( 3 )
  
       INTEGER               N
- 
-      LOGICAL               FOUND
- 
-C
-C     Saved variables
-C
-      SAVE                  ORIGIN
- 
-C
-C     Initial values
-C
-      DATA                  ORIGIN / 3 * 0.D0 /
- 
- 
- 
+  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'SRFREC' )
       END IF
+
+      CALL CHKIN ( 'SRFREC' )
  
 C
 C     Look up the body's radii.
@@ -324,18 +314,8 @@ C
 C     Find out where the ray defined by this vector intersects the
 C     surface.  This intercept is the point we're looking for.
 C
-      CALL SURFPT ( ORIGIN,
-     .              UVEC,
-     .              RADII(1),
-     .              RADII(2),
-     .              RADII(3),
-     .              RECTAN,
-     .              FOUND     )
- 
-C
-C     You can't miss the surface if you're riding a ray out from the
-C     origin, so we don't check the FOUND flag.
-C
+      CALL EDPNT ( UVEC, RADII(1), RADII(2), RADII(3), RECTAN )
+
       CALL CHKOUT ( 'SRFREC' )
       RETURN
       END

@@ -99,7 +99,8 @@ C               accommodated by this set of routines.
 C     
 C
 C     MAXFIL    is the number of entries that can be stored in KEEPER's
-C               kernel database.  Each time a kernel is loaded via
+C               kernel database. In this version of the toolkit MAXFIL 
+C               is set to 5300. Each time a kernel is loaded via
 C               FURNSH, a database entry is created for that kernel.
 C               If a meta-kernel is loaded, a database entry is created
 C               for the meta-kernel itself and for all files referenced
@@ -121,15 +122,13 @@ C               have their own limits on the maximum number of kernels
 C               that may be loaded.
 C
 C               The total number of DAF-based files (this set includes
-C               SPKs, CKs, and binary PCKs) that may be loaded at any
-C               time may not exceed 1000.  This limit applies whether
+C               SPKs, CKs, and binary PCKs) and DAS-based files (this
+C               set includes EKs and DSKs) that may be loaded at any
+C               time may not exceed 5000.  This limit applies whether
 C               the files are loaded via FURNSH or lower-level loaders
 C               such as SPKLEF or DAFOPR.  File access performance
 C               normally will degrade as the number of loaded kernels
 C               increases.
-C
-C               The total number of DAS-based files that may be loaded
-C               at any time is currently limited to 20 files.
 C
 C$ Exceptions
 C
@@ -249,8 +248,21 @@ C     C.H. Acton      (JPL)
 C     N.J. Bachman    (JPL)
 C     W.L. Taber      (JPL)
 C     B.V. Semenov    (JPL)
+C     E.D. Wright     (JPL)   
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Bug fix: now unloads binary kernels via low-level 
+C        unload routines only when those kernels have just
+C        one entry in the KEEPER database.
+C
+C        Updated description of MAXFIL in the header.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 4.1.0, 01-JUL-2014 (NJB) (BVS)
 C
@@ -436,6 +448,7 @@ C
       INTEGER               N1
       INTEGER               N2
       INTEGER               N3
+      INTEGER               NMULT
       INTEGER               NPATHS
       INTEGER               NPVALS
       INTEGER               R
@@ -446,11 +459,13 @@ C
  
       LOGICAL               ADD
       LOGICAL               DIDCK
+      LOGICAL               DIDDSK
       LOGICAL               DIDEK
       LOGICAL               DIDPCK
       LOGICAL               DIDSPK
       LOGICAL               DIDTXT
       LOGICAL               DOCK
+      LOGICAL               DODSK
       LOGICAL               DOEK
       LOGICAL               DOMETA
       LOGICAL               DOPCK
@@ -463,6 +478,7 @@ C
       LOGICAL               GOTIT
       LOGICAL               OK
       LOGICAL               PATHS
+      LOGICAL               SINGLE
       LOGICAL               UPDATE
  
 
@@ -627,7 +643,8 @@ C     FILSIZ    is the maximum file name length that can be
 C               accommodated by this routine.
 C
 C     MAXFIL    is the number of entries that can be stored in KEEPER's
-C               kernel database.  Each time a kernel is loaded via
+C               kernel database. In this version of the toolkit MAXFIL 
+C               is set to 5300. Each time a kernel is loaded via
 C               FURNSH, a database entry is created for that kernel.
 C               If a meta-kernel is loaded, a database entry is created
 C               for the meta-kernel itself and for all files referenced
@@ -649,15 +666,13 @@ C               have their own limits on the maximum number of kernels
 C               that may be loaded.
 C
 C               The total number of DAF-based files (this set includes
-C               SPKs, CKs, and binary PCKs) that may be loaded at any
-C               time may not exceed 1000.  This limit applies whether
+C               SPKs, CKs, and binary PCKs) and DAS-based files (this
+C               set includes EKs and DSKs) that may be loaded at any
+C               time may not exceed 5000.  This limit applies whether
 C               the files are loaded via FURNSH or lower-level loaders
 C               such as SPKLEF or DAFOPR.  File access performance
 C               normally will degrade as the number of loaded kernels
 C               increases.
-C
-C               The total number of DAS-based files that may be loaded
-C               at any time is currently limited to 20 files.
 C
 C$ Exceptions
 C
@@ -893,10 +908,19 @@ C$ Author_and_Institution
 C
 C     C.H. Acton      (JPL)
 C     N.J. Bachman    (JPL)
-C     W.L. Taber      (JPL)
 C     B.V. Semenov    (JPL)
+C     W.L. Taber      (JPL)
+C     E.D. Wright     (JPL)   
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Updated description of MAXFIL in the header.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 4.1.0, 01-JUL-2014 (NJB) (BVS)
 C
@@ -1422,6 +1446,7 @@ C                   SPK  --- all SPK files are counted in the total.
 C                   CK   --- all CK files are counted in the total.
 C                   PCK  --- all binary PCK files are counted in the
 C                            total.
+C                   DSK  --- all DSK files are counted in the total.
 C                   EK   --- all EK files are counted in the total.
 C                   TEXT --- all text kernels that are not meta-text
 C                            kernels are included in the total.
@@ -1509,9 +1534,16 @@ C
 C$ Author_and_Institution
 C
 C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 1.1.0, 02-APR-2009 (NJB)
 C
@@ -1539,6 +1571,7 @@ C     Parse KIND to see which kernels are of interest.
 C
       DOSPK  = .FALSE.
       DOCK   = .FALSE.
+      DODSK  = .FALSE.
       DOTEXT = .FALSE.
       DOMETA = .FALSE.
       DOEK   = .FALSE.
@@ -1556,6 +1589,7 @@ C
             RETURN
          ELSE
             DOCK   = DOCK   .OR. EQSTR ( KIND(B:E), 'CK' )
+            DODSK  = DODSK  .OR. EQSTR ( KIND(B:E), 'DSK' )
             DOEK   = DOEK   .OR. EQSTR ( KIND(B:E), 'EK' )
             DOMETA = DOMETA .OR. EQSTR ( KIND(B:E), 'META' )
             DOPCK  = DOPCK  .OR. EQSTR ( KIND(B:E), 'PCK' )
@@ -1574,6 +1608,7 @@ C
       DO I = 1, LOADED
  
          ADD =      ( TYPES(I) .EQ. 'CK'   .AND. DOCK   )
+     .         .OR. ( TYPES(I) .EQ. 'DSK'  .AND. DODSK  )
      .         .OR. ( TYPES(I) .EQ. 'EK'   .AND. DOEK   )
      .         .OR. ( TYPES(I) .EQ. 'META' .AND. DOMETA )
      .         .OR. ( TYPES(I) .EQ. 'PCK'  .AND. DOPCK  )
@@ -1669,6 +1704,7 @@ C                given below.
 C
 C                   SPK  --- All SPK files are counted in the total.
 C                   CK   --- All CK files are counted in the total.
+C                   DSK  --- All DSK files are counted in the total.
 C                   PCK  --- All binary PCK files are counted in the
 C                            total.
 C                   EK   --- All EK files are counted in the total.
@@ -1766,9 +1802,17 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 1.1.0, 02-APR-2009 (NJB)
 C
@@ -1803,6 +1847,7 @@ C     Parse KIND to see which kernels are of interest.
 C
       DOSPK  = .FALSE.
       DOCK   = .FALSE.
+      DODSK  = .FALSE.
       DOTEXT = .FALSE.
       DOMETA = .FALSE.
       DOEK   = .FALSE.
@@ -1829,6 +1874,7 @@ C
  
          ELSE
             DOCK   = DOCK   .OR. EQSTR ( KIND(B:E), 'CK' )
+            DODSK  = DODSK  .OR. EQSTR ( KIND(B:E), 'DSK' )
             DOEK   = DOEK   .OR. EQSTR ( KIND(B:E), 'EK' )
             DOMETA = DOMETA .OR. EQSTR ( KIND(B:E), 'META' )
             DOPCK  = DOPCK  .OR. EQSTR ( KIND(B:E), 'PCK' )
@@ -1850,6 +1896,7 @@ C
       DO I = 1, LOADED
  
          ADD =      ( TYPES(I) .EQ. 'CK'   .AND. DOCK   )
+     .         .OR. ( TYPES(I) .EQ. 'DSK'  .AND. DODSK  )
      .         .OR. ( TYPES(I) .EQ. 'EK'   .AND. DOEK   )
      .         .OR. ( TYPES(I) .EQ. 'META' .AND. DOMETA )
      .         .OR. ( TYPES(I) .EQ. 'PCK'  .AND. DOPCK  )
@@ -2058,9 +2105,17 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 1.0.0, 01-JUL-1999 (WLT)
 C
@@ -2222,8 +2277,16 @@ C
 C$ Author_and_Institution
 C
 C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
+C     E.D. Wright     (JPL)   
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Updated the Author_and_Institution section.
 C
 C-    SPICELIB Version 1.0.1, 01-JUL-2014 (NJB) (EDW)
 C
@@ -2274,8 +2337,12 @@ C
             CALL PCKUOF ( HANDLS(I) )
 
          ELSE IF ( TYPES(I) .EQ. 'EK' ) THEN
-
+ 
             CALL EKUEF ( HANDLS(I) )
+
+         ELSE IF ( TYPES(I) .EQ. 'DSK' ) THEN
+ 
+            CALL ZZDSKUSF ( HANDLS(I) )
 
          END IF
 
@@ -2597,11 +2664,23 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C
 C$ Version
 C
-C-    SPICELIB Version 3.0.1 01-JUL-2014(NJB)
+C-    SPICELIB Version 5.0.0, 01-FEB-2017 (NJB) (BVS)
+C
+C        Updated to support use of DSKs.
+C
+C        Bug fix: now unloads binary kernels via low-level 
+C        unload routines only when those kernels have just
+C        one entry in the KEEPER database.
+C
+C        Updated the Author_and_Institution section.
+C
+C-    SPICELIB Version 3.0.1, 01-JUL-2014 (NJB)
 C
 C        Updated discussion of kernel variable watchers.
 C
@@ -2642,8 +2721,10 @@ C-&
       DIDPCK = .FALSE.
       DIDCK  = .FALSE.
       DIDEK  = .FALSE.
+      DIDDSK = .FALSE.
       DIDTXT = .FALSE.
- 
+
+
 C
 C     First locate the file we need to unload, we search backward
 C     through the list of loaded files so that we unload in the right
@@ -2674,21 +2755,97 @@ C
 C     We need to know what type of file we've got so that we
 C     can take the correct "unload" action.
 C
+C     If the kernel to be unloaded is binary, found out how
+C     many instances of it are present in the database.
+C
+C     We take advantage of the fact that all binary kernels 
+C     use the handle manager subsystem: handles are unique
+C     across all file types. We don't need to rely on file
+C     names.
+C
+      IF (    ( TYPES(I) .EQ. 'SPK' ) 
+     .    .OR.( TYPES(I) .EQ. 'CK'  ) 
+     .    .OR.( TYPES(I) .EQ. 'DSK' ) 
+     .    .OR.( TYPES(I) .EQ. 'EK'  ) 
+     .    .OR.( TYPES(I) .EQ. 'PCK' ) ) THEN
+C
+C        Count the occurrences of the file in the database.
+C        Stop if we reach two occurrences.
+C
+         NMULT = 0
+         J     = 1
+
+         DO WHILE ( ( J .LE. LOADED ) .AND. ( NMULT .LT. 2 ) )
+
+            IF ( HANDLS(J) .EQ. HANDLS(I) ) THEN
+C
+C              To be safe, make sure we're not looking at 
+C              a text kernel with a random, matching handle
+C              value.
+C
+               IF (      ( TYPES(J) .NE. 'TEXT' ) 
+     .             .AND. ( TYPES(J) .NE. 'META' ) ) THEN
+
+                  NMULT = NMULT + 1
+
+               END IF
+
+            END IF
+            
+            J = J + 1
+
+         END DO
+      
+         SINGLE = NMULT .EQ. 1
+
+      END IF
+
+
       IF (      TYPES(I) .EQ. 'SPK' ) THEN
-         CALL SPKUEF ( HANDLS(I) )
+         
+         IF ( SINGLE ) THEN
+            CALL SPKUEF ( HANDLS(I) )
+         END IF
+
          DIDSPK = .TRUE.
+
       ELSE IF ( TYPES(I) .EQ. 'CK' ) THEN
-         CALL CKUPF ( HANDLS(I) )
+
+         IF ( SINGLE ) THEN
+            CALL CKUPF ( HANDLS(I) )
+         END IF
+
          DIDCK = .TRUE.
+
+      ELSE IF ( TYPES(I) .EQ. 'DSK' ) THEN
+
+         IF ( SINGLE ) THEN
+            CALL ZZDSKUSF ( HANDLS(I) )
+         END IF
+
+         DIDDSK = .TRUE.
+
       ELSE IF ( TYPES(I) .EQ. 'PCK' ) THEN
-         CALL PCKUOF ( HANDLS(I) )
+
+         IF ( SINGLE ) THEN
+            CALL PCKUOF ( HANDLS(I) )
+         END IF
+
          DIDPCK = .TRUE.
+
       ELSE IF ( TYPES(I) .EQ. 'EK' ) THEN
-         CALL EKUEF ( HANDLS(I) )
+
+         IF ( SINGLE ) THEN
+            CALL EKUEF ( HANDLS(I) )
+         END IF
+
          DIDEK = .TRUE.
+
       ELSE IF ( TYPES(I) .EQ. 'TEXT' ) THEN
+
          CALL CLPOOL
          DIDTXT = .TRUE.
+
       ELSE IF ( TYPES(I) .EQ. 'META' ) THEN
 C
 C        This is a special case, we need to undo the effect of loading
@@ -2708,18 +2865,91 @@ C              We only need to unload the binary kernels as we
 C              will get rid of all text kernels by clearing the
 C              kernel pool.
 C
-               IF (      TYPES(J) .EQ. 'SPK' ) THEN
-                  CALL SPKUEF ( HANDLS(J) )
+C              See whether the file we're about to process is
+C              binary, and if so, count the number of times
+C              it appears in the database. We have to repeat
+C              this test on each loop pass, since the count
+C              may have changed since the last pass.
+C              
+               IF (     ( TYPES(J) .EQ. 'SPK' ) 
+     .             .OR. ( TYPES(J) .EQ. 'CK'  ) 
+     .             .OR. ( TYPES(J) .EQ. 'DSK' ) 
+     .             .OR. ( TYPES(J) .EQ. 'EK'  ) 
+     .             .OR. ( TYPES(J) .EQ. 'PCK' ) ) THEN
+C
+C                 Count the occurrences of the file in the database.
+C                 Stop if we reach two occurrences.
+C
+                  NMULT = 0
+                  K     = 1
+
+                  DO WHILE (      ( K     .LE. LOADED ) 
+     .                      .AND. ( NMULT .LT. 2      ) )
+
+                     IF ( HANDLS(K) .EQ. HANDLS(J) ) THEN
+C
+C                       To be safe, make sure we're not looking at a
+C                       text kernel with a random, matching handle
+C                       value.
+C
+                        IF (     ( TYPES(K) .NE. 'TEXT' ) 
+     .                     .AND. ( TYPES(K) .NE. 'META' ) ) THEN
+
+                           NMULT = NMULT + 1
+
+                        END IF
+
+                     END IF
+ 
+                     K = K + 1
+
+                  END DO            
+      
+                  SINGLE = NMULT .EQ. 1
+
+               END IF
+
+
+               IF ( TYPES(J) .EQ. 'SPK' ) THEN
+
+                  IF ( SINGLE ) THEN
+                     CALL SPKUEF ( HANDLS(J) )
+                  END IF
+
                   DIDSPK = .TRUE.
+
                ELSE IF ( TYPES(J) .EQ. 'CK' ) THEN
-                  CALL CKUPF ( HANDLS(J) )
+
+                  IF ( SINGLE ) THEN
+                     CALL CKUPF ( HANDLS(J) )
+                  END IF
+           
                   DIDCK = .TRUE.
+
+               ELSE IF ( TYPES(J) .EQ. 'DSK' ) THEN
+
+                  IF ( SINGLE ) THEN
+                     CALL ZZDSKUSF ( HANDLS(J) )
+                  END IF
+
+                  DIDDSK = .TRUE.
+
                ELSE IF ( TYPES(J) .EQ. 'PCK' ) THEN
-                  CALL PCKUOF ( HANDLS(J) )
+
+                  IF ( SINGLE ) THEN
+                     CALL PCKUOF ( HANDLS(J) )
+                  END IF
+
                   DIDPCK = .TRUE.
+
                ELSE IF ( TYPES(J) .EQ. 'EK' ) THEN
-                  CALL EKUEF ( HANDLS(J) )
+
+                  IF ( SINGLE ) THEN
+                     CALL EKUEF ( HANDLS(J) )
+                  END IF
+
                   DIDEK = .TRUE.
+
                END IF
  
                N1 = LOADED
@@ -2845,6 +3075,21 @@ C
          DO I = 1, LOADED
             IF ( TYPES(I) .EQ. 'CK' ) THEN
                CALL CKLPF ( FILES(I), HANDLS(I) )
+            END IF
+         END DO
+ 
+      END IF
+
+C
+C     If any DSK files were unloaded, we need to reload the remaining
+C     ones to make sure that we have the correct priorities for the
+C     remaining DSKs.
+C
+      IF ( DIDDSK ) THEN
+ 
+         DO I = 1, LOADED
+            IF ( TYPES(I) .EQ. 'DSK' ) THEN
+               CALL ZZDSKLSF ( FILES(I), HANDLS(I) )
             END IF
          END DO
  

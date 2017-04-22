@@ -110,10 +110,10 @@ C         file, the error will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the input key is out of range, the error
-C         SPICE(INVALIDINDEX) is signalled.
+C         SPICE(INVALIDINDEX) is signaled.
 C
 C     4)  If the attempted insertion causes overflow in the target node
-C         by more than 1 key, the error SPICE(NODETOOFULL) is signalled.
+C         by more than 1 key, the error SPICE(NODETOOFULL) is signaled.
 C
 C$ Files
 C
@@ -157,9 +157,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.1.0, 18-JUN-1999 (WLT)
 C
-C        Removed redunant calls to CHKIN.
+C        Removed redundant calls to CHKIN.
 C
 C-    Beta Version 1.0.0, 20-OCT-1995 (NJB)
 C
@@ -211,7 +216,6 @@ C
       INTEGER               TOFFST
       INTEGER               TOTKEY
       INTEGER               TPAGE  ( PGSIZI )
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -236,11 +240,10 @@ C
       IF (  ( KEY .LT. 1 ) .OR. ( KEY .GT. TOTKEY+1 )  ) THEN
  
          CALL CHKIN  ( 'ZZEKTRUI'                                )
-         CALL DASHLU ( HANDLE,  UNIT                             )
          CALL SETMSG ( 'Key = #. Valid range is 1:#.  File = #.' )
          CALL ERRINT ( '#',     KEY                              )
          CALL ERRINT ( '#',     TOTKEY+1                         )
-         CALL ERRFNM ( '#',     UNIT                             )
+         CALL ERRHAN ( '#',     HANDLE                           )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                     )
          CALL CHKOUT ( 'ZZEKTRUI'                                )
          RETURN
@@ -413,13 +416,12 @@ C
             IF ( TNKEYS .GT. MXKEYC ) THEN
  
                CALL CHKIN  ( 'ZZEKTRUI'                            )
-               CALL DASHLU ( HANDLE,  UNIT                         )
                CALL SETMSG ( 'Node = #. Tree = #. File = #. Key ' //
      .                       'count = #; max allowed, including ' //
      .                       'overflow, is #.'                     )
                CALL ERRINT ( '#',   TARGET                         )
                CALL ERRINT ( '#',   TREE                           )
-               CALL ERRFNM ( '#',   UNIT                           )
+               CALL ERRHAN ( '#',   HANDLE                         )
                CALL ERRINT ( '#',   TNKEYS                         )
                CALL ERRINT ( '#',   MXKEYC + 1                     )
                CALL SIGERR ( 'SPICE(NODETOOFULL)'                  )
@@ -494,13 +496,12 @@ C
             IF ( TNKEYS .GT. MXKEYC + 1 ) THEN
  
                CALL CHKIN  ( 'ZZEKTRUI'                            )
-               CALL DASHLU ( HANDLE,  UNIT                         )
                CALL SETMSG ( 'Node = #. Tree = #. File = #. Key ' //
      .                       'count = #; max allowed, including ' //
      .                       'overflow, is #.'                     )
                CALL ERRINT ( '#',   TARGET                         )
                CALL ERRINT ( '#',   TREE                           )
-               CALL ERRFNM ( '#',   UNIT                           )
+               CALL ERRHAN ( '#',   HANDLE                         )
                CALL ERRINT ( '#',   TNKEYS                         )
                CALL ERRINT ( '#',   MXKEYC + 1                     )
                CALL SIGERR ( 'SPICE(NODETOOFULL)'                  )

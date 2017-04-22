@@ -339,283 +339,283 @@ C         Each difference whose magnitude exceeds a specified tolerance
 C         is flagged. The difference information is written to a file.
 C
 C
-C                  PROGRAM CMPDAF
+C           PROGRAM CMPDAF
+C           IMPLICIT NONE
+C     C
+C     C     Compare data in two DAFs having identical structures.
+C     C     No array in either DAF is longer than ARRYSZ d.p.
+C     C     numbers.
+C     C
 C
-C            C
-C            C     Compare data in two DAFs having identical structures.
-C            C     No array in either DAF is longer than ARRYSZ d.p.
-C            C     numbers.
-C            C
+C     C
+C     C     Local parameters
+C     C
+C           INTEGER               ARRYSZ
+C           PARAMETER           ( ARRYSZ = 10000000 )
 C
-C            C
-C            C     Local parameters
-C            C
-C                  INTEGER               ARRYSZ
-C                  PARAMETER           ( ARRYSZ = 1000 )
+C           INTEGER               ERRLEN
+C           PARAMETER           ( ERRLEN =  240 )
 C
-C                  INTEGER               ERRLEN
-C                  PARAMETER           ( ERRLEN =  240 )
+C           INTEGER               FILEN
+C           PARAMETER           ( FILEN  =  128 )
 C
-C                  INTEGER               FILEN
-C                  PARAMETER           ( FILEN  =  128 )
+C           INTEGER               LINLEN
+C           PARAMETER           ( LINLEN =   80 )
 C
-C                  INTEGER               LINLEN
-C                  PARAMETER           ( LINLEN =   80 )
+C           INTEGER               MAXND
+C           PARAMETER           ( MAXND  =  125 )
 C
-C                  INTEGER               MAXND
-C                  PARAMETER           ( MAXND  =  125 )
+C           INTEGER               MAXNI
+C           PARAMETER           ( MAXNI  =  250 )
 C
-C                  INTEGER               MAXNI
-C                  PARAMETER           ( MAXNI  =  250 )
+C           INTEGER               MAXSUM
+C           PARAMETER           ( MAXSUM =  128 )
 C
-C                  INTEGER               MAXSUM
-C                  PARAMETER           ( MAXSUM =  128 )
-C
-C                  INTEGER               RLEN
-C                  PARAMETER           ( RLEN   = 1000 )
+C           INTEGER               RLEN
+C           PARAMETER           ( RLEN   = 1000 )
 C
 C
-C            C
-C            C     Local variables
-C            C
-C                  CHARACTER*(RLEN)      ANAME1
-C                  CHARACTER*(RLEN)      ANAME2
-C                  CHARACTER*(FILEN)     DAF1
-C                  CHARACTER*(FILEN)     DAF2
-C                  CHARACTER*(FILEN)     LOG
-C                  CHARACTER*(ERRLEN)    PRSERR
-C                  CHARACTER*(LINLEN)    STR
-C                  CHARACTER*(LINLEN)    TOLCH
+C     C
+C     C     Local variables
+C     C
+C           CHARACTER*(RLEN)      ANAME1
+C           CHARACTER*(RLEN)      ANAME2
+C           CHARACTER*(FILEN)     DAF1
+C           CHARACTER*(FILEN)     DAF2
+C           CHARACTER*(FILEN)     LOG
+C           CHARACTER*(ERRLEN)    PRSERR
+C           CHARACTER*(LINLEN)    STR
+C           CHARACTER*(LINLEN)    TOLCH
 C
-C                  DOUBLE PRECISION      ARRAY1 ( ARRYSZ )
-C                  DOUBLE PRECISION      ARRAY2 ( ARRYSZ )
-C                  DOUBLE PRECISION      DC1    ( MAXND )
-C                  DOUBLE PRECISION      DC2    ( MAXND )
-C                  DOUBLE PRECISION      TOL
-C                  DOUBLE PRECISION      DIFF
-C                  DOUBLE PRECISION      SUM1   ( MAXSUM )
-C                  DOUBLE PRECISION      SUM2   ( MAXSUM )
+C           DOUBLE PRECISION      ARRAY1 ( ARRYSZ )
+C           DOUBLE PRECISION      ARRAY2 ( ARRYSZ )
+C           DOUBLE PRECISION      DC1    ( MAXND )
+C           DOUBLE PRECISION      DC2    ( MAXND )
+C           DOUBLE PRECISION      TOL
+C           DOUBLE PRECISION      DIFF
+C           DOUBLE PRECISION      SUM1   ( MAXSUM )
+C           DOUBLE PRECISION      SUM2   ( MAXSUM )
 C
-C                  INTEGER               FA1
-C                  INTEGER               FA2
-C                  INTEGER               I
-C                  INTEGER               IA1
-C                  INTEGER               IA2
-C                  INTEGER               IC1    ( MAXNI )
-C                  INTEGER               IC2    ( MAXNI )
-C                  INTEGER               FA
-C                  INTEGER               HANDL1
-C                  INTEGER               HANDL2
-C                  INTEGER               LEN1
-C                  INTEGER               LEN2
-C                  INTEGER               ND1
-C                  INTEGER               ND2
-C                  INTEGER               NI1
-C                  INTEGER               NI2
-C                  INTEGER               PTR
+C           INTEGER               FA1
+C           INTEGER               FA2
+C           INTEGER               I
+C           INTEGER               IA1
+C           INTEGER               IA2
+C           INTEGER               IC1    ( MAXNI )
+C           INTEGER               IC2    ( MAXNI )
+C           INTEGER               HANDL1
+C           INTEGER               HANDL2
+C           INTEGER               LEN1
+C           INTEGER               LEN2
+C           INTEGER               ND1
+C           INTEGER               ND2
+C           INTEGER               NI1
+C           INTEGER               NI2
+C           INTEGER               PTR
 C
-C                  LOGICAL               FOUND
+C           LOGICAL               FOUND
 C
-C            C
-C            C     Start out by obtaining the names of the DAFs to be
-C            C     compared.
-C            C
-C                  WRITE (*,*) 'Enter name of first DAF.'
-C                  READ  (*,FMT='(A)') DAF1
 C
-C                  WRITE (*,*) 'Enter name of second DAF.'
-C                  READ  (*,FMT='(A)') DAF2
+C     C
+C     C     Start out by obtaining the names of the DAFs to be
+C     C     compared.
+C     C
+C           WRITE (*,*) 'Enter name of first DAF.'
+C           READ  (*,FMT='(A)') DAF1
 C
-C                  WRITE (*,*) 'Enter name of log file.'
-C                  READ  (*,FMT='(A)') LOG
+C           WRITE (*,*) 'Enter name of second DAF.'
+C           READ  (*,FMT='(A)') DAF2
 C
-C                  WRITE (*,*) 'Enter tolerance for data comparison.'
-C                  READ  (*,FMT='(A)') TOLCH
+C           WRITE (*,*) 'Enter name of log file.'
+C           READ  (*,FMT='(A)') LOG
 C
-C                  CALL NPARSD ( TOLCH, TOL, PRSERR, PTR )
+C           WRITE (*,*) 'Enter tolerance for data comparison.'
+C           READ  (*,FMT='(A)') TOLCH
 C
-C                  DO WHILE ( PRSERR .NE. ' ' )
+C           CALL NPARSD ( TOLCH, TOL, PRSERR, PTR )
 C
-C                     WRITE (*,*) PRSERR
-C                     WRITE (*,*) 'Enter tolerance for data comparison.'
-C                     READ  (*,FMT='(A)') TOLCH
+C           DO WHILE ( PRSERR .NE. ' ' )
 C
-C                     CALL NPARSD ( TOLCH, TOL, PRSERR, PTR )
+C              WRITE (*,*) PRSERR
+C              WRITE (*,*) 'Enter tolerance for data comparison.'
+C              READ  (*,FMT='(A)') TOLCH
 C
-C                  END DO
+C              CALL NPARSD ( TOLCH, TOL, PRSERR, PTR )
 C
-C            C
-C            C     Open both DAFs for reading.
-C            C
-C                  CALL DAFOPR ( DAF1, HANDL1 )
-C                  CALL DAFOPR ( DAF2, HANDL2 )
+C           END DO
 C
-C            C
-C            C     Start forward searches in both DAFS.
-C            C
-C                  CALL DAFBFS ( HANDL1 )
-C                  CALL DAFBFS ( HANDL2 )
+C     C
+C     C     Open both DAFs for reading.
+C     C
+C           CALL DAFOPR ( DAF1, HANDL1 )
+C           CALL DAFOPR ( DAF2, HANDL2 )
 C
-C            C
-C            C     Obtain the summary formats for each DAF. Stop now
-C            C     if the summary formats don't match.
-C            C
-C                  CALL DAFHSF ( HANDL1, ND1, NI1 )
-C                  CALL DAFHSF ( HANDL2, ND2, NI2 )
+C     C
+C     C     Start forward searches in both DAFS.
+C     C
+C           CALL DAFBFS ( HANDL1 )
+C           CALL DAFBFS ( HANDL2 )
 C
-C                  IF (  ( ND1 .NE. ND2 ) .OR. ( NI1 .NE. NI2 )  ) THEN
+C     C
+C     C     Obtain the summary formats for each DAF. Stop now
+C     C     if the summary formats don't match.
+C     C
+C           CALL DAFHSF ( HANDL1, ND1, NI1 )
+C           CALL DAFHSF ( HANDL2, ND2, NI2 )
 C
-C                     STR = 'Summary formats do not match.  NI1 = #, '//
-C                 .                      'NI2 = #, ND1 = #, ND2 = #.'
+C           IF (  ( ND1 .NE. ND2 ) .OR. ( NI1 .NE. NI2 )  ) THEN
 C
-C                     CALL REPMI  ( STR, '#', NI1, STR )
-C                     CALL REPMI  ( STR, '#', NI2, STR )
-C                     CALL REPMI  ( STR, '#', ND1, STR )
-C                     CALL REPMI  ( STR, '#', ND2, STR )
+C              STR = 'Summary formats do not match.  NI1 = #, '//
+C          .                      'NI2 = #, ND1 = #, ND2 = #.'
 C
-C                     CALL WRLINE ( LOG,  STR )
+C              CALL REPMI  ( STR, '#', NI1, STR )
+C              CALL REPMI  ( STR, '#', NI2, STR )
+C              CALL REPMI  ( STR, '#', ND1, STR )
+C              CALL REPMI  ( STR, '#', ND2, STR )
 C
-C                     CALL SIGERR ( 'Incompatible DAFs' )
+C              CALL WRLINE ( LOG,  STR )
 C
-C                  END IF
+C              CALL SIGERR ( 'Incompatible DAFs' )
 C
-C            C
-C            C     Find the first array in each DAF. Use DAFCS
-C            C     (DAF, continue search) to set the handle of the DAF
-C            C     to search in before calling DAFFNA.
-C            C
-C                  CALL DAFCS  ( HANDL1 )
-C                  CALL DAFFNA ( FOUND  )
+C           END IF
 C
-C                  IF ( FOUND ) THEN
-C                     CALL DAFCS  ( HANDL2 )
-C                     CALL DAFFNA ( FOUND  )
-C                  END IF
+C     C
+C     C     Find the first array in each DAF. Use DAFCS
+C     C     (DAF, continue search) to set the handle of the DAF
+C     C     to search in before calling DAFFNA.
+C     C
+C           CALL DAFCS  ( HANDL1 )
+C           CALL DAFFNA ( FOUND  )
 C
-C                  DO WHILE ( FOUND )
+C           IF ( FOUND ) THEN
+C              CALL DAFCS  ( HANDL2 )
+C              CALL DAFFNA ( FOUND  )
+C           END IF
 C
-C            C
-C            C        Get the summary and name of each array, using
-C            C        DAFCS to select the DAF to get the information
-C            C        from. Unpack the summaries and find the beginning
-C            C        and ending addresses of the arrays. Read the
-C            C        arrays into the variables ARRAY1 and ARRAY2.
-C            C
-C                     CALL DAFCS ( HANDL1 )
-C                     CALL DAFGN ( ANAME1 )
-C                     CALL DAFGS ( SUM1   )
-C                     CALL DAFUS ( SUM1, ND1, NI1, DC1, IC1 )
+C           DO WHILE ( FOUND )
 C
-C                     IA1  = IC1 ( NI1 - 1 )
-C                     FA1  = IC1 ( NI1     )
-C                     LEN1 = FA1 - IA1  + 1
+C     C
+C     C        Get the summary and name of each array, using
+C     C        DAFCS to select the DAF to get the information
+C     C        from. Unpack the summaries and find the beginning
+C     C        and ending addresses of the arrays. Read the
+C     C        arrays into the variables ARRAY1 and ARRAY2.
+C     C
+C              CALL DAFCS ( HANDL1 )
+C              CALL DAFGN ( ANAME1 )
+C              CALL DAFGS ( SUM1   )
+C              CALL DAFUS ( SUM1, ND1, NI1, DC1, IC1 )
 C
-C                     IF (  LEN1  .GT.  ARRYSZ  ) THEN
-C                        CALL SETMSG ( 'Buffer too small; need # elts.')
-C                        CALL ERRINT ( '#', LEN1                       )
-C                        CALL SIGERR ( 'ARRAYTOOSMALL'                 )
-C                     ELSE
-C                        CALL DAFRDA ( HANDL1, IA1, FA1, ARRAY1 )
-C                     END IF
+C              IA1  = IC1 ( NI1 - 1 )
+C              FA1  = IC1 ( NI1     )
+C              LEN1 = FA1 - IA1  + 1
 C
-C                     CALL DAFCS ( HANDL2 )
-C                     CALL DAFGN ( ANAME2 )
-C                     CALL DAFGS ( SUM2   )
-C                     CALL DAFUS ( SUM2, ND2, NI2, DC2, IC2 )
+C              IF (  LEN1  .GT.  ARRYSZ  ) THEN
+C                 CALL SETMSG ( 'Buffer too small; need # elts.')
+C                 CALL ERRINT ( '#', LEN1                       )
+C                 CALL SIGERR ( 'ARRAYTOOSMALL'                 )
+C              ELSE
+C                 CALL DAFGDA ( HANDL1, IA1, FA1, ARRAY1 )
+C              END IF
 C
-C                     IA2 = IC2 ( NI2 - 1 )
-C                     FA2 = IC2 ( NI2     )
+C              CALL DAFCS ( HANDL2 )
+C              CALL DAFGN ( ANAME2 )
+C              CALL DAFGS ( SUM2   )
+C              CALL DAFUS ( SUM2, ND2, NI2, DC2, IC2 )
 C
-C                     LEN2 = FA2 - IA2  + 1
+C              IA2 = IC2 ( NI2 - 1 )
+C              FA2 = IC2 ( NI2     )
 C
-C                     IF (  LEN1  .GT.  ARRYSZ  ) THEN
+C              LEN2 = FA2 - IA2  + 1
 C
-C                        CALL SETMSG ( 'Buffer too small; need # elts.')
-C                        CALL ERRINT ( '#', LEN2                       )
-C                        CALL SIGERR ( 'ARRAYTOOSMALL'                 )
+C              IF (  LEN2  .GT.  ARRYSZ  ) THEN
 C
-C                     ELSE IF ( LEN1 .NE. LEN2 ) THEN
+C                 CALL SETMSG ( 'Buffer too small; need # elts.')
+C                 CALL ERRINT ( '#', LEN2                       )
+C                 CALL SIGERR ( 'ARRAYTOOSMALL'                 )
 C
-C                        CALL SETMSG ( 'DAF structures do not match. '//
-C                    .                 'LEN1 = #, LEN2 = #. ' )
-C                        CALL ERRINT ( '#', LEN1              )
-C                        CALL ERRINT ( '#', LEN2              )
-C                        CALL SIGERR ( 'Incompatible DAFs' )
+C              ELSE IF ( LEN1 .NE. LEN2 ) THEN
 C
-C                     ELSE
-C                        CALL DAFRDA ( HANDL2, IA2, FA2, ARRAY2 )
-C                     END IF
-C            C
-C            C
-C            C        Compare the data in the two arrays. Log a message
-C            C        for every instance of data that differs by more
-C            C        than the allowed tolerance. Use the array names
-C            C        to label the data sources.
-C            C
-C                     DO I = 1, LEN1
+C                 CALL SETMSG ( 'DAF structures do not match. '//
+C          .                    'LEN1 = #, LEN2 = #. ' )
+C                 CALL ERRINT ( '#', LEN1              )
+C                 CALL ERRINT ( '#', LEN2              )
+C                 CALL SIGERR ( 'Incompatible DAFs' )
 C
-C                        DIFF  =  ABS( ARRAY1(I) - ARRAY2(I) )
+C              ELSE
+C                 CALL DAFGDA ( HANDL2, IA2, FA2, ARRAY2 )
+C              END IF
+C     C
+C     C
+C     C        Compare the data in the two arrays. Log a message
+C     C        for every instance of data that differs by more
+C     C        than the allowed tolerance. Use the array names
+C     C        to label the data sources.
+C     C
+C              DO I = 1, LEN1
 C
-C                        IF (  DIFF  .GT.  TOL  ) THEN
-C            C
-C            C              Get the array names.
-C            C
-C                           CALL DAFCS ( HANDL1 )
-C                           CALL DAFGN ( ANAME1 )
-C                           CALL DAFCS ( HANDL2 )
-C                           CALL DAFGN ( ANAME2 )
+C                 DIFF  =  ABS( ARRAY1(I) - ARRAY2(I) )
 C
-C            C
-C            C              Construct the report strings. The number 14
-C            C              below is the number of significant digits to
-C            C              show in the strings representing d.p.
-C            C              numbers.
-C            C
+C                 IF (  DIFF  .GT.  TOL  ) THEN
+C     C
+C     C              Get the array names.
+C     C
+C                    CALL DAFCS ( HANDL1 )
+C                    CALL DAFGN ( ANAME1 )
+C                    CALL DAFCS ( HANDL2 )
+C                    CALL DAFGN ( ANAME2 )
 C
-C                           CALL WRLINE ( LOG, ' ' )
-C                           CALL WRLINE ( LOG, 'Difference of array ' //
-C                    .                         'elements exceeded '   //
-C                    .                         'tolerance.'            )
-C                           CALL WRLINE ( LOG, 'First array:  '//ANAME1)
-C                           CALL WRLINE ( LOG, 'Second array: '//ANAME2)
+C     C
+C     C              Construct the report strings. The number 14
+C     C              below is the number of significant digits to
+C     C              show in the strings representing d.p.
+C     C              numbers.
+C     C
 C
-C                           STR = 'First value:  #'
-C                           CALL REPMD  ( STR, '#', ARRAY1(I), 14, STR )
-C                           CALL WRLINE ( LOG, STR                     )
+C                    CALL WRLINE ( LOG, ' ' )
+C                    CALL WRLINE ( LOG, 'Difference of array ' //
+C          .                            'elements exceeded '   //
+C          .                            'tolerance.'            )
+C                    CALL WRLINE ( LOG, 'First array:  '//ANAME1)
+C                    CALL WRLINE ( LOG, 'Second array: '//ANAME2)
 C
-C                           STR = 'Second value: #'
-C                           CALL REPMD  ( STR, '#', ARRAY2(I), 14, STR )
-C                           CALL WRLINE ( LOG, STR                     )
+C                    STR = 'First value:  #'
+C                    CALL REPMD  ( STR, '#', ARRAY1(I), 14, STR )
+C                    CALL WRLINE ( LOG, STR                     )
 C
-C                           STR = 'Difference:   #'
-C                           CALL REPMD  ( STR, '#', DIFF,      14, STR )
-C                           CALL WRLINE ( LOG, STR                     )
-C                           CALL WRLINE ( LOG, ' '                     )
+C                    STR = 'Second value: #'
+C                    CALL REPMD  ( STR, '#', ARRAY2(I), 14, STR )
+C                    CALL WRLINE ( LOG, STR                     )
 C
-C                        END IF
+C                    STR = 'Difference:   #'
+C                    CALL REPMD  ( STR, '#', DIFF,      14, STR )
+C                    CALL WRLINE ( LOG, STR                     )
+C                    CALL WRLINE ( LOG, ' '                     )
 C
-C                     END DO
+C                 END IF
 C
-C            C
-C            C        Find the next pair of arrays.
-C            C
-C                     CALL DAFCS  ( HANDL1 )
-C                     CALL DAFFNA ( FOUND  )
+C              END DO
 C
-C                     IF ( FOUND ) THEN
-C                        CALL DAFCS  ( HANDL2 )
-C                        CALL DAFFNA ( FOUND  )
-C                     END IF
+C     C
+C     C        Find the next pair of arrays.
+C     C
+C              CALL DAFCS  ( HANDL1 )
+C              CALL DAFFNA ( FOUND  )
 C
-C                  END DO
+C              IF ( FOUND ) THEN
+C                 CALL DAFCS  ( HANDL2 )
+C                 CALL DAFFNA ( FOUND  )
+C              END IF
 C
-C            C
-C            C     Close the DAFs.
-C            C
-C                  CALL DAFCLS ( HANDL1 )
-C                  CALL DAFCLS ( HANDL2 )
+C           END DO
 C
-C                  END
+C     C
+C     C     Close the DAFs.
+C     C
+C           CALL DAFCLS ( HANDL1 )
+C           CALL DAFCLS ( HANDL2 )
+C
+C           END
 C
 C
 C$ Restrictions
@@ -635,6 +635,17 @@ C     E.D. Wright     (JPL)
 C     B.V. Semenov    (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 3.1.1, 14-MAR-2017 (NJB)
+C
+C        Updated second header code example in this routine: fixed
+C        error check for array overflow, corrected indentation of
+C        continuation characters, added IMPLICIT NONE, deleted unused
+C        declaration, increased buffer size, and changed DAFRDA call to
+C        DAFGDA call.
+C
+C        Updated header example in entry point DAFGH: changed DAFRDA
+C        call to DAFGDA call.
 C
 C-    SPICELIB Version 3.1.0, 10-FEB-2014 (EDW) (BVS)
 C
@@ -3531,7 +3542,7 @@ C        CALL DAFGS ( SUM  )
 C        CALL DAFGH ( HANDLE )
 C        CALL DAFUS ( SUM, ND, NI, DC, IC )
 C
-C        CALL DAFRDA ( HANDLE, BEGIN, END, DATA )
+C        CALL DAFGDA ( HANDLE, BEGIN, END, DATA )
 C         .
 C         .
 C
@@ -3552,6 +3563,10 @@ C     I.M. Underwood  (JPL)
 C     E.D. Wright     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.3, 14-MAR-2017 (NJB)
+C
+C        Updated header example: changed DAFRDA call to DAFGDA call.
 C
 C-    SPICELIB Version 2.0.2, 18-AUG-2011 (EDW)
 C

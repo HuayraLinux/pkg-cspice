@@ -2,7 +2,7 @@
 SPK Required Reading
 ===========================================================================
  
-   Last revised on 2014 JUL 14 by N. J. Bachman.
+   Last revised on 2017 MAR 29 by N. J. Bachman.
  
  
 Abstract
@@ -83,8 +83,8 @@ Detection of Non-native Text Files
    the platform on which the Toolkit was compiled. If a non-native EOL
    terminator is detected in the first 132 characters of a text kernel, the
    execution is stopped and an error message is displayed. This feature
-   does not work with files that are smaller that 132 bytes or have the
-   first line longer that 132 characters.
+   does not work with files that are smaller than 132 bytes or have the
+   first line longer than 132 characters.
  
  
 If you're in a hurry
@@ -173,7 +173,6 @@ Foundation Functions
    Correcting for stellar aberration
  
       stelab_c ( pobj, vobs, appobj )
-      stlabx_c ( pobj, vobs, corpos )
  
    Translating between object names and object ID codes (see NAIF_IDS
    Required Reading, naif_ids.req)
@@ -190,7 +189,6 @@ Foundation Functions
    State transformation matrices (see Frames Required Reading, frames.req)
  
       sxform_c ( <from_name>,   <to_name>,   <et>, mat6x6 )
-      frmchg_c ( <from_idcode>, <to_idcode>, <et>, mat6x6 )
  
    Classifying frames (see Frames Required Reading, frames.req)
  
@@ -545,7 +543,7 @@ The SPK Family of Functions
             frame.
  
        2.   Determine the apparent, true, or geometric state of a body with
-            respect to an observer with having a user-supplied state.
+            respect to an observer having a user-supplied state.
  
        3.   Determine the geometric state of a body with respect to the
             solar system barycenter.
@@ -588,13 +586,13 @@ Computing States
    determine the state of Triton as seen from Voyager-2 at Julian Ephemeris
    Date 2447751.8293,
  
-      et = ( 2447751.8293d0 - j2000() ) * spd_c();
+      et = ( 2447751.8293 - j2000_c() ) * spd_c();
  
       spkezr_c ( "triton",    et,    "j2000", <aberr>,
                  "voyager-2", state, &lt              ); { Easier state }
  
-   where the function J2000 returns the epoch of the J2000 frame (Julian
-   Ephemeris Date 2451545.0) and the function SPD returns the number of
+   where the function j2000_c returns the epoch of the J2000 frame (Julian
+   Ephemeris Date 2451545.0) and the function spd_c returns the number of
    seconds per Julian day (86400.0).
  
    The ephemeris data in an SPK file may be referenced to a number of
@@ -763,7 +761,7 @@ Precision of Light Time Computations
    value computed above and can be insignificant. For example, for the
    spacecraft Mars Reconnaissance Orbiter and Mars Express, the position
    error for the one-iteration light time correction, applied to the
-   spacecraft-to-Mars center
+   spacecraft-to-Mars center vector, is approximately 2 cm.
  
    You can make spkezr_c (and other applicable SPK functions) compute a
    better approximation to LT and compute more accurate light-time
@@ -973,7 +971,7 @@ spkez_c and spkgeo_c
    The NAIF-ID codes for ephemeris objects are listed in the NAIF_IDS
    required reading file, naif_ids.req.
  
-   spkez_c is useful in those situations when you ID codes for objects
+   spkez_c is useful in those situations when you have ID codes for objects
    stored as integers. There is also a modest efficiency gain when using
    integer ID codes instead of character strings to specify targets and
    observers.
@@ -1002,7 +1000,7 @@ Loading Files
  
       for ( i = 0;  i < N;  i++ )
       {
-         furnsh_c ( ephem[I] );        { Load kernel file }
+         furnsh_c ( ephem[i] );        { Load kernel file }
       }
  
    In general, a state returned by spkezr_c is built from several more
@@ -1056,7 +1054,7 @@ Data Precedence
 Unloading Files
  
    The number of SPK files that may be loaded at any one time is limited
-   but very large -- up to 1000 total for all loaded SPK, CK, and binary
+   but very large -- up to 5000 total for all loaded SPK, CK, and binary
    PCK files combined. Although unlikely, in some cases your application
    program may need to unload some SPK files to make room for others or to
    remove a particular SPK from the set of loaded data. An SPK file may be
@@ -1112,7 +1110,7 @@ Loading Auxiliary Files
    On the other hand, the orientation of non-inertial frames with respect
    to other frames are almost always the result of observation. They are
    improved and extended as further observations are made. For some of
-   these frames (such as spacecraft fixed frames) vary large data sets are
+   these frames (such as spacecraft fixed frames) very large data sets are
    needed to express the orientation of the frame with respect to other
    frames. Frame transformations that are a function of time and require
    megabytes of data are not suitable for encapsulation in C or FORTRAN
@@ -1152,7 +1150,7 @@ Loading Auxiliary Files
  
                unload_c ( <file> );
  
-            text based PCK files are loaded via the function furnsh_c.
+            Text based PCK files are loaded via the function furnsh_c.
  
                furnsh_c ( <file> )
  
@@ -1357,7 +1355,7 @@ SPK Data Types
    used for ephemeris data. Users with access to data suitable for creating
    an ephemeris may choose to invent their own representations, adapting
    spkpvn_c accordingly. (We recommend that you consult with NAIF prior to
-   implementing an new data type.)
+   implementing a new data type.)
  
    The data types currently supported by CSPICE software are listed under
    ``Supported Data Types'' later in this document.
@@ -1480,7 +1478,7 @@ Example 1: Computing Latitude and Longitude
  
          /*
          Load constants into the kernel pool. Two files are
-         needed. The first ("time.ker") contains the dates
+         needed. The first ("leapseconds.ker") contains the dates
          of leap seconds and values for constants needed to
          compute the difference between UTC and ET at any
          epoch. The second ("pck.ker") contains IAU values
@@ -1490,14 +1488,14 @@ Example 1: Computing Latitude and Longitude
          solar system. (These files, or their equivalents,
          are normally distributed along with CSPICE.)
          */
-         furnsh_c ( "time.ker"  );
+         furnsh_c ( "leapseconds.ker"  );
          furnsh_c ( "pck.ker"   );
  
          /*
          Several ephemeris files are used. Most contain data for
-         a single planetary system ("jupiter.ker", "saturn.ker",
-         and so on). Some contain data for spacecraft ("vgr1.ker",
-         "mgn.ker").
+         a single planetary system ("jupiter.bsp", "saturn.bsp",
+         and so on). Some contain data for spacecraft ("vgr1.bsp",
+         "mgn.bsp").
          */
          furnsh_c ( "mercury.bsp" );
          furnsh_c ( "venus.bsp"   );
@@ -1636,15 +1634,15 @@ Example 2: Occultation or Transit
  
          /*
          Load constants into the kernel pool. Two files are
-         needed. The first ("time.ker") contains the dates
+         needed. The first ("leapseconds.ker") contains the dates
          of leap seconds and values for constants needed to
          compute the difference between UTC and ET at any
-         epoch. The second ("radii.ker") contains values
+         epoch. The second ("radii.tpc") contains values
          for the tri-axial ellipsoids used to model the major
          major bodies of the solar system.
          */
-         furnsh_c ( "time.ker"  );
-         furnsh_c ( "radii.ker" );
+         furnsh_c ( "leapseconds.ker"  );
+         furnsh_c ( "radii.tpc" );
  
          /*
          Several ephemeris files are needed. Most contain data for
@@ -3032,11 +3030,11 @@ Type 17: Equinoctial Elements
    Type 17 SPK segments have the structure shown below:
  
                 +----------------------------------+
-              1 | Epoch of Periapsis               |
+             1  | Epoch of Periapsis               |
                 +----------------------------------+
-              2 | Semi-Major Axis                  |
+             2  | Semi-Major Axis                  |
                 +----------------------------------+
-              3 | H term of equinoctial elements   |
+             3  | H term of equinoctial elements   |
                 +----------------------------------+
              4  | K term of equinoctial elements   |
                 +----------------------------------+
@@ -3292,7 +3290,7 @@ Type 19: ESOC/DDID Piecewise Interpolation
    proliferation of SPK data types. SPK type 19 refers to each supported
    mathematical representation of ephemeris data as a ``subtype.''
  
-   Currently SPK type 19 supports two subtypes:
+   Currently SPK type 19 supports three subtypes:
  
        1.   Subtype 0
  
@@ -3329,9 +3327,25 @@ Type 19: ESOC/DDID Piecewise Interpolation
             method are in principle independent. The same interpolation
             degree is used for each position and velocity component.
  
-            The interpolation degree of a subtype 0 mini-segment must be
+            The interpolation degree of a subtype 1 mini-segment must be
             odd and must be in the range 1:MAXDEG, where MAXDEG is the
             maximum supported degree.
+ 
+       3.   Subtype 2
+ 
+            Sliding-window Hermite interpolation of position and velocity.
+            The ephemeris is represented by a series of 6-element
+            ``packets'' and associated time tags. The time tags may be
+            unequally spaced. Each packet contains three Cartesian position
+            components and three velocity components. The position
+            components and velocity components are interpolated together.
+ 
+            The interpolation degree of a subtype 2 mini-segment must be
+            equivalent to 3 mod 4, that is, it must be in the set
+ 
+               { 3, 7, 11, ..., MAXDEG }
+ 
+            where MAXDEG is the maximum supported degree.
  
    The sliding-window interpolation technique used by this data type works
    as follows: for any request epoch, the data type's state evaluation code
@@ -3490,6 +3504,7 @@ Type 19: ESOC/DDID Piecewise Interpolation
  
       Subtype 0:     DEGREE  =  2 * WINDOW_SIZE  -  1
       Subtype 1:     DEGREE  =      WINDOW_SIZE  -  1
+      Subtype 2:     DEGREE  =  2 * WINDOW_SIZE  -  1
  
    The mini-segment's set of time tags is augmented by a series of
    directory entries; these entries allow the type 19 reader to search for
@@ -4199,6 +4214,12 @@ Contacts
  
 Appendix C---Revision History
 ===========================================================================
+ 
+ 
+March 29, 2017
+ 
+   Updated to describe subtype 2 of data type 19. Miscellaneous typos were
+   corrected.
  
  
 July 14, 2014

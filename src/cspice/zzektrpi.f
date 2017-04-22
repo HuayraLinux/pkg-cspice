@@ -152,10 +152,10 @@ C     2)  If an I/O error occurs while reading the indicated file, the
 C         error will be diagnosed by routines called by this routine.
 C
 C     3)  If the input key is out of range, the error
-C         SPICE(INDEXOUTOFRANGE) is signalled.
+C         SPICE(INDEXOUTOFRANGE) is signaled.
 C
 C     4)  If the input key is not found in the tree, the error
-C         SPICE(ITEMNOTFOUND) is signalled.  This error most likely
+C         SPICE(ITEMNOTFOUND) is signaled.  This error most likely
 C         indicates the presence of a serious bug in the EK software,
 C         or that the input EK file has been corrupted.
 C
@@ -189,6 +189,12 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C
 C-    Beta Version 1.0.0, 23-OCT-1995 (NJB)
 C
 C-&
@@ -211,7 +217,6 @@ C
       INTEGER               PREV
       INTEGER               PRVKEY
       INTEGER               TOTKEY
-      INTEGER               UNIT
  
       LOGICAL               FOUND
  
@@ -253,12 +258,11 @@ C
       IF (  ( LKEY .LT. 1 )  .OR.  ( LKEY .GT. TOTKEY )  ) THEN
  
          CALL CHKIN  ( 'ZZEKTRPI'                                      )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Key = #; valid range = 1:#. Tree = #, file = #')
          CALL ERRINT ( '#',     LKEY                                   )
          CALL ERRINT ( '#',     TOTKEY                                 )
          CALL ERRINT ( '#',     TREE                                   )
-         CALL ERRFNM ( '#',     UNIT                                   )
+         CALL ERRHAN ( '#',     HANDLE                                 )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'ZZEKTRPI'                                      )
          RETURN
@@ -397,14 +401,13 @@ C
       IF ( .NOT. FOUND ) THEN
  
          CALL CHKIN  ( 'ZZEKTRPI'                                      )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Key #; valid range = 1:#. Tree = #, file = #.'//
      .                 '  Key was not found.  This probably indicates'//
      .                 ' a corrupted file or a bug in the EK code.'    )
          CALL ERRINT ( '#',     LKEY                                   )
          CALL ERRINT ( '#',     TOTKEY                                 )
          CALL ERRINT ( '#',     TREE                                   )
-         CALL ERRFNM ( '#',     UNIT                                   )
+         CALL ERRHAN ( '#',     HANDLE                                 )
          CALL SIGERR ( 'SPICE(ITEMNOTFOUND)'                           )
          CALL CHKOUT ( 'ZZEKTRPI'                                      )
          RETURN

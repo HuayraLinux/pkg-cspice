@@ -246,10 +246,15 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     N.J. Bachman    (JPL)
 C     W.L. Taber      (JPL)
 C     B.V. Semenov    (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0 31-JAN-2017 (NJB)
+C
+C        Bug fix: updated logic so that B.C. leap years are recognized.
 C
 C-    SPICELIB Version 1.0.1 10-FEB-2014 (BVS)
 C
@@ -325,6 +330,7 @@ C
       INTEGER               LEAPDY
       INTEGER               MINUTE
       INTEGER               MONTH
+      INTEGER               MYEAR
       INTEGER               SECOND
       INTEGER               YEAR
  
@@ -367,11 +373,18 @@ C
 C     Ok.  Checking has been enabled.  Proceed with the various
 C     checks.
 C
-      YEAR      = NINT( TVEC(1) )
- 
-      LEAPDY    =  DIVBLE( YEAR, 4   )
-     .          -  DIVBLE( YEAR, 100 )
-     .          +  DIVBLE( YEAR, 400 )
+      YEAR = NINT( TVEC(1) )
+
+      IF ( MODIFY(ERA) .EQ. 'B.C.' ) THEN
+
+         MYEAR = 1 - YEAR
+      ELSE
+         MYEAR = YEAR
+      END IF
+
+      LEAPDY    =  DIVBLE( MYEAR, 4   )
+     .          -  DIVBLE( MYEAR, 100 )
+     .          +  DIVBLE( MYEAR, 400 )
  
       DINMON(2) = 28.0D0  + DBLE(LEAPDY)
       DINYR     = 365.0D0 + DBLE(LEAPDY)

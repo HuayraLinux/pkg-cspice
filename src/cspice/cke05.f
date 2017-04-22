@@ -325,6 +325,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 3.1.0, 11-AUG-2015 (NJB)
+C
+C        Bug fix: PRVPTR is now updated at the end of the quaternion
+C        sequence check for Hermite subtypes.
+C
 C-    SPICELIB Version 3.0.0, 06-FEB-2014 (NJB)
 C
 C        Bug fix and functional change: quaternion sign adjustment
@@ -613,6 +618,8 @@ C
 
             END IF
 
+            PRVPTR = NEWPTR
+            
          END DO
 
       END IF

@@ -123,10 +123,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error message.
+C
 C-    Beta Version 1.0.0, 09-NOV-1995 (NJB)
 C
-C-&
- 
+C-& 
  
  
 C
@@ -145,7 +149,6 @@ C
       INTEGER               CLASS
       INTEGER               RECNO
       INTEGER               SEGNO
-      INTEGER               UNIT
  
 C
 C     Initialize the function's return value.
@@ -211,14 +214,12 @@ C
 C
 C        This is an unsupported column class.
 C
-         CALL DASHLU   ( HANDLE, UNIT  )
          CALL ZZEKCNAM ( HANDLE, COLDSC, COLUMN )
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
          SEGNO  =  SEGDSC ( SNOIDX )
  
          CALL CHKIN  ( 'ZZEKESIZ'                                      )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Class # from input column descriptor is not ' //
      .                 'a supported integer class.  COLUMN = #; '     //
      .                 'RECNO = #; SEGNO = #; EK = #.'                 )
@@ -226,7 +227,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(NOCLASS)'                                )
          CALL CHKOUT ( 'ZZEKESIZ'                                      )
          RETURN

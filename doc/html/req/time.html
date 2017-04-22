@@ -96,6 +96,7 @@
       <A HREF="#Last Resort Production Rules">Last Resort Production Rules</A>
       <A HREF="#Conclusion">Conclusion</A>
       <A HREF="#Appendix C: Document Revision History">Appendix C: Document Revision History</A>
+         <A HREF="#September 9, 2015">September 9, 2015</A>
          <A HREF="#April 9, 2009">April 9, 2009</A>
          <A HREF="#December 23, 2004">December 23, 2004</A>
          <A HREF="#February 2, 2004">February 2, 2004</A>
@@ -117,7 +118,7 @@
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H1> Time Routines in CSPICE
 </H1><HR SIZE=3 NOSHADE><P><BR><BR><BR>
-   Last revised on 2012 JUN 14 by E. D. Wright
+   Last revised on 2015 SEP 09 by N. J. Bachman
 <P>
  
 <BR><BR>
@@ -1231,7 +1232,7 @@ day of the year '45.
    simply Greenwich Mean Time (UTC+00:00). To change the default behavior
    of <a href="../cspice/str2et_c.html">str2et_c</a> so that unlabeled strings are assumed to be referenced to a
    particular time zone (for example Pacific Standard Time) issue the
-   subroutine call below.
+   subroutine call below:
 <P>
  
 <PRE>
@@ -1266,7 +1267,7 @@ day of the year '45.
    backward in time indefinitely. The default behavior of <a href="../cspice/str2et_c.html">str2et_c</a> is to
    use the Gregorian calendar for all epochs. However, using <a href="../cspice/timdef_c.html">timdef_c</a> you
    can set the default calendar to one of three: GREGORIAN, JULIAN, or
-   MIXED.
+   MIXED:
 <P>
  
 <PRE>
@@ -1275,11 +1276,11 @@ day of the year '45.
     <a href="../cspice/timdef_c.html">timdef_c</a> ( "SET", "CALENDAR", lenout, "MIXED"     );
 </PRE>
    The ``MIXED'' calendar assumes that calendar strings for epochs prior to
-   October 6, 1582 belong to the Julian Calendar; strings for later epochs
+   October 5, 1582 belong to the Julian Calendar; strings for later epochs
    are assumed to belong to the Gregorian Calendar. The specification of a
    calendar, does not affect a previous setting of a time system or time
    zone. You can change the calendar used by <a href="../cspice/str2et_c.html">str2et_c</a> only through the
-   routine <a href="../cspice/timdef_c.html">timdef_c</a>, there are no labels recognized by <a href="../cspice/str2et_c.html">str2et_c</a> for the
+   routine <a href="../cspice/timdef_c.html">timdef_c</a>; there are no labels recognized by <a href="../cspice/str2et_c.html">str2et_c</a> for the
    various calendars.
 <P>
  
@@ -3052,6 +3053,25 @@ unambiguously determine the epoch.
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H2> Appendix C: Document Revision History
 </H2><HR ALIGN="LEFT" WIDTH=50% ><P><BR><BR>
+<BR><BR>
+<A NAME="September 9, 2015"></A>
+<p align="right"><a href="#top"><small>Top</small></a></p>
+<H3> September 9, 2015
+</H3><P><BR><BR>
+   For Mice, added mention of Mice routines cspice_timdef_set and
+   cspice_timdef_get.
+<P>
+ 
+   Corrected typo in the start date for the applicable period of the
+   Gregorian calendar when the MIXED calendar option is selected. The date
+   was changed to October 5, 1582.
+<P>
+ 
+   Corrected formatting of the Utility Routines section: the ASCII versions
+   of this document for Mice and Icy displayed function names truncated to
+   8 characters (the problem did not occur in the HTML versions).
+<P>
+ 
 <BR><BR>
 <A NAME="April 9, 2009"></A>
 <p align="right"><a href="#top"><small>Top</small></a></p>

@@ -125,17 +125,17 @@ C     2)  If COLDSC is not the name of a declared column, the error
 C         will be diagnosed by routines called by this routine.
 C
 C     3)  If COLDSC specifies a column of whose data type is not
-C         character, the error SPICE(WRONGDATATYPE) will be signalled.
+C         character, the error SPICE(WRONGDATATYPE) will be signaled.
 C
 C     4)  If COLDSC specifies a column of whose class is not
 C         a character class known to this routine, the error
-C         SPICE(NOCLASS) will be signalled.
+C         SPICE(NOCLASS) will be signaled.
 C
 C     5)  If the indicated column is array-valued, and if ELTIDX is
 C         non-positive, the error will be diagnosed by routines called
 C         by this routine.  However, if ELTIDX is greater than the
 C         number of elements in the specified column entry, FOUND is
-C         set to .FALSE. and no error is signalled.
+C         set to .FALSE. and no error is signaled.
 C
 C     6)  If an I/O error occurs while reading the indicated file,
 C         the error will be diagnosed by routines called by this
@@ -174,6 +174,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 06-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 06-NOV-1995 (NJB)
 C
 C-&
@@ -193,7 +198,6 @@ C
       INTEGER               DTYPE
       INTEGER               RECNO
       INTEGER               SEGNO
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -216,7 +220,6 @@ C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
  
          CALL CHKIN  ( 'ZZEKRSC'                                       )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Column # is of type #; ZZEKRSC only works '   //
      .                 'with integer columns.  RECNO = #; SEGNO = '   //
      .                 '#; EK = #.'                                    )
@@ -224,7 +227,7 @@ C
          CALL ERRINT ( '#',  DTYPE                                     )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(WRONGDATATYPE)'                          )
          CALL CHKOUT ( 'ZZEKRSC'                                       )
          RETURN
@@ -268,13 +271,11 @@ C
 C        This is an unsupported character column class.
 C
          CALL ZZEKCNAM ( HANDLE, COLDSC, COLUMN )
-         CALL DASHLU   ( HANDLE, UNIT )
  
          SEGNO  =  SEGDSC   ( SNOIDX )
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
  
          CALL CHKIN  ( 'ZZEKRSC'                                       )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Class # from input column descriptor is not ' //
      .                 'a supported character class.  COLUMN = #; '   //
      .                 'RECNO = #; SEGNO = #; EK = #.'                 )
@@ -282,7 +283,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(NOCLASS)'                                )
          CALL CHKOUT ( 'ZZEKRSC'                                       )
          RETURN

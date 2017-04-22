@@ -7,7 +7,7 @@ C$ Abstract
 C
 C     Substitute the first occurrence of a marker in the current long
 C     error message with the file name associated with a given
-C     DAF/DAS handle.  (Works for DAF only for N0052.)
+C     DAF/DAS handle.  
 C
 C$ Disclaimer
 C
@@ -73,7 +73,7 @@ C                a different marker from 'xx'.
 C
 C     HANDLE     is the DAF/DAS handle associated with the file of
 C                interest.  HANDLE must be associated with a currently
-C                loade DAF or DAS file.
+C                loaded DAF or DAS file.
 C
 C$ Detailed_Output
 C
@@ -128,11 +128,7 @@ C           CALL SIGERR ( 'SPICE(INVALIDDEGREE)'                   )
 C
 C$ Restrictions
 C
-C     1) This routine works only for DAF files in the N0052 Toolkit
-C        version.  It will for for both DAF and DAS files for later
-C        Toolkit versions.
-C
-C     2) The supported filename length is limited by the parameter 
+C     1) The supported filename length is limited by the parameter 
 C        FILEN.
 C
 C$ Literature_References
@@ -145,13 +141,18 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.0.1, 05-FEB-2015 (NJB)
+C
+C        Removed header comments about restrictions
+C        on using this routine for DAS files.
+C
 C-    SPICELIB Version 1.0.0, 04-JAN-2002 (NJB)
 C
 C-&
  
 C$ Index_Entries
 C
-C     insert filename into long error message
+C     insert DAF or DAS filename into long error message
 C
 C-&
  

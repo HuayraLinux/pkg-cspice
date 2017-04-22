@@ -80,14 +80,14 @@ C
 C$ Exceptions
 C
 C     1)   If the number of comments to be added is not positive, the
-C          error SPICE(INVALIDARGUMENT) will be signalled.
+C          error SPICE(INVALIDARGUMENT) will be signaled.
 C
 C     2)   If a non printing ASCII character is encountered in the
 C          comments, the error SPICE(ILLEGALCHARACTER) will be
-C          signalled.
+C          signaled.
 C
 C     3)   If the binary DAS file attached to HANDLE is not open with
-C          write access an error will be signalled by a routine called
+C          write access an error will be signaled by a routine called
 C          by this routine.
 C
 C$ Files
@@ -159,6 +159,10 @@ C
 C     K.R. Gehringer (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0, 05-FEB-2015 (NJB)
+C
+C        Updated to use ZZDDHHLU.
 C
 C-    Beta Version 1.0.1, 12-MAY-1994 (KRG)
 C
@@ -302,7 +306,7 @@ C
 C     Convert the DAS file handle to its corresponding Fortran logical
 C     unit number for reading and writing comment records.
 C
-      CALL DASHLU ( HANDLE, DASLUN )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., DASLUN )
  
       IF ( FAILED() ) THEN
  

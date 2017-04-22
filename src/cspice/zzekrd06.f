@@ -141,14 +141,14 @@ C     1)  If HANDLE is invalid, the error will be diagnosed by routines
 C         called by this routine.
 C
 C     2)  If the specified column entry has not been initialized, the
-C         error SPICE(UNINITIALIZED) is signalled.
+C         error SPICE(UNINITIALIZED) is signaled.
 C
 C     3)  If the ordinal position of the column specified by COLDSC
-C         is out of range, the error SPICE(INVALIDINDEX) is signalled.
+C         is out of range, the error SPICE(INVALIDINDEX) is signaled.
 C
 C     4)  If the string length of CVALS is shorter than the declared
 C         string length of the specified column, the error 
-C         SPICE(STRINGTRUNCATED) is signalled.
+C         SPICE(STRINGTRUNCATED) is signaled.
 C
 C     5)  If an I/O error occurs while reading the indicated file,
 C         the error will be diagnosed by routines called by this
@@ -180,6 +180,14 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Bug fix: changed max column index in long error
+C        message from NREC to NCOLS.
 C
 C-    SPICELIB Version 1.1.0, 28-JUL-1997 (NJB)
 C
@@ -233,7 +241,6 @@ C
       INTEGER               NCOLS
       INTEGER               NELT
       INTEGER               NREAD
-      INTEGER               NREC
       INTEGER               NSKIP
       INTEGER               OFFSET
       INTEGER               P
@@ -245,13 +252,10 @@ C
       INTEGER               REMAIN
       INTEGER               START
       INTEGER               STRLEN
-      INTEGER               UNIT
+
  
 C
 C     Use discovery check-in.
-C
-      NREC  =  SEGDSC ( NRIDX )
- 
 C
 C     Make sure the column exists.
 C
@@ -263,7 +267,7 @@ C
          CALL CHKIN  ( 'ZZEKRD06'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' )
          CALL ERRINT ( '#',  COLIDX                            )
-         CALL ERRINT ( '#',  NREC                              )
+         CALL ERRINT ( '#',  NCOLS                             )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKRD06'                              )
          RETURN
@@ -280,10 +284,9 @@ C
       IF ( STRLEN .GT. CVLEN ) THEN
 C              
 C        We have a string truncation error.  Look up the column
-C        name, record number, and file name before signalling an
+C        name, record number, and file name before signaling an
 C        error.
 C        
-         CALL DASHLU   ( HANDLE, UNIT )
          CALL ZZEKCNAM ( HANDLE, COLDSC, COLUMN )  
          
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
@@ -297,7 +300,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                        )
          CALL ERRINT ( '#',  RECNO                                 )
-         CALL ERRFNM ( '#',  UNIT                                  )
+         CALL ERRHAN ( '#',  HANDLE                                )
          CALL SIGERR ( 'SPICE(STRINGTRUNCATED)'                    )
          CALL CHKOUT ( 'ZZEKRD06'                                  )
          RETURN
@@ -513,7 +516,7 @@ C
 C        The data value is absent.  This is an error.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU   (  HANDLE,  UNIT           )
+
          CALL ZZEKCNAM ( HANDLE,   COLDSC, COLUMN )  
  
          CALL CHKIN  ( 'ZZEKRD06'                                    )
@@ -523,7 +526,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                          )
          CALL ERRCH  ( '#',  COLUMN                                  )
          CALL ERRINT ( '#',  RECNO                                   )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL SIGERR ( 'SPICE(UNINITIALIZED)'                        )
          CALL CHKOUT ( 'ZZEKRD06'                                    )
          RETURN
@@ -534,7 +537,7 @@ C
 C        The data pointer is corrupted.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU   (  HANDLE,  UNIT           )
+
          CALL ZZEKCNAM ( HANDLE,   COLDSC, COLUMN )  
  
          CALL CHKIN  ( 'ZZEKRD06'                                )
@@ -543,7 +546,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                      )
          CALL ERRCH  ( '#',  COLUMN                              )
          CALL ERRINT ( '#',  RECNO                               )
-         CALL ERRFNM ( '#',  UNIT                                )
+         CALL ERRHAN ( '#',  HANDLE                              )
          CALL SIGERR ( 'SPICE(BUG)'                              )
          CALL CHKOUT ( 'ZZEKRD06'                                )
          RETURN

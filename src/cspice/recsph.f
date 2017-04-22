@@ -37,7 +37,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION,  COORDINATES
+C     CONVERSION,  COORDINATES
 C
 C$ Declarations
  
@@ -48,43 +48,50 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  --------------------------------------------------
-C      RECTAN     I   Rectangular coordinates of a point.
-C      R          O   Distance of the point from the origin.
-C      COLAT      O   Angle of the point from the positive Z-axis.
-C      LONG       O   Longitude of the point radians.
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  --------------------------------------------------
+C     RECTAN     I   Rectangular coordinates of a point.
+C     R          O   Distance of the point from the origin.
+C     COLAT      O   Angle of the point from the Z-axis (radians)
+C     LONG       O   Longitude of the point (radians).
 C
 C$ Detailed_Input
 C
-C      RECTAN     The rectangular coordinates of a point.
+C     RECTAN     The rectangular coordinates of a point.
 C
 C$ Detailed_Output
 C
-C      R          Distance of the point from the origin.
+C     R          Distance of the point from the origin.
 C
-C      COLAT      Angle between the point and the positive z-axis.
+C     COLAT      Angle between the point and the positive z-axis in
+C                radians. The range of COLAT is [0, pi].
 C
-C      LONG       Longitude of the point in radians.  This is the angle
-C                 between the positive X-axis and the orthogonal
-C                 projection of the point onto the XY plane.  LONG
-C                 increases in the counterclockwise sense about the
-C                 positive Z-axis.  The range of LONG is:
-C
-C                    -pi < LONG <= pi
+C     LONG       Longitude of the point in radians. This is the angle
+C                between the positive X-axis and the orthogonal
+C                projection of the point onto the XY plane.  LONG
+C                increases in the counterclockwise sense about the
+C                positive Z-axis. The range of LONG is [-pi, pi].
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This routine returns the spherical coordinates of a point
-C      whose position is input in rectangular coordinates.
+C     This routine returns the spherical coordinates of a point
+C     whose position is input in rectangular coordinates.
 C
-C      Spherical coordinates are defined by a distance from a central
-C      reference point, an angle from a reference meridian, and an angle
-C      from the z-axis.
+C     Spherical coordinates are defined by a distance from a central
+C     reference point, an angle from a reference meridian, and an angle
+C     from the z-axis.
 C
 C$ Examples
 C
@@ -125,11 +132,7 @@ C$ Restrictions
 C
 C     None.
 C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
+C$ Literature_References
 C
 C     None.
 C
@@ -137,11 +140,11 @@ C$ Author_and_Institution
 C
 C     W.L. Taber      (JPL)
 C
-C$ Literature_References
-C
-C     None.
-C
 C$ Version
+C
+C-    SPICELIB Version 1.0.3, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.2, 07-JAN-2002 (NJB)
 C
@@ -166,9 +169,9 @@ C-&
  
 C$ Revisions
 C
-C-     Beta Version 1.0.1, 1-Feb-1989 (WLT)
+C-    Beta Version 1.0.1, 1-Feb-1989 (WLT)
 C
-C      Example section of header upgraded.
+C        Example section of header upgraded.
 C
 C-&
  

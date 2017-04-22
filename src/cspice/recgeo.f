@@ -61,13 +61,15 @@ C     ALT        O   Altitude of the point above reference spheroid.
 C
 C$ Detailed_Input
 C
-C     RECTAN     The rectangular coordinates of a point.  
+C     RECTAN     The rectangular coordinates of a point. RECTAN must 
+C                be in the same units as RE.
 C
 C     RE         Equatorial radius of a reference spheroid.  This
 C                spheroid is a volume of revolution:  its horizontal
 C                cross sections are circular.  The shape of the
-C                spheroid is defined by an equatorial radius RE and
-C                a polar radius RP.
+C                spheroid is defined by an equatorial radius RE and a
+C                polar radius RP. RE must be in the same units as
+C                RECTAN.
 C
 C     F          Flattening coefficient = (RE-RP) / RE,  where RP is
 C                the polar radius of the spheroid.
@@ -96,7 +98,7 @@ C
 C     ALT        Altitude of point above the reference spheroid.
 C
 C                The units associated with ALT are those associated
-C                with the input RECTAN.
+C                with the inputs RECTAN and RE.
 C
 C$ Parameters
 C
@@ -203,9 +205,17 @@ C
 C     C.H. Acton      (JPL)
 C     N.J. Bachman    (JPL)
 C     H.A. Neilan     (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0, 03-AUG-2016 (BVS) (NJB)
+C
+C        Re-implemented derivation of longitude to improve 
+C        accuray.
+C
+C        Minor header edits.
 C
 C-    SPICELIB Version 1.0.3, 02-JUL-2007 (NJB)
 C
@@ -252,29 +262,21 @@ C        the length is greater than zero.
 C
 C-&
  
- 
- 
 C
 C     SPICELIB functions
 C
       LOGICAL               RETURN
  
- 
 C
 C     Local variables
 C
- 
       DOUBLE PRECISION A
       DOUBLE PRECISION B
       DOUBLE PRECISION C
       DOUBLE PRECISION BASE   (3)
       DOUBLE PRECISION NORMAL (3)
       DOUBLE PRECISION RADIUS
- 
- 
- 
- 
- 
+  
 C
 C     Standard SPICE error handling.
 C
@@ -297,14 +299,12 @@ C
           RETURN
       END IF
  
- 
 C
 C     If the flattening coefficient is greater than one, the length
 C     of the 'C' axis computed below is negative. If it's equal to one,
 C     the length of the axis is zero. Either case is a problem, so
 C     signal an error and check out.
 C
- 
       IF ( F .GE. 1 ) THEN
           CALL SETMSG ( 'Flattening coefficient was *.'  )
           CALL ERRDP  ( '*', F                           )
@@ -312,7 +312,6 @@ C
           CALL CHKOUT ( 'RECGEO'                         )
           RETURN
       END IF
- 
  
 C
 C     Determine the lengths of the axes of the reference ellipsoid.
@@ -322,22 +321,27 @@ C
       C = RE - F*RE
  
 C
-C     Find the point on the reference spheroid closes to the input point
+C     Find the point on the reference spheroid closest to the input
+C     point. From this closest point determine the surface normal.
 C
-      CALL NEARPT ( RECTAN, A, B, C, BASE,   ALT    )
- 
-C
-C     From this closest point determine the surface normal
-C
-      CALL SURFNM (         A, B, C, BASE,   NORMAL )
- 
+      CALL NEARPT ( RECTAN, A, B, C, BASE, ALT    )
+      CALL SURFNM (         A, B, C, BASE, NORMAL ) 
 C
 C     Using the surface normal, determine the latitude and longitude
 C     of the input point.
 C
-      CALL RECLAT ( NORMAL, RADIUS,  LONG, LAT )
+      CALL RECLAT ( NORMAL, RADIUS, LONG, LAT )
  
- 
+C
+C     Compute longitude directly rather than from the normal vector.
+C
+      IF (       ( RECTAN(1) .EQ.0.D0 )
+     .     .AND. ( RECTAN(2) .EQ.0.D0 ) ) THEN
+
+         LONG = 0.D0
+      ELSE
+         LONG = DATAN2 ( RECTAN(2), RECTAN(1) )
+      END IF
  
       CALL CHKOUT ( 'RECGEO' )
       RETURN

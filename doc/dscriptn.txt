@@ -19,8 +19,8 @@ Introduction
 Version Information
 --------------------------------------------------------
  
-      Creation Date: Fri Jul 18 18:20:47 PDT 2014
-      Version      : CSPICE.............V.N0065
+      Creation Date: Fri Apr  7 16:54:41 PDT 2017
+      Version      : CSPICE.............V.N0066
  
  
 Directory Structure and Contents
@@ -187,8 +187,11 @@ EXE
                states
                subpt
                tictoc
+               dskbrief
+               dskexp
                frmdiff
                inspekt
+               mkdsk
                mkspk
                msopck
                spacit
@@ -216,14 +219,19 @@ INCLUDE
                |
                SpiceCK.h
                SpiceCel.h
+               SpiceDLA.h
+               SpiceDSK.h
+               SpiceDtl.h
                SpiceEK.h
                SpiceEll.h
                SpiceErr.h
                SpiceFrm.h
                SpiceGF.h
                SpiceOccult.h
+               SpiceOsc.h
                SpicePln.h
                SpiceSPK.h
+               SpiceSrf.h
                SpiceUsr.h
                SpiceZad.h
                SpiceZdf.h
@@ -288,8 +296,11 @@ SRC
                ckbref_c
                commnt_c
                cook_c
+               dskbrief_c
+               dskexp_c
                frmdif_c
                inspkt_c
+               mkdsk_c
                mkspk_c
                msopck_c
                spacit_c
@@ -416,6 +427,51 @@ COOKBOOK
                   mkprodct.csh
  
  
+DSKBRIEF
+ 
+   DSKBRIEF is a utility program that allows you to summarize DSK files.
+ 
+   This directory contains the DSKBRIEF main program, supporting routines,
+   and a script to create the executable program dskbrief.
+ 
+      (installation directory)
+         |
+         cspice
+            |
+            src
+               |
+               dskbrief_c
+                  |
+                  main.x
+                  dskbrief.pgm
+                  *.c
+                  *.h
+                  mkprodct.csh
+ 
+ 
+DSKEXP
+ 
+   DSKEXP is a utility program for exporting data from a DSK file to any of
+   a variety of simple, easily parsed text formats.
+ 
+   This directory contains the DSKEXP main program, supporting routines,
+   and a script to create the executable program dskexp.
+ 
+      (installation directory)
+         |
+         cspice
+            |
+            src
+               |
+               dskexp_c
+                  |
+                  main.x
+                  dskexp.pgm
+                  *.c
+                  *.h
+                  mkprodct.csh
+ 
+ 
 FRMDIFF
  
    FRMDIFF is a program that provides a simple way of sampling orientation
@@ -458,6 +514,29 @@ INSPEKT
                   |
                   main.x
                   inspekt.pgm
+                  *.c
+                  *.h
+                  mkprodct.csh
+ 
+ 
+MKDSK
+ 
+   MKDSK is a utility program for converting text plate model files to DSK
+   files.
+ 
+   This directory contains the MKDSK main program, supporting routines, and
+   a script to create the executable program mkdsk.
+ 
+      (installation directory)
+         |
+         cspice
+            |
+            src
+               |
+               mkdsk_c
+                  |
+                  main.x
+                  mkdsk.pgm
                   *.c
                   *.h
                   mkprodct.csh

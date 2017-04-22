@@ -39,8 +39,11 @@
          <A HREF="#CKBRIEF">CKBRIEF</A>
          <A HREF="#COMMNT">COMMNT</A>
          <A HREF="#COOKBOOK">COOKBOOK</A>
+         <A HREF="#DSKBRIEF">DSKBRIEF</A>
+         <A HREF="#DSKEXP">DSKEXP</A>
          <A HREF="#FRMDIFF">FRMDIFF</A>
          <A HREF="#INSPEKT">INSPEKT</A>
+         <A HREF="#MKDSK">MKDSK</A>
          <A HREF="#MKSPK">MKSPK</A>
          <A HREF="#MSOPCK">MSOPCK</A>
          <A HREF="#SPACIT">SPACIT</A>
@@ -88,8 +91,8 @@
 <H2> Version Information
 </H2><HR ALIGN="LEFT" WIDTH=50% ><P><BR><BR>
 <PRE>
-   Creation Date: Fri Jul 18 18:20:47 PDT 2014
-   Version      : CSPICE.............V.N0065
+   Creation Date: Fri Apr  7 16:54:41 PDT 2017
+   Version      : CSPICE.............V.N0066
 </PRE>
 <BR><BR>
 <A NAME="Directory Structure and Contents"></A>
@@ -288,8 +291,11 @@ products in this package.
             states
             subpt
             tictoc
+            dskbrief
+            dskexp
             frmdiff
             inspekt
+            mkdsk
             mkspk
             msopck
             spacit
@@ -320,14 +326,19 @@ products in this package.
             |
             SpiceCK.h
             SpiceCel.h
+            SpiceDLA.h
+            SpiceDSK.h
+            SpiceDtl.h
             SpiceEK.h
             SpiceEll.h
             SpiceErr.h
             SpiceFrm.h
             SpiceGF.h
             SpiceOccult.h
+            SpiceOsc.h
             SpicePln.h
             SpiceSPK.h
+            SpiceSrf.h
             SpiceUsr.h
             SpiceZad.h
             SpiceZdf.h
@@ -401,8 +412,11 @@ products in this package.
             ckbref_c
             commnt_c
             cook_c
+            dskbrief_c
+            dskexp_c
             frmdif_c
             inspkt_c
+            mkdsk_c
             mkspk_c
             msopck_c
             spacit_c
@@ -554,6 +568,61 @@ products in this package.
                mkprodct.csh
 </PRE>
 <BR><BR>
+<A NAME="DSKBRIEF"></A>
+<p align="right"><a href="#top"><small>Top</small></a></p>
+<H3> DSKBRIEF
+</H3><P><BR><BR>
+   DSKBRIEF is a utility program that allows you to summarize DSK files.
+<P>
+ 
+   This directory contains the DSKBRIEF main program, supporting routines,
+   and a script to create the executable program dskbrief.
+<P>
+ 
+<PRE>
+   (installation directory)
+      |
+      cspice
+         |
+         src
+            |
+            dskbrief_c
+               |
+               main.x
+               dskbrief.pgm
+               *.c
+               *.h
+               mkprodct.csh
+</PRE>
+<BR><BR>
+<A NAME="DSKEXP"></A>
+<p align="right"><a href="#top"><small>Top</small></a></p>
+<H3> DSKEXP
+</H3><P><BR><BR>
+   DSKEXP is a utility program for exporting data from a DSK file to any of
+   a variety of simple, easily parsed text formats.
+<P>
+ 
+   This directory contains the DSKEXP main program, supporting routines,
+   and a script to create the executable program dskexp.
+<P>
+ 
+<PRE>
+   (installation directory)
+      |
+      cspice
+         |
+         src
+            |
+            dskexp_c
+               |
+               main.x
+               dskexp.pgm
+               *.c
+               *.h
+               mkprodct.csh
+</PRE>
+<BR><BR>
 <A NAME="FRMDIFF"></A>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> FRMDIFF
@@ -606,6 +675,34 @@ products in this package.
                |
                main.x
                inspekt.pgm
+               *.c
+               *.h
+               mkprodct.csh
+</PRE>
+<BR><BR>
+<A NAME="MKDSK"></A>
+<p align="right"><a href="#top"><small>Top</small></a></p>
+<H3> MKDSK
+</H3><P><BR><BR>
+   MKDSK is a utility program for converting text plate model files to DSK
+   files.
+<P>
+ 
+   This directory contains the MKDSK main program, supporting routines, and
+   a script to create the executable program mkdsk.
+<P>
+ 
+<PRE>
+   (installation directory)
+      |
+      cspice
+         |
+         src
+            |
+            mkdsk_c
+               |
+               main.x
+               mkdsk.pgm
                *.c
                *.h
                mkprodct.csh

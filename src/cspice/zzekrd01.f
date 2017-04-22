@@ -43,6 +43,8 @@ C     EK
 C     PRIVATE
 C
 C$ Declarations
+
+      IMPLICIT NONE
  
       INCLUDE 'ekbool.inc'
       INCLUDE 'ekcoldsc.inc'
@@ -99,10 +101,10 @@ C     1)  If HANDLE is invalid, the error will be diagnosed by routines
 C         called by this routine.
 C
 C     2)  If the specified column entry has not been initialized, the
-C         error SPICE(UNINITIALIZEDVALUE) is signalled.
+C         error SPICE(UNINITIALIZEDVALUE) is signaled.
 C
 C     3)  If the ordinal position of the column specified by COLDSC
-C         is out of range, the error SPICE(INVALIDINDEX) is signalled.
+C         is out of range, the error SPICE(INVALIDINDEX) is signaled.
 C
 C     4)  If an I/O error occurs while reading the indicated file,
 C         the error will be diagnosed by routines called by this
@@ -135,6 +137,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Bug fix: changed max column index in long error
+C        message from NREC to NCOLS.
+C
 C-    Beta Version 1.0.0, 18-OCT-1995 (NJB)
 C
 C-&
@@ -151,10 +161,8 @@ C
       INTEGER               COLIDX
       INTEGER               DATPTR
       INTEGER               NCOLS
-      INTEGER               NREC
       INTEGER               RECNO
       INTEGER               PTRLOC
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -168,16 +176,15 @@ C
       IF (  ( COLIDX .LT. 1 ) .OR. ( COLIDX .GT. NCOLS )  ) THEN
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
  
          CALL CHKIN  ( 'ZZEKRD01'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' //
      .                 'SEGNO = #; RECNO = #; EK = #'          )
          CALL ERRINT ( '#',  COLIDX                            )
-         CALL ERRINT ( '#',  NREC                              )
+         CALL ERRINT ( '#',  NCOLS                             )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                    )
          CALL ERRINT ( '#',  RECNO                             )
-         CALL ERRFNM ( '#',  UNIT                              )
+         CALL ERRHAN ( '#',  HANDLE                            )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKRD01'                              )
          RETURN
@@ -213,7 +220,6 @@ C
 C        The data value is absent.  This is an error.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL CHKIN  ( 'ZZEKRD01'                                    )
          CALL SETMSG ( 'Attempted to read uninitialized column '    //
@@ -222,7 +228,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                          )
          CALL ERRINT ( '#',  COLIDX                                  )
          CALL ERRINT ( '#',  RECNO                                   )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL SIGERR ( 'SPICE(UNINITIALIZEDVALUE)'                   )
          CALL CHKOUT ( 'ZZEKRD01'                                    )
          RETURN
@@ -233,7 +239,6 @@ C
 C        The data pointer is corrupted.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL CHKIN  ( 'ZZEKRD01'                                )
          CALL SETMSG ( 'Data pointer is corrupted. SEGNO = #; '  //
@@ -241,7 +246,7 @@ C
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                      )
          CALL ERRINT ( '#',  COLIDX                              )
          CALL ERRINT ( '#',  RECNO                               )
-         CALL ERRFNM ( '#',  UNIT                                )
+         CALL ERRHAN ( '#',  HANDLE                              )
          CALL SIGERR ( 'SPICE(BUG)'                              )
          CALL CHKOUT ( 'ZZEKRD01'                                )
          RETURN

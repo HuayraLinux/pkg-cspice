@@ -102,6 +102,19 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    Version 2.3.0, 08-MAR-2017 (BVS).
+C
+C        In CKCOVR, modified to increase the maximum round off delta 
+C        applied contract CK coverage windows to guarantee to produce
+C        a change in ETs.
+C
+C-    Version 2.2.0, 29-SEP-2016 (BVS).
+C
+C        In CHWCML, added initialization to blank of the first kernel
+C        name and type for cases when the sole command line argument is
+C        a file name. This change prevents rather bogus looking errors
+C        being signaled later by LDKLST.
+C
 C-    Version 2.1.0, 25-MAR-2014 (BVS).
 C
 C        BUG FIX: added exception for non-rotation cases in GETQAV.

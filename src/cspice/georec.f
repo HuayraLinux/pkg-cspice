@@ -80,12 +80,14 @@ C                Latitude is measured in radians.  On input, the
 C                range of latitude is unrestricted.
 C 
 C     ALT        Altitude of point above the reference spheroid.
+C                ALT must be in the same units as RE.
 C
 C     RE         Equatorial radius of a reference spheroid.  This
 C                spheroid is a volume of revolution:  its horizontal
 C                cross sections are circular.  The shape of the
 C                spheroid is defined by an equatorial radius RE and
-C                a polar radius RP.
+C                a polar radius RP. RE must be in the same units 
+C                as ALT.
 C
 C     F          Flattening coefficient = (RE-RP) / RE,  where RP is
 C                the polar radius of the spheroid.
@@ -95,7 +97,7 @@ C
 C     RECTAN     The rectangular coordinates of a point.  
 C
 C                The units associated with RECTAN are those associated
-C                with the input ALT.
+C                with the inputs ALT and RE.
 C
 C$ Parameters
 C
@@ -189,6 +191,11 @@ C$ Restrictions
 C
 C     None.
 C
+C$ Literature_References
+C
+C     See FUNDAMENTALS OF ASTRODYNAMICS, Bate, Mueller, White
+C     published by Dover for a description of geodetic coordinates.
+C
 C$ Author_and_Institution
 C
 C     C.H. Acton      (JPL)
@@ -196,24 +203,23 @@ C     N.J. Bachman    (JPL)
 C     H.A. Neilan     (JPL)
 C     W.L. Taber      (JPL)
 C
-C$ Literature_References
-C
-C     See FUNDAMENTALS OF ASTRODYNAMICS, Bate, Mueller, White
-C     published by Dover for a description of geodetic coordinates.
-C
 C$ Version
+C
+C-    SPICELIB Version 1.0.3, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.2, 29-JUL-2003 (NJB) (CHA)
 C
 C        Various header changes were made to improve clarity.  Some
 C        minor header corrections were made.
 C
-C-   SPICELIB Version 1.0.1, 10-MAR-1992 (WLT)
+C-    SPICELIB Version 1.0.1, 10-MAR-1992 (WLT)
 C
-C       Comment section for permuted index source lines was added
-C       following the header.
+C        Comment section for permuted index source lines was added
+C        following the header.
 C
-C-   SPICELIB Version 1.0.0, 31-JAN-1990 (WLT)
+C-    SPICELIB Version 1.0.0, 31-JAN-1990 (WLT)
 C
 C-&
  

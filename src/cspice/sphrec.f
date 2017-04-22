@@ -37,7 +37,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION,  COORDINATES
+C     CONVERSION,  COORDINATES
 C
 C$ Declarations
  
@@ -48,40 +48,49 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  --------------------------------------------------
-C      R          I   Distance of a point from the origin.
-C      COLAT      I   Angle of the point from the positive Z-axis.
-C      LONG       I   Angle of the point from the XZ plane in radians.
-C      RECTAN     O   Rectangular coordinates of the point.
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  --------------------------------------------------
+C     R          I   Distance of a point from the origin.
+C     COLAT      I   Angle of the point from the Z-axis in radians.
+C     LONG       I   Angle of the point from the XZ plane in radians.
+C     RECTAN     O   Rectangular coordinates of the point.
 C
 C$ Detailed_Input
 C
-C      R          Distance of the point from the origin.
+C     R          Distance of the point from the origin.
 C
-C      COLAT      Angle between the point and the positive z-axis.
+C     COLAT      Angle between the point and the positive z-axis in
+C                radians.
 C
-C      LONG       Angle of the projection of the point to the XY
-C                 plane from the positive X-axis.  The positive
-C                 Y-axis is at longitude PI/2 radians.
+C     LONG       Angle of the projection of the point to the XY plane
+C                from the positive X-axis in radians. The positive
+C                Y-axis is at longitude PI/2 radians.
 C
 C$ Detailed_Output
 C
-C      RECTAN     The rectangular coordinates of a point.
+C     RECTAN     The rectangular coordinates of a point.
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This routine returns the rectangular coordinates of a point
-C      whose position is input in spherical coordinates.
+C     This routine returns the rectangular coordinates of a point
+C     whose position is input in spherical coordinates.
 C
-C      Spherical coordinates are defined by a distance from a central
-C      reference point, an angle from a reference meridian, and an angle
-C      from the z-axis.  The co-latitude of the positive Z-axis is
-C      zero.  The longitude of the posive Y-axis is PI/2 radians.
+C     Spherical coordinates are defined by a distance from a central
+C     reference point, an angle from a reference meridian, and an angle
+C     from the z-axis.  The co-latitude of the positive Z-axis is
+C     zero.  The longitude of the posive Y-axis is PI/2 radians.
 C
 C$ Examples
 C
@@ -122,25 +131,21 @@ C
 C
 C$ Restrictions
 C
-C      None.
-C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
-C
-C      None.
-C
-C$ Author_and_Institution
-C
-C      W.L. Taber      (JPL)
+C     None.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
+C
+C$ Author_and_Institution
+C
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.4, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.3, 24-SEP-1997 (WLT)
 C
@@ -172,9 +177,9 @@ C-&
  
 C$ Revisions
 C
-C-     Beta Version 1.0.1, 1-Feb-1989 (WLT)
+C-    Beta Version 1.0.1, 1-Feb-1989 (WLT)
 C
-C      Example section of header upgraded.
+C        Example section of header upgraded.
 C
 C-&
  

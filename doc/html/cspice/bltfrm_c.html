@@ -233,9 +233,9 @@
                   <b>bltfrm_c</b> ( i, &amp;idset );
 
                   sprintf ( outlin, 
-                            &quot;Number of frames of class %ld: %ld&quot;,
-                            (long) i,
-                            (long) <a href="card_c.html">card_c</a>(&amp;idset)                );
+                            &quot;Number of frames of class %d: %d&quot;,
+                            (int) i,
+                            (int) <a href="card_c.html">card_c</a>(&amp;idset)                );
                }
                else
                {
@@ -245,8 +245,8 @@
                   <b>bltfrm_c</b> ( SPICE_FRMTYP_ALL, &amp;idset );
 
                   sprintf ( outlin, 
-                            &quot;Number of built-in frames: %ld&quot;,
-                            (long) <a href="card_c.html">card_c</a>(&amp;idset)                );
+                            &quot;Number of built-in frames: %d&quot;,
+                            (int) <a href="card_c.html">card_c</a>(&amp;idset)                );
                }
 
                /.
@@ -351,6 +351,10 @@
  </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.1, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
  
    -CSPICE Version 1.0.0, 22-MAY-2012 (NJB)
 </PRE>
@@ -366,7 +370,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:26 2014</pre>
+   <pre>Wed Apr  5 17:54:28 2017</pre>
 
 </body>
 </html>

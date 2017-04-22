@@ -115,7 +115,7 @@ C     The inverse of this routine is ZZEKGCDP.
 C
 C$ Examples
 C
-C     1)  Set a colummn's data pointer to indicate that a column entry
+C     1)  Set a column's data pointer to indicate that a column entry
 C         is uninitialized.  The parameter UNINIT is defined in
 C         ekrecptr.inc
 C
@@ -134,6 +134,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    Beta Version 1.0.0, 17-OCT-1995 (NJB)
 C
@@ -156,7 +161,6 @@ C
       INTEGER               NCOLS
       INTEGER               PTRLOC
       INTEGER               RECNO
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -180,7 +184,6 @@ C
       IF (  ( COLIDX .LT. 1 ) .OR. ( COLIDX .GT. NCOLS )  ) THEN
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
  
          CALL CHKIN  ( 'ZZEKSCDP'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' //
@@ -189,7 +192,7 @@ C
          CALL ERRINT ( '#',  NCOLS                             )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                    )
          CALL ERRINT ( '#',  RECNO                             )
-         CALL ERRFNM ( '#',  UNIT                              )
+         CALL ERRHAN ( '#',  HANDLE                            )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKSCDP'                              )
          RETURN

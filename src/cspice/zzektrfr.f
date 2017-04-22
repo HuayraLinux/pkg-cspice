@@ -84,7 +84,7 @@ C         file, the error will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the input tree is deeper than the maximum allowed depth
-C         TRMXDP, the error SPICE(INVALIDFORMAT) is signalled.
+C         TRMXDP, the error SPICE(INVALIDFORMAT) is signaled.
 C
 C$ Files
 C
@@ -123,6 +123,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.3.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    SPICELIB Version 1.2.0, 18-JUN-1999 (WLT)
 C
@@ -181,17 +186,16 @@ C
       INTEGER               PAGE  ( PGSIZI )
       INTEGER               REMAIN
       INTEGER               STACK ( 3, TRMXDP )
-      INTEGER               UNIT
  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKTRFR' )
       END IF
- 
+
+      CALL CHKIN ( 'ZZEKTRFR' )
+
 C
 C     Read in the root node.
 C
@@ -204,14 +208,12 @@ C
       DEPTH  =  PAGE ( TRDPTH )
  
       IF ( DEPTH .GT. TRMXDP ) THEN
- 
-         CALL DASHLU (  HANDLE,  UNIT  )
- 
+  
          CALL SETMSG ( 'Tree has depth #; max supported depth is #.' //
      .                 'EK = #; TREE = #.'                           )
          CALL ERRINT ( '#',  DEPTH                                   )
          CALL ERRINT ( '#',  TRMXDP                                  )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL ERRINT ( '#',  TREE                                    )
          CALL SIGERR ( 'SPICE(INVALIDFORMAT)'                        )
          CALL CHKOUT ( 'ZZEKTRFR'                                    )

@@ -224,8 +224,8 @@
 
          <b>wnvald_c</b> ( 20, 16, &amp;window );
 
-         printf ( &quot;Current intervals:   %ld\n&quot;,  <a href="card_c.html">card_c</a>(&amp;window)/2  );
-         printf ( &quot;Maximum intervals:   %ld\n&quot;,  <a href="size_c.html">size_c</a>(&amp;window)/2  );
+         printf ( &quot;Current intervals:   %d\n&quot;, (int)<a href="card_c.html">card_c</a>(&amp;window)/2 );
+         printf ( &quot;Maximum intervals:   %d\n&quot;, (int)<a href="size_c.html">size_c</a>(&amp;window)/2 );
          printf ( &quot;\nIntervals\n\n&quot; );
 
          for ( i = 0;   i &lt; <a href="card_c.html">card_c</a>(&amp;window);   i+=2 )
@@ -273,6 +273,11 @@
  </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.3, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.2, 18-DEC-2008 (EDW)
    
       Corrected a typo in the version ID of the 08-OCT-2004
@@ -297,7 +302,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:49 2014</pre>
+   <pre>Wed Apr  5 17:54:48 2017</pre>
 
 </body>
 </html>

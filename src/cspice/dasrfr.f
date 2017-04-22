@@ -103,7 +103,7 @@ C
 C$ Exceptions
 C
 C     1) If the file read attempted by this routine fails, the error
-C        SPICE(DASFILEREADFAILED) will be signalled.
+C        SPICE(DASFILEREADFAILED) will be signaled.
 C
 C$ Files
 C
@@ -155,6 +155,12 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 3.0.0, 05-FEB-2015 (NJB)  
+C
+C        Updated to support integration with the handle 
+C        manager subsystem and to support reading of DAS
+C        files having non-native binary formats.
 C
 C-    SPICELIB Version 2.1.0, 25-AUG-1995 (NJB)
 C
@@ -214,7 +220,7 @@ C        to minimize documentation changes if these open routines ever
 C        change.
 C
 C        Removed the DASID parameter which had the value 'NAIF/DAS', as
-C        it was not used and is also made obsolute by the change in the
+C        it was not used and is also made obsolete by the change in the
 C        format of the ID word being implemented.
 C
 C        Added a check of FAILED after the call to DASHLU which will
@@ -239,71 +245,24 @@ C     SPICELIB functions
 C
       LOGICAL               FAILED
       LOGICAL               RETURN
- 
-C
-C     Local parameters
-C
-      INTEGER               IDWLEN
-      PARAMETER           ( IDWLEN =  8 )
- 
-      INTEGER               IFNLEN
-      PARAMETER           ( IFNLEN = 60 )
- 
-C
-C     Local variables
-C
-      CHARACTER*(IDWLEN)    TMPIDW
-      CHARACTER*(IFNLEN)    TMPIFN
- 
-      INTEGER               IOSTAT
-      INTEGER               UNIT
- 
- 
- 
+
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASRFR' )
       END IF
+
+      CALL CHKIN ( 'DASRFR' )
  
-C
-C     Get the logical unit for this DAS file.
-C
-      CALL DASHLU ( HANDLE, UNIT )
- 
+
+      CALL ZZDASRFR ( HANDLE, IDWORD, IFNAME,
+     .                NRESVR, NRESVC, NCOMR,  NCOMC )
+
       IF ( FAILED () ) THEN
          CALL CHKOUT ( 'DASRFR' )
          RETURN
       END IF
- 
-      READ ( UNIT,
-     .       REC     =  1,
-     .       IOSTAT  =  IOSTAT )     TMPIDW,
-     .                               TMPIFN,
-     .                               NRESVR,
-     .                               NRESVC,
-     .                               NCOMR,
-     .                               NCOMC
- 
-      IF ( IOSTAT .NE. 0 ) THEN
- 
-         CALL SETMSG ( 'Could not read file record.  File was ' //
-     .                 '#.  IOSTAT was #.'                       )
-         CALL ERRFNM ( '#', UNIT                                 )
-         CALL ERRINT ( '#', IOSTAT                               )
-         CALL SIGERR ( 'SPICE(DASFILEREADFAILED)'                )
-         CALL CHKOUT ( 'DASRFR'                                  )
-         RETURN
- 
-      END IF
- 
- 
-      IDWORD  =  TMPIDW
-      IFNAME  =  TMPIFN
- 
  
       CALL CHKOUT ( 'DASRFR' )
       RETURN

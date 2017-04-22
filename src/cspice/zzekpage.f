@@ -92,7 +92,7 @@ C
 C$ Exceptions
 C
 C     1)  If this routine is called directly, the error
-C         SPICE(BOGUSENTRY) will be signalled.
+C         SPICE(BOGUSENTRY) will be signaled.
 C
 C     See the entry points for discussions of errors particular to
 C     those routines.
@@ -140,6 +140,11 @@ C     N.J. Bachman       (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 20-OCT-1995 (NJB)
 C
 C-&
@@ -181,7 +186,6 @@ C
       INTEGER               NPC
       INTEGER               NPD
       INTEGER               NPI
-      INTEGER               UNIT
  
 C
 C     Saved variables
@@ -271,7 +275,7 @@ C
 C$ Exceptions
 C
 C     1)  If the DAS file designated by HANDLE is not empty, the error
-C         SPICE(DASNOTEMPTY) is signalled.
+C         SPICE(DASNOTEMPTY) is signaled.
 C
 C     2)  Any read or write errors detected during reading or writing
 C         the DAS file will be diagnosed by routines called by this
@@ -313,6 +317,11 @@ C     N.J. Bachman       (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 18-OCT-1995 (NJB)
 C
 C-&
@@ -339,10 +348,9 @@ C
      .     .OR. ( LASTD .GT. 0 )
      .     .OR. ( LASTI .GT. 0 ) ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
          CALL SETMSG ( 'File # contains data; LASTC = #; LASTD = #; '//
      .                 'LASTI = #.'                                  )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL ERRINT ( '#',  LASTC                                   )
          CALL ERRINT ( '#',  LASTD                                   )
          CALL ERRINT ( '#',  LASTI                                   )
@@ -466,7 +474,7 @@ C$ Detailed_Output
 C
 C     P              is the number of an allocated page.  The returned
 C                    page is never taken from the free list; it is
-C                    the lowest-addressed page of the specifed type
+C                    the lowest-addressed page of the specified type
 C                    that has never been allocated.
 C
 C     BASE           is the base DAS address of the page.  This address
@@ -488,7 +496,7 @@ C         the DAS file will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the requested data type is not recognized, the error
-C         SPICE(INVALIDTYPE) is signalled.
+C         SPICE(INVALIDTYPE) is signaled.
 C
 C$ Files
 C
@@ -695,7 +703,7 @@ C         the DAS file will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the requested data type is not recognized, the error
-C         SPICE(INVALIDTYPE) is signalled.
+C         SPICE(INVALIDTYPE) is signaled.
 C
 C$ Files
 C
@@ -1017,11 +1025,11 @@ C         the DAS file will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the requested data type is not recognized, the error
-C         SPICE(INVALIDTYPE) is signalled.
+C         SPICE(INVALIDTYPE) is signaled.
 C
 C     4)  If the number of the page to be freed is not that of an
 C         allocated page of the specified type, the error
-C         SPICE(INVALIDINDEX) is signalled.
+C         SPICE(INVALIDINDEX) is signaled.
 C
 C$ Files
 C
@@ -1298,7 +1306,7 @@ C         diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to read is not that of an
 C         allocated character page, the error SPICE(INVALIDINDEX) is
-C         signalled.
+C         signaled.
 C
 C$ Files
 C
@@ -1453,7 +1461,7 @@ C         diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to read is not that of an
 C         allocated double precision page, the error SPICE(INVALIDINDEX)
-C         is signalled.
+C         is signaled.
 C
 C$ Files
 C
@@ -1602,7 +1610,7 @@ C         diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to read is not that of an
 C         allocated double precision page, the error SPICE(INVALIDINDEX)
-C         is signalled.
+C         is signaled.
 C
 C$ Files
 C
@@ -1756,10 +1764,10 @@ C         will be diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to write is not that of an
 C         allocated character page, the error SPICE(INVALIDINDEX) is
-C         signalled.
+C         signaled.
 C
 C     3)  If the input string has length less than PGSIZC characters,
-C         the error SPICE(STRINGTOOSHORT) is signalled.
+C         the error SPICE(STRINGTOOSHORT) is signaled.
 C
 C$ Files
 C
@@ -1938,7 +1946,7 @@ C         will be diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to write is not that of an
 C         allocated d.p. page, the error SPICE(INVALIDINDEX) is
-C         signalled.
+C         signaled.
 C
 C$ Files
 C
@@ -2104,7 +2112,7 @@ C         will be diagnosed by routines called by this routine.
 C
 C     2)  If the number of the page to write is not that of an
 C         allocated integer page, the error SPICE(INVALIDINDEX) is
-C         signalled.
+C         signaled.
 C
 C$ Files
 C
@@ -2262,7 +2270,7 @@ C
 C$ Exceptions
 C
 C     1)  If the requested data type is not recognized, the error
-C         SPICE(INVALIDTYPE) is signalled.
+C         SPICE(INVALIDTYPE) is signaled.
 C
 C     2)  Range checking is not performed on the input page number P.
 C
@@ -2274,7 +2282,7 @@ C     read by these routines.
 C
 C$ Particulars
 C
-C     This routine provides tranlation from page numbers to DAS
+C     This routine provides translation from page numbers to DAS
 C     addresses.
 C
 C$ Examples
@@ -2419,7 +2427,7 @@ C
 C$ Exceptions
 C
 C     1)  If the requested data type is not recognized, the error
-C         SPICE(INVALIDTYPE) is signalled.
+C         SPICE(INVALIDTYPE) is signaled.
 C
 C     2)  Range checking is not performed on the input address.
 C
@@ -2431,7 +2439,7 @@ C     read by these routines.
 C
 C$ Particulars
 C
-C     This routine provides tranlation from DAS addresses to page
+C     This routine provides translation from DAS addresses to page
 C     numbers.
 C
 C$ Examples
@@ -2588,7 +2596,7 @@ C
 C$ Exceptions
 C
 C     1)  If the requested statistic is not recognized, the error
-C         SPICE(INVALIDOPTION) is signalled.
+C         SPICE(INVALIDOPTION) is signaled.
 C
 C$ Files
 C
@@ -2598,7 +2606,7 @@ C     read by these routines.
 C
 C$ Particulars
 C
-C     This routine provides tranlation from DAS addresses to page
+C     This routine provides translation from DAS addresses to page
 C     numbers.
 C
 C$ Examples

@@ -66,7 +66,7 @@ C     E.D. Wright  (JPL)
 C
 C$ Version
 C
-C-    SPICELIB Version 2.0.0, 07-MAY-2014 (BVS)(EDW)
+C-    SPICELIB Version 2.0.0, 04-APR-2017 (BVS)(EDW)
 C
 C        Increased NROOM to 14983. Added a comment note explaining 
 C        NROOM and MAXE 
@@ -100,7 +100,7 @@ C
 C     Count of default SPICE mapping assignments.
 C 
       INTEGER               NPERM
-      PARAMETER           ( NPERM = 592 )
+      PARAMETER           ( NPERM = 620 )
 
 C
 C     Size of the lists and hashes storing the built-in and
@@ -109,7 +109,7 @@ C     this size is the set to the first prime number greater than
 C     ( MAXP + NPERM ).
 C
       INTEGER               MAXE
-      PARAMETER           ( MAXE  = 743 )
+      PARAMETER           ( MAXE  = 773 )
 
 C
 C     Size of the lists and hashes storing the POOL-defined name/ID

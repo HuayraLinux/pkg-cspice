@@ -104,7 +104,7 @@ C         origin, the error SPICE(VECTORTOOBIG) is signaled.  NXPTS
 C         and XPT are not modified.
 C
 C
-C     3)  If the input plane is s further than DPMAX() / 3 from the
+C     3)  If the input plane is further than DPMAX() / 3 from the
 C         origin, the error SPICE(VECTORTOOBIG) is signaled.  NXPTS
 C         and XPT are not modified.
 C
@@ -506,6 +506,11 @@ C     W.L. Taber     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 29-SEP-2016 (NJB)
+C
+C        Changed from standard to discovery check-in. Fixed typo
+C        in header.
+C
 C-    SPICELIB Version 1.1.1, 07-FEB-2008 (BVS)
 C
 C        Fixed a few typos in the header.
@@ -590,8 +595,6 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'INRYPL' )
       END IF
  
 C
@@ -608,6 +611,7 @@ C
  
       IF (  VNORM (VERTEX)  .GE.  TOOBIG  )  THEN
  
+         CALL CHKIN  ( 'INRYPL'                                    )
          CALL SETMSG ( 'Ray''s vertex is too far from the origin.' )
          CALL SIGERR ( 'SPICE(VECTORTOOBIG)'                       )
          CALL CHKOUT ( 'INRYPL'                                    )
@@ -623,6 +627,7 @@ C
  
       IF (  CONST  .GE.  TOOBIG  )  THEN
  
+         CALL CHKIN  ( 'INRYPL'                            )
          CALL SETMSG ( 'Plane is too far from the origin.' )
          CALL SIGERR ( 'SPICE(VECTORTOOBIG)'               )
          CALL CHKOUT ( 'INRYPL'                            )
@@ -637,6 +642,7 @@ C
  
       IF ( VZERO (UDIR) ) THEN
  
+         CALL CHKIN  ( 'INRYPL'                                      )
          CALL SETMSG ( 'Ray''s direction vector is the zero vector.' )
          CALL SIGERR ( 'SPICE(ZEROVECTOR)'                           )
          CALL CHKOUT ( 'INRYPL'                                      )
@@ -698,7 +704,6 @@ C
             NXPTS  =   1
          END IF
  
-         CALL CHKOUT ( 'INRYPL' )
          RETURN
  
       END IF
@@ -766,7 +771,6 @@ C
          NXPTS = 0
          CALL CLEARD ( 3, XPT )
  
-         CALL CHKOUT ( 'INRYPL' )
          RETURN
  
       END IF
@@ -798,7 +802,6 @@ C
          NXPTS = 0
          CALL CLEARD ( 3, XPT )
  
-         CALL CHKOUT ( 'INRYPL' )
          RETURN
  
       END IF
@@ -820,6 +823,5 @@ C     scaled to allow for any growth of XPT at this step.
 C
       CALL VSCLIP ( MSCALE, XPT )
 
-      CALL CHKOUT ( 'INRYPL' )
       RETURN
       END

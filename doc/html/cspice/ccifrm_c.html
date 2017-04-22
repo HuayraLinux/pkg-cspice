@@ -284,10 +284,14 @@
 
          printf(  &quot;Class     : %d \n&quot;
                   &quot;Class ID  : %d \n&quot;
-                  &quot;Frame name: %s \n&quot;
+                  &quot;Fame name : %s \n&quot;
                   &quot;Frame Code: %d \n&quot;
                   &quot;Center ID : %d \n&quot;, 
-                  clss, clss_ID, frname, frcode2, center2 );
+                  (int)clss, 
+                  (int)clss_ID, 
+                  frname, 
+                  (int)frcode2, 
+                  (int)center2 );
 
          exit(0);
          }
@@ -317,7 +321,13 @@
  </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
- 
+   -CSPICE Version 1.0.1, 04-FEB-2017 (EDW)(BVS)
+
+       Edit to example program to use &quot;%d&quot; with explicit casts
+       to int for printing SpiceInts with printf.
+
+       Shortened one of permuted index entries.
+       
    -CSPICE Version 1.0.0, 14-JUL-2014 (NJB)
 
        Added to the Brief_I/O header section a description 
@@ -330,7 +340,7 @@
  
    Find info associated with a frame class and class id 
    Map frame class and class id to frame info 
-   Map frame class and class id to frame name, id, and center 
+   Map frame class and class id to frame name, id, center 
  </PRE>
 <h4>Link to routine ccifrm_c source file <a href='../../../src/cspice/ccifrm_c.c'>ccifrm_c.c</a> </h4>
 
@@ -339,7 +349,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:27 2014</pre>
+   <pre>Wed Apr  5 17:54:29 2017</pre>
 
 </body>
 </html>

@@ -46,9 +46,6 @@ C$ Declarations
 
       IMPLICIT NONE
  
-      INCLUDE               'errhnd.inc'
-      INCLUDE               'frmtyp.inc'
-
       INTEGER               BODY
       DOUBLE PRECISION      ET
       DOUBLE PRECISION      TIPM   ( 3,3 )
@@ -209,11 +206,18 @@ C
 C$ Author_and_Institution
 C
 C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
 C     W.L. Taber      (JPL)
 C     I.M. Underwood  (JPL)
 C     K.S. Zukor      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 4.2.0, 27-JUL-2016 (BVS)
+C
+C        Updated to use the 3x3 top-left corner of the 6x6 matrix
+C        returned by TISBOD instead of fetching kernel data and doing
+C        computations in-line.
 C
 C-    SPICELIB Version 4.1.1, 01-FEB-2008 (NJB)
 C
@@ -277,6 +281,12 @@ C-&
  
  
 C$ Revisions
+C
+C-    SPICELIB Version 4.2.0, 02-MAR-2016 (BVS)
+C
+C        Updated to use the 3x3 top-left corner of the 6x6 matrix
+C        returned by TISBOD instead of fetching kernel data and doing
+C        computations in-line.
 C
 C-    SPICELIB Version 4.1.0, 25-AUG-2005 (NJB)
 C
@@ -362,97 +372,16 @@ C-&
 C
 C     SPICELIB functions
 C
-      DOUBLE PRECISION      HALFPI
-      DOUBLE PRECISION      J2000
-      DOUBLE PRECISION      RPD
-      DOUBLE PRECISION      SPD
-      DOUBLE PRECISION      TWOPI
-      DOUBLE PRECISION      VDOTG
- 
-      INTEGER               ZZBODBRY
-
-      LOGICAL               BODFND
+      LOGICAL               FAILED
       LOGICAL               RETURN
  
 C
-C     Local parameters
-C
-      INTEGER               FRNMLN
-      PARAMETER           ( FRNMLN = 32 )
-
-      INTEGER               MAXANG
-      PARAMETER           ( MAXANG = 100 )
-
-      INTEGER               MXPOLY
-      PARAMETER           ( MXPOLY = 3 )
-
-      INTEGER               NAMLEN
-      PARAMETER           ( NAMLEN = 32 )
- 
-      INTEGER               TIMLEN
-      PARAMETER           ( TIMLEN = 35 )
-
-C
 C     Local variables
 C
-      CHARACTER*(1)         DTYPE
-      CHARACTER*(LMSGLN)    ERRMSG
-      CHARACTER*(FRNMLN)    FIXFRM
-      CHARACTER*(NAMLEN)    ITEM
-      CHARACTER*(TIMLEN)    TIMSTR
- 
-      INTEGER               CENT
-      INTEGER               DIM
-      INTEGER               FRCODE
+      DOUBLE PRECISION      TSIPM   ( 6, 6 )
+
       INTEGER               I
       INTEGER               J
-      INTEGER               J2CODE
-      INTEGER               NA
-      INTEGER               ND
-      INTEGER               NTHETA
-      INTEGER               NW
-      INTEGER               REF
-      INTEGER               REFID
- 
-      DOUBLE PRECISION      AC     ( MAXANG )
-      DOUBLE PRECISION      CONEPC
-      DOUBLE PRECISION      CONREF
-      DOUBLE PRECISION      COSTH  ( MAXANG )
-      DOUBLE PRECISION      D
-      DOUBLE PRECISION      DC     ( MAXANG )
-      DOUBLE PRECISION      DCOEF  ( 0:MXPOLY-1 )
-      DOUBLE PRECISION      DEC
-      DOUBLE PRECISION      DELTA
-      DOUBLE PRECISION      EPOCH
-      DOUBLE PRECISION      J2REF  (  3,  3 )
-      DOUBLE PRECISION      PHI
-      DOUBLE PRECISION      RA
-      DOUBLE PRECISION      RCOEF  ( 0:MXPOLY-1 )
-      DOUBLE PRECISION      SINTH  ( MAXANG )
-      DOUBLE PRECISION      T
-      DOUBLE PRECISION      TCOEF  ( 2, MAXANG )
-      DOUBLE PRECISION      THETA
-      DOUBLE PRECISION      TMPMAT ( 3, 3   )
-      DOUBLE PRECISION      TSIPM  ( 6, 6   )
-      DOUBLE PRECISION      W
-      DOUBLE PRECISION      WC     ( MAXANG )
-      DOUBLE PRECISION      WCOEF  ( 0:MXPOLY-1 )
- 
-      LOGICAL               FIRST
-      LOGICAL               FOUND
- 
-C
-C     Saved variables
-C
-      SAVE                  FIRST
-      SAVE                  J2CODE
- 
-C
-C     Initial values
-C
-      DATA  FIRST / .TRUE. /
-      DATA  FOUND / .FALSE. /
- 
  
 C
 C     Standard SPICE Error handling.
@@ -462,306 +391,24 @@ C
       ELSE
          CALL CHKIN ( 'BODMAT' )
       END IF
- 
+
 C
-C     Get the code for the J2000 frame, if we don't have it yet.
+C     Get 6x6 state transformation from TISBOD. If succeeded, pull out
+C     left-top 3x3 matrix.
 C
-      IF ( FIRST ) THEN
+      CALL TISBOD ( 'J2000', BODY, ET, TSIPM )
  
-         CALL IRFNUM ( 'J2000', J2CODE )
-         FIRST = .FALSE.
- 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'BODMAT' )
+         RETURN
       END IF
- 
-C
-C     Get Euler angles from high precision data file.
-C
-      CALL PCKMAT ( BODY, ET, REF, TSIPM, FOUND )
- 
-      IF ( FOUND ) THEN
- 
-         DO  I = 1, 3
-            DO   J  = 1, 3
-              TIPM  ( I, J ) = TSIPM  ( I, J )
-            END DO
+
+      DO  I = 1, 3
+         DO   J  = 1, 3
+            TIPM  ( I, J ) = TSIPM  ( I, J )
          END DO
- 
-      ELSE
-C
-C        The data for the frame of interest are not available in a
-C        loaded binary PCK file. This is not an error: the data may be
-C        present in the kernel pool.
-C
-C        Conduct a non-error-signaling check for the presence of a
-C        kernel variable that is required to implement an IAU style
-C        body-fixed reference frame. If the data aren't available, we
-C        don't want BODVCD to signal a SPICE(KERNELVARNOTFOUND) error;
-C        we want to issue the error signal locally, with a better error
-C        message.
-C
-         ITEM = 'BODY#_PM'
-         CALL REPMI  ( ITEM, '#',   BODY, ITEM  )
-         CALL DTPOOL ( ITEM, FOUND, NW,   DTYPE )
-         
-         IF ( .NOT. FOUND ) THEN
-C
-C           Now we do have an error.
-C
-C           We don't have the data we'll need to produced the requested
-C           state transformation matrix. In order to create an error
-C           message understandable to the user, find, if possible, the
-C           name of the reference frame associated with the input body.
-C           Note that the body is really identified by a PCK frame class
-C           ID code, though most of the documentation just calls it a 
-C           body ID code.
-C   
-            CALL CCIFRM ( PCK, BODY,  FRCODE, FIXFRM, CENT, FOUND )
-            CALL ETCAL  ( ET,  TIMSTR )
+      END DO
 
-            ERRMSG = 'PCK data required to compute the orientation '
-     .      //       'of the # # for epoch # TDB were not found. '
-     .      //       'If these data were to be provided by a binary '
-     .      //       'PCK file, then it is possible that the PCK '
-     .      //       'file does not have coverage for the specified '
-     .      //       'body-fixed frame at the time of interest. If the '
-     .      //       'data were to be provided by a text PCK file, '
-     .      //       'then possibly the file does not contain data '
-     .      //       'for the specified body-fixed frame. In '
-     .      //       'either case it is possible that a required '
-     .      //       'PCK file was not loaded at all.'
-
-C
-C           Fill in the variable data in the error message.
-C
-            IF ( FOUND ) THEN
-C
-C              The frame system knows the name of the body-fixed frame.
-C
-               CALL SETMSG ( ERRMSG                  )
-               CALL ERRCH  ( '#', 'body-fixed frame' )
-               CALL ERRCH  ( '#', FIXFRM             )
-               CALL ERRCH  ( '#', TIMSTR             )
-
-            ELSE
-C
-C              The frame system doesn't know the name of the 
-C              body-fixed frame, most likely due to a missing
-C              frame kernel.
-C
-               CALL SUFFIX ( '#', 1, ERRMSG                      )
-               CALL SETMSG ( ERRMSG                              )
-               CALL ERRCH  ( '#', 
-     .                       'body-fixed frame associated with ' 
-     .         //            'the ID code'                       )
-               CALL ERRINT ( '#', BODY                           )
-               CALL ERRCH  ( '#', TIMSTR                         )
-               CALL ERRCH  ( '#', 
-     .                       'Also, a frame kernel defining the '
-     .         //            'body-fixed frame associated with '
-     .         //            'body # may need to be loaded.'     )
-               CALL ERRINT ( '#', BODY                           )
-     
-            END IF
-
-            CALL SIGERR ( 'SPICE(FRAMEDATANOTFOUND)' )
-            CALL CHKOUT ( 'BODMAT'                   )
-            RETURN
-
-         END IF
-
-
-C
-C        Find the body code used to label the reference frame and epoch
-C        specifiers for the orientation constants for BODY.
-C
-C        For planetary systems, the reference frame and epoch for the
-C        orientation constants is associated with the system
-C        barycenter, not with individual bodies in the system.  For any
-C        other bodies, (the Sun or asteroids, for example) the body's
-C        own code is used as the label.
-C
-         REFID = ZZBODBRY ( BODY )
- 
-C
-C        Look up the epoch of the constants.  The epoch is specified
-C        as a Julian ephemeris date.  The epoch defaults to J2000.
-C
-         ITEM  =  'BODY#_CONSTANTS_JED_EPOCH'
- 
-         CALL REPMI  ( ITEM, '#', REFID, ITEM               )
-         CALL GDPOOL ( ITEM,  1,  1,     DIM, CONEPC, FOUND )
- 
- 
-         IF ( FOUND ) THEN
-C
-C           The reference epoch is returned as a JED.  Convert to
-C           ephemeris seconds past J2000.  Then convert the input ET to
-C           seconds past the reference epoch.
-C
-            CONEPC  =  SPD() * ( CONEPC - J2000() )
-            EPOCH   =  ET    -   CONEPC
- 
-         ELSE
-            EPOCH   =  ET
-         END IF
- 
-C
-C        Look up the reference frame of the constants.  The reference
-C        frame is specified by a code recognized by CHGIRF.  The
-C        default frame is J2000, symbolized by the code J2CODE.
-C
-         ITEM  =  'BODY#_CONSTANTS_REF_FRAME'
- 
-         CALL REPMI  ( ITEM, '#', REFID, ITEM               )
-         CALL GDPOOL ( ITEM,  1,  1,     DIM, CONREF, FOUND )
- 
-         IF ( FOUND ) THEN
-            REF  =  NINT ( CONREF )
-         ELSE
-            REF  =  J2CODE
-         END IF
- 
-C
-C        Whatever the body, it has quadratic time polynomials for
-C        the RA and Dec of the pole, and for the rotation of the
-C        Prime Meridian.
-C
-         ITEM = 'POLE_RA'
-         CALL CLEARD (             MXPOLY,     RCOEF )
-         CALL BODVCD ( BODY, ITEM, MXPOLY, NA, RCOEF )
- 
-         ITEM = 'POLE_DEC'
-         CALL CLEARD (             MXPOLY,     DCOEF )
-         CALL BODVCD ( BODY, ITEM, MXPOLY, ND, DCOEF )
- 
-         ITEM = 'PM'
-         CALL CLEARD (             MXPOLY,     WCOEF )
-         CALL BODVCD ( BODY, ITEM, MXPOLY, NW, WCOEF )
- 
-C
-C        There may be additional nutation and libration (THETA) terms.
-C
-         NTHETA = 0
-         NA     = 0
-         ND     = 0
-         NW     = 0
- 
-         ITEM = 'NUT_PREC_ANGLES'
-
-         IF ( BODFND ( REFID, ITEM ) ) THEN
-            CALL BODVCD ( REFID, ITEM, MAXANG, NTHETA, TCOEF )
-            NTHETA = NTHETA / 2
-         END IF
- 
-         ITEM = 'NUT_PREC_RA'
-
-         IF ( BODFND ( BODY, ITEM ) ) THEN
-            CALL BODVCD ( BODY, ITEM, MAXANG, NA, AC )
-         END IF
-
-         ITEM = 'NUT_PREC_DEC'
-
-         IF ( BODFND ( BODY, ITEM ) ) THEN
-            CALL BODVCD ( BODY, ITEM, MAXANG, ND, DC )
-         END IF
-
-         ITEM = 'NUT_PREC_PM'
-
-         IF ( BODFND ( BODY, ITEM ) ) THEN
-            CALL BODVCD ( BODY, ITEM, MAXANG, NW, WC )
-         END IF
-
- 
-         IF ( MAX ( NA, ND, NW ) .GT. NTHETA ) THEN
-            CALL SETMSG ( 'Insufficient number of nutation/' //
-     .                 'precession angles for body * at time #.' )
-            CALL ERRINT ( '*', BODY )
-            CALL ERRDP  ( '#', ET   )
-            CALL SIGERR ( 'SPICE(KERNELVARNOTFOUND)' )
-            CALL CHKOUT ( 'BODMAT' )
-            RETURN
-         END IF
- 
-C
-C        Evaluate the time polynomials at EPOCH.
-C
-         D   = EPOCH / SPD()
-         T   = D     / 36525.D0
- 
-         RA  = RCOEF(0)  +  T * ( RCOEF(1) + T * RCOEF(2) )
-         DEC = DCOEF(0)  +  T * ( DCOEF(1) + T * DCOEF(2) )
-         W   = WCOEF(0)  +  D * ( WCOEF(1) + D * WCOEF(2) )
- 
-C
-C        Add nutation and libration as appropriate.
-C
-         DO I = 1, NTHETA
- 
-            THETA    = ( TCOEF(1,I)  +  T * TCOEF(2,I) ) * RPD()
- 
-            SINTH(I) = SIN ( THETA )
-            COSTH(I) = COS ( THETA )
- 
-         END DO
- 
-         RA  = RA  + VDOTG ( AC, SINTH, NA )
-         DEC = DEC + VDOTG ( DC, COSTH, ND )
-         W   = W   + VDOTG ( WC, SINTH, NW )
- 
-C
-C        Convert from degrees to radians and mod by two pi.
-C
-         RA     = RA     * RPD()
-         DEC    = DEC    * RPD()
-         W      = W      * RPD()
- 
-         RA     = MOD ( RA,     TWOPI() )
-         DEC    = MOD ( DEC,    TWOPI() )
-         W      = MOD ( W,      TWOPI() )
- 
-C
-C        Convert to Euler angles.
-C
-         PHI     = RA + HALFPI()
-         DELTA   = HALFPI() - DEC
- 
-C
-C        Produce the rotation matrix defined by the Euler angles.
-C
-         CALL EUL2M  ( W, DELTA, PHI,
-     .                 3,     1,   3, TIPM )
- 
-      END IF
-C
-C     Convert TIPM to the J2000-to-bodyfixed rotation, if is is not
-C     already referenced to J2000.
-C
-      IF ( REF .NE. J2CODE ) THEN
-C
-C        Find the transformation from the J2000 frame to the frame
-C        designated by REF.  Form the transformation from `REF'
-C        coordinates to body-fixed coordinates.  Compose the
-C        transformations to obtain the J2000-to-body-fixed
-C        transformation.
-C
-         CALL IRFROT ( J2CODE,  REF,    J2REF  )
-         CALL MXM    ( TIPM,    J2REF,  TMPMAT )
-         CALL MOVED  ( TMPMAT,  9,      TIPM   )
-
-      END IF
- 
-C
-C     TIPM now gives the transformation from J2000 to
-C     body-fixed coordinates at epoch ET seconds past J2000,
-C     regardless of the epoch and frame of the orientation constants
-C     for the specified body.
-C
- 
       CALL CHKOUT ( 'BODMAT' )
       RETURN
       END
- 
- 
- 
- 
- 

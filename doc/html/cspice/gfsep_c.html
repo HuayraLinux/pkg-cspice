@@ -115,11 +115,11 @@
 </PRE>
 <h4><a name="Required_Reading">Required_Reading</a></h4>
 <PRE>
-   <a href="../req/gf.html">GF</a>.REQ
-   <a href="../req/naif_ids.html">NAIF_IDS</a>.REQ
-   <a href="../req/spk.html">SPK</a>.REQ
-   <a href="../req/time.html">TIME</a>.REQ
-   <a href="../req/windows.html">WINDOWS</a>.REQ
+   <a href="../req/gf.html">GF</a>
+   <a href="../req/naif_ids.html">NAIF_IDS</a>
+   <a href="../req/spk.html">SPK</a>
+   <a href="../req/time.html">TIME</a>
+   <a href="../req/windows.html">WINDOWS</a>
 </PRE>
 <h4><a name="Keywords">Keywords</a></h4>
 <PRE>
@@ -159,47 +159,53 @@
 <PRE>
    targ1       the string naming the first body of interest. You can
                also supply the integer ID code for the object as an
-               integer string.  For example both 'MOON' and '301'
+               integer string.  For example both &quot;MOON&quot; and &quot;301&quot;
                are legitimate strings that indicate the moon is the
                target body.
 
    shape1      the string naming the geometric model used to represent
                the shape of the targ1 body. Models supported by this routine:
 
-                 'SPHERE'        Treat the body as a sphere with radius
+                 &quot;SPHERE&quot;        Treat the body as a sphere with radius
                                  equal to the maximum value of
                                  BODYnnn_RADII
 
-                 'POINT'         Treat the body as a point;
+                 &quot;POINT&quot;         Treat the body as a point;
                                  radius has value zero.
 
                The 'shape1' string lacks sensitivity to case, leading
                and trailing blanks.
 
    frame1      the string naming the body-fixed reference frame
-               corresponding to targ1.
+               corresponding to targ1. <b>gfsep_c</b> does not currently use
+               this argument's value, its use is reserved for future
+               shape models. The value &quot;NULL&quot; will suffice for
+               &quot;POINT&quot; and &quot;SPHERE&quot; shaped bodies.
 
    targ2       the string naming the second body of interest. You can
                also supply the integer ID code for the object as an
-               integer string.  For example both 'MOON' and '301'
+               integer string.  For example both &quot;MOON&quot; and &quot;301&quot;
                are legitimate strings that indicate the moon is the
                target body.
 
    shape2      the string naming the geometric model used to represent
                the shape of the targ2. Models supported by this routine:
 
-                 'SPHERE'        Treat the body as a sphere with radius
+                 &quot;SPHERE&quot;        Treat the body as a sphere with radius
                                  equal to the maximum value of
                                  BODYnnn_RADII
 
-                 'POINT'         Treat the body as a single point;
+                 &quot;POINT&quot;         Treat the body as a single point;
                                  radius has value zero.
 
                The 'shape2' string lacks sensitivity to case, leading
                and trailing blanks.
 
    frame2      the string naming the body-fixed reference frame
-               corresponding to 'targ2'.
+               corresponding to 'targ2'. <b>gfsep_c</b> does not currently use
+               this argument's value, its use is reserved for future
+               shape models. The value &quot;NULL&quot; will suffice for
+               &quot;POINT&quot; and &quot;SPHERE&quot; shaped bodies.
 
    abcorr      the string indicating the aberration corrections to apply
                to the observer-target position vector to account for
@@ -210,37 +216,37 @@
                detailed description of the aberration correction options.
                For convenience, the options are listed below:
 
-                  'NONE'     Apply no correction.
+                  &quot;NONE&quot;     Apply no correction.
 
-                  'LT'       &quot;Reception&quot; case:  correct for
+                  &quot;LT&quot;       &quot;Reception&quot; case:  correct for
                              one-way light time using a Newtonian
                              formulation.
 
-                  'LT+S'     &quot;Reception&quot; case:  correct for
+                  &quot;LT+S&quot;     &quot;Reception&quot; case:  correct for
                              one-way light time and stellar
                              aberration using a Newtonian
                              formulation.
 
-                  'CN'       &quot;Reception&quot; case:  converged
+                  &quot;CN&quot;       &quot;Reception&quot; case:  converged
                              Newtonian light time correction.
 
-                  'CN+S'     &quot;Reception&quot; case:  converged
+                  &quot;CN+S&quot;     &quot;Reception&quot; case:  converged
                              Newtonian light time and stellar
                              aberration corrections.
 
-                  'XLT'      &quot;Transmission&quot; case:  correct for
+                  &quot;XLT&quot;      &quot;Transmission&quot; case:  correct for
                              one-way light time using a Newtonian
                              formulation.
 
-                  'XLT+S'    &quot;Transmission&quot; case:  correct for
+                  &quot;XLT+S&quot;    &quot;Transmission&quot; case:  correct for
                              one-way light time and stellar
                              aberration using a Newtonian
                              formulation.
 
-                  'XCN'      &quot;Transmission&quot; case:  converged
+                  &quot;XCN&quot;      &quot;Transmission&quot; case:  converged
                              Newtonian light time correction.
 
-                  'XCN+S'    &quot;Transmission&quot; case:  converged
+                  &quot;XCN+S&quot;    &quot;Transmission&quot; case:  converged
                              Newtonian light time and stellar
                              aberration corrections.
 
@@ -249,7 +255,7 @@
 
    obsrvr      the string naming the observing body. Optionally, you
                may supply the ID code of the object as an integer
-               string. For example, both 'EARTH' and '399' are
+               string. For example, both &quot;EARTH&quot; and &quot;399&quot; are
                legitimate strings to supply to indicate the
                observer is Earth.
 
@@ -259,22 +265,22 @@
                where the constraint is satisfied. Supported values of
                relate and corresponding meanings are shown below:
 
-                  '&gt;'      Separation is greater than the reference
+                  &quot;&gt;&quot;      Separation is greater than the reference
                            value refval.
 
-                  '='      Separation is equal to the reference
+                  &quot;=&quot;      Separation is equal to the reference
                            value refval.
 
-                  '&lt;'      Separation is less than the reference
+                  &quot;&lt;&quot;      Separation is less than the reference
                            value refval.
 
-                 'ABSMAX'  Separation is at an absolute maximum.
+                 &quot;ABSMAX&quot;  Separation is at an absolute maximum.
 
-                 'ABSMIN'  Separation is at an absolute  minimum.
+                 &quot;ABSMIN&quot;  Separation is at an absolute  minimum.
 
-                 'LOCMAX'  Separation is at a local maximum.
+                 &quot;LOCMAX&quot;  Separation is at a local maximum.
 
-                 'LOCMIN'  Separation is at a local minimum.
+                 &quot;LOCMIN&quot;  Separation is at a local minimum.
 
               The caller may indicate that the region of interest
               is the set of time intervals where the quantity is
@@ -452,7 +458,7 @@
        unrecognized value, an error is signaled by a routine in the
        call tree of this routine.
 
-   10) If `adjust' is negative, an error is signaled by a routine in
+   10) If 'adjust' is negative, an error is signaled by a routine in
        the call tree of this routine.
 
    11) If either of the input body names, 'targ1', 'targ2' do not map
@@ -917,6 +923,14 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.2, 30-JUL-2014 (EDW)
+
+      Edit to argument I/O 'frame1' and 'frame2' to mention use of
+      &quot;NULL.&quot;
+
+      Edit to header, correct Required Reading entry eliminating &quot;.REQ&quot;
+      suffix.
+
    -CSPICE Version 1.0.1, 28-FEB-2013 (NJB) (EDW)
 
       Header was updated to discuss use of <a href="gfstol_c.html">gfstol_c</a>.
@@ -958,7 +972,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:35 2014</pre>
+   <pre>Wed Apr  5 17:54:36 2017</pre>
 
 </body>
 </html>

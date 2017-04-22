@@ -57,6 +57,7 @@ C      BEGMRK    I   The begin comments marker in the comment text file.
 C      ENDMRK    I   The end comments marker in the comment text file.
 C      INSBLN    I   A flag indicating whether to insert a blank line.
 C      HANDLE    I   Handle of a DAS file opened with write access.
+C      LNSIZE    P   Maximum length of comment line.
 C
 C$ Detailed_Input
 C
@@ -82,7 +83,7 @@ C              comment text file. This marker must appear on a line by
 C              itself, and leading and trailing blanks are not
 C              significant.
 C
-C              The line immediately preceeding this marker is the last
+C              The line immediately preceding this marker is the last
 C              comment line to be placed into the comment area of the
 C              binary DAS file.
 C
@@ -111,23 +112,33 @@ C     None.
 C
 C$ Parameters
 C
-C     None.
+C     LNSIZE   is both the maximum length of a comment line that can
+C              be read from the input file, and the maximum length
+C              of a comment line that this routine can write to the
+C              output DAS file.
+C
+C              LNSIZE is set to 255 characters.
+C
+C              The DAS file format itself does not impose a limit
+C              on the length of lines in comment area, other than
+C              that the character count must be expressible in a
+C              32-bit signed integer.
 C
 C$ Exceptions
 C
 C     1)   If the scratch file for temporarily holding the comments
 C          culled from the text file cannot be opened, then the
-C          error SPICE(FILEOPENFAILED) will be signalled.
+C          error SPICE(FILEOPENFAILED) will be signaled.
 C
 C     2)   If a non printing ASCII character is encountered in the
 C          comments, the error SPICE(ILLEGALCHARACTER) will be
-C          signalled.
+C          signaled.
 C
 C     3)   If the begin marker cannot be found in the text file, the
-C          error SPICE(MARKERNOTFOUND) will be signalled.
+C          error SPICE(MARKERNOTFOUND) will be signaled.
 C
 C     4)   If the end marker cannot be found in the text file, the
-C          error SPICE(MARKERNOTFOUND) will be signalled.
+C          error SPICE(MARKERNOTFOUND) will be signaled.
 C
 C$ Files
 C
@@ -145,7 +156,7 @@ C     This routine will place all lines between two specified markers,
 C     a `begin comments marker' and an `end comments marker,' in a
 C     text file into the comment area of a binary DAS file attached to
 C     HANDLE. If the `begin comments marker' is blank, then the
-C     comments are asumed to start at the current location of the
+C     comments are assumed to start at the current location of the
 C     comment text file attached to COMLUN. If the `end comments
 C     marker' is blank, then the comments are assumed to stop at the
 C     end of the comment text file attached to COMLUN.
@@ -249,7 +260,7 @@ C            CALL DASACU ( JABLUN, BEGMRK, ENDMRK, INSBLN, HANDLE )
 C     C
 C     C      Initialize the markers for the file `batty.txt'. We want
 C     C      to include the bat poem only, so we define the begin and
-C     C      end markere accordingly.
+C     C      end marker accordingly.
 C     C
 C            BEGMRK = 'BEGIN bat poem'
 C            ENDMRK = 'END bat poem'
@@ -310,21 +321,22 @@ C     comments, respectively.
 C
 C$ Restrictions
 C
-C     1) The begin comments marker, BEGMRK, and the end comments marker,
-C        ENDMRK, must each appear alone on a line in the comment text
-C        file if they are not blank.
+C     1)  The begin comments marker, BEGMRK, and the end comments
+C         marker, ENDMRK, must each appear alone on a line in the
+C         comment text file if they are not blank.
 C
-C     2) The maximum length of a text line in a comment file is
-C        specified by the LINLEN parameter defined below. Currently
-C        this values is 255 characters.
+C     2)  The maximum length of a text line in the input comment file
+C         is specified by the LINLEN parameter defined below. Currently
+C         this value is 255 characters.
 C
-C     3) The maximum length of a single line comment in the comment
-C        area is specified by the parameter LINLEN defined below.
-C        Currently this value is 255 characters.
+C     3)  The maximum length of a single comment line that can be
+C         written by this routine to the output DAS file's comment area
+C         is specified by the parameter LINLEN defined below. Currently
+C         this value is 255 characters.
 C
-C     4) This routine uses constants that are specific to the ASCII
-C        character sequence. The results of using this routine with
-C        a different character sequence are unpredictable.
+C     4)  This routine uses constants that are specific to the ASCII
+C         character sequence. The results of using this routine with a
+C         different character sequence are unpredictable.
 C
 C$ Literature_References
 C
@@ -336,6 +348,11 @@ C     K.R. Gehringer (JPL)
 C
 C$ Version
 C
+C-    SPICELIB 1.2.1, 15-MAR-2017 (NJB)
+C
+C        Added description of parameter LNSIZE. Fixed typos
+C        throughout the comments.
+C
 C-    SPICELIB 1.2.0, 07-JUL-1996 (NJB)
 C
 C        Removed declaration, DATA and SAVE statements for unused
@@ -344,7 +361,7 @@ C
 C-    Beta Version 1.1.0, 20-SEP-1995 (KRG)
 C
 C        Added a check of FAILED after the call to GETLUN to trap
-C        an error, if one is signalled by GETLUN, before attempting to 
+C        an error, if one is signaled by GETLUN, before attempting to 
 C        open the SCRATCH file.
 C
 C-    Beta Version 1.0.0, 4-JAN-1993 (KRG)
@@ -368,7 +385,7 @@ C
 C-    Beta Version 1.1.0, 20-SEP-1995 (KRG)
 C
 C        Added a check of FAILED after the call to GETLUN to trap
-C        an error, if one is signalled by GETLUN, before attempting to 
+C        an error, if one is signaled by GETLUN, before attempting to 
 C        open the SCRATCH file.
 C
 C-&
@@ -569,7 +586,7 @@ C
  
                   LENGTH = LASTNB ( COMBUF(I) )
 C
-C                 Scan the comment line for non printinig characters.
+C                 Scan the comment line for non printing characters.
 C
                   DO J = 1, LENGTH
 C
@@ -794,7 +811,7 @@ C
  
       END DO
 C
-C     Close the scratch file before exiting, it's the only one we
+C     Close the scratch file before exiting; it's the only one we
 C     opened.
 C
       CLOSE ( SCRLUN )

@@ -205,15 +205,15 @@ C         Except as described in this header section, no attempt is
 C         made to handle these errors.
 C
 C     4)  If the data type code in the input column descriptor is not
-C         recognized, the error SPICE(INVALIDDATATYPE) is signalled.
+C         recognized, the error SPICE(INVALIDDATATYPE) is signaled.
 C         The function value is .FALSE. in this case.
 C
 C     5)  If the specified column entry cannot be found, the error
-C         SPICE(INVALIDINDEX) is signalled.  The function value is
+C         SPICE(INVALIDINDEX) is signaled.  The function value is
 C         .FALSE. in this case.
 C
 C     6)  If the relational operator code OP is not recognized, the
-C         error SPICE(UNNATURALRELATION) is signalled.  The function
+C         error SPICE(UNNATURALRELATION) is signaled.  The function
 C         value is .FALSE. in this case.
 C
 C
@@ -233,7 +233,7 @@ C
 C$ Restrictions
 C
 C     1)  This routine must execute quickly.  Therefore, it checks in
-C         only if it detects an error.  If an error is signalled by a
+C         only if it detects an error.  If an error is signaled by a
 C         routine called by this routine, this routine will not appear
 C         in the SPICELIB traceback display.  Also, in the interest
 C         of speed, this routine does not test the value of the SPICELIB
@@ -248,6 +248,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.3.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    SPICELIB Version 1.2.0, 31-MAY-2009 (NJB)
 C
@@ -285,7 +290,6 @@ C
       INTEGER               ELTI
       INTEGER               REL
       INTEGER               STRLEN
-      INTEGER               UNIT
  
       LOGICAL               ENULL
       LOGICAL               FOUND
@@ -363,12 +367,10 @@ C
  
       IF ( .NOT. FOUND ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
- 
          CALL CHKIN  ( 'ZZEKSCMP'                                  )
          CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ELTIDX = #. '//
      .                 'Column entry element was not found.'       )
-         CALL ERRFNM ( '#',  UNIT                                  )
+         CALL ERRHAN ( '#',  HANDLE                                )
          CALL ERRINT ( '#',  COLDSC(ORDIDX)                        )
          CALL ERRINT ( '#',  ROW                                   )
          CALL ERRINT ( '#',  ELTIDX                                )

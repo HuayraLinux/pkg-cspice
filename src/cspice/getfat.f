@@ -199,6 +199,16 @@ C     E.D. Wright     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 5.0.0, 05-FEB-2015 (NJB)
+C
+C        Updated to support integration of DAS into the
+C        handle manager subsystem. Now opened DAS files
+C        must be known to that subsystem; if this routine
+C        encounters an open, unrecognized DAS file, an
+C        error is signaled.
+C
+C        Corrected various typos in comments.
+C
 C-    SPICELIB Version 4.25.0, 10-MAR-2014 (BVS)
 C
 C        Updated for SUN-SOLARIS-64BIT-INTEL.
@@ -327,7 +337,7 @@ C
 C-    SPICELIB Version 3.1.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 3.1.3, 22-SEP-1999 (NJB)
@@ -368,7 +378,7 @@ C         Removed the mention of 1000 characters as a candidate for the
 C         record length of a file.
 C
 C         Added the exception for a blank filename to the header. The
-C         error is signalled, but it was not listed in the header.
+C         error is signaled, but it was not listed in the header.
 C
 C         Added IOSTAT values to the appropriate error messages.
 C
@@ -438,10 +448,10 @@ C         record length of a file. It seems unlikely that we will
 C         encounter an environment where 1000 characters of storage is
 C         larger than the storage necessary for 128 double precision
 C         numbers; typically there are 8 characters per double precision
-C         number, yeilding 1024 characters.
+C         number, yielding 1024 characters.
 C
 C         Added the exception for a blank filename to the header. The
-C         error is signalled, but it was not listed in the header.
+C         error is signaled, but it was not listed in the header.
 C
 C         Added IOSTAT values to the appropriate error messages.
 C
@@ -454,7 +464,6 @@ C-&
 C
 C     SPICELIB functions
 C
-      INTEGER               CARDI
       LOGICAL               RETURN
  
 C
@@ -485,9 +494,6 @@ C
       INTEGER               MAXPCH
       PARAMETER           ( MAXPCH = 126 )
  
-      INTEGER               MAXHND
-      PARAMETER           ( MAXHND = 100 )
- 
 C
 C     Local Variables
 C
@@ -497,21 +503,16 @@ C
       CHARACTER*(IDLEN)     TMPWRD
  
       INTEGER               HANDLE
-      INTEGER               HANDLES ( LBCELL: MAXHND )
       INTEGER               I
       INTEGER               INTAMN
       INTEGER               INTARC
       INTEGER               INTBFF
       INTEGER               IOSTAT
-      INTEGER               MYUNIT
       INTEGER               NUMBER
-      INTEGER               UNIT
-      INTEGER               WHICH
  
       LOGICAL               DIROPN
       LOGICAL               EXIST
       LOGICAL               FOUND
-      LOGICAL               NOTDAS
       LOGICAL               OPENED
  
 C
@@ -604,83 +605,21 @@ C
          END IF
  
 C
-C        If the file is already open, it may be a DAS file.
+C        Reject open files not known to the handle manager subsystem.
 C
          IF ( OPENED ) THEN
- 
 C
-C           At the moment, the handle manager doesn't manage DAS
-C           handles.  As a result we need to treat the case of an open
-C           DAS separately. When the Handle Manager is hooked in with
-C           DAS as well as DAF, we should remove the block below.
+C           Open files that are not opened within the SPICE
+C           binary file management subsystem are forbidden fruit.
+C           All we can do is signal an error letting the caller
+C           know that we are helpless in this case.
 C
-C           ===================================================
-C           DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS
-C           vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-C
-C           This file may or may not be a DAS file.  Until we
-C           have determined otherwise, we assume it is not
-C           a DAS file.
-C
-            NOTDAS = .TRUE.
+            CALL SETMSG ( 'The file ''#'' is already open.' )
+            CALL ERRCH  ( '#', FILE                         )
+            CALL SIGERR ( 'SPICE(EXTERNALOPEN)'             )
+            CALL CHKOUT ( 'GETFAT'                          )
+            RETURN
  
-            INQUIRE ( FILE   = FILE,
-     .                NUMBER = UNIT,
-     .                IOSTAT = IOSTAT )
- 
-            IF ( IOSTAT .NE. 0 ) THEN
-               CALL SETMSG ( 'IOSTAT error in INQUIRE statement. '
-     .         //            'IOSTAT = #.'                       )
-               CALL ERRINT ( '#', IOSTAT                         )
-               CALL SIGERR ( 'SPICE(INQUIREERROR)'               )
-               CALL CHKOUT ( 'GETFAT'                            )
-               RETURN
-            END IF
- 
-C
-C           Get the set of handles of open DAS files.  We will
-C           translate each of these handles to the associated
-C           logical unit.  If the tranlation matches the result
-C           of the inquire, this must be a DAS file and we
-C           can proceed to determine the type.
-C
-            CALL SSIZEI ( MAXHND, HANDLES )
-            CALL DASHOF ( HANDLES )
- 
-            WHICH  = CARDI(HANDLES)
- 
-            DO WHILE ( WHICH .GT. 0 )
- 
-               CALL DASHLU ( HANDLES(WHICH), MYUNIT )
- 
-               IF ( UNIT .EQ. MYUNIT ) THEN
-                  NUMBER = MYUNIT
-                  WHICH  = 0
-                  NOTDAS = .FALSE.
-               ELSE
-                  WHICH = WHICH - 1
-               END IF
- 
-            END DO
- 
-C
-C           If we reach this point and do not have a DAS, there
-C           is no point in going on.  The user has opened this
-C           file outside the SPICE system.  We shall not attempt
-C           to determine its type.
-C
-            IF ( NOTDAS ) THEN
-               CALL SETMSG ( 'The file ''#'' is already open.' )
-               CALL ERRCH  ( '#', FILE                         )
-               CALL SIGERR ( 'SPICE(EXTERNALOPEN)'             )
-               CALL CHKOUT ( 'GETFAT'                          )
-               RETURN
-            END IF
- 
-C           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-C           DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS DAS
-C           ===================================================
-C
          END IF
  
       END IF
@@ -747,7 +686,7 @@ C
 C     We opened the file successfully, so let's try to read from the
 C     file. We need to be sure to use the correct form of the read
 C     statement, depending on whether the file was opened with direct
-C     acces or sequential access.
+C     access or sequential access.
 C
       IF ( DIROPN ) THEN
  

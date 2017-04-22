@@ -9,7 +9,7 @@ C     SPICE Private routine intended solely for the support of SPICE
 C     routines.  Users should not call this routine directly due
 C     to the volatile nature of this routine.
 C
-C     Compute the state transformation matrix implementing the IAU 1876
+C     Compute the state transformation matrix implementing the IAU 1976
 C     precession model.
 C
 C$ Disclaimer
@@ -156,6 +156,11 @@ C
 C     N.J. Bachman       (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.1, 18-APR-2016 (NJB)
+C
+C        Corrected typo in header abstract: changed "1876"
+C        to "1976."
 C
 C-    SPICELIB Version 2.0.0, 18-DEC-2004 (NJB)
 C

@@ -127,6 +127,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 09-NOV-1995 (NJB)
 C
 C-&
@@ -142,7 +147,6 @@ C     Local variables
 C
       INTEGER               SEGDSC ( SDSCSZ )
       INTEGER               STYPE
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -163,15 +167,13 @@ C
          ZZEKRP2N  =  ZZEKTRLS ( HANDLE, SEGDSC(RTIDX), RECPTR )
  
          IF ( ZZEKRP2N .EQ. 0 ) THEN
- 
-            CALL DASHLU ( HANDLE, UNIT )
- 
+  
             CALL CHKIN  ( 'ZZEKRP2N'                              )
             CALL SETMSG ( 'Record having pointer # not found in ' //
      .                    'segment # of file #'                   )
             CALL ERRINT ( '#',  RECPTR                            )
             CALL ERRINT ( '#',  SEGNO                             )
-            CALL ERRFNM ( '#',  UNIT                              )
+            CALL ERRHAN ( '#',  HANDLE                            )
             CALL SIGERR ( 'SPICE(BUG)'                            )
             CALL CHKOUT ( 'ZZEKRP2N'                              )
  
@@ -184,14 +186,12 @@ C
  
       ELSE
  
-         CALL DASHLU ( HANDLE, UNIT )
- 
          CALL CHKIN  ( 'ZZEKRP2N'                                    )
          CALL SETMSG ( 'Segment type # is not supported.  SEGNO = #.'//
      .                 ' File = #.'                                  )
          CALL ERRINT ( '#',  STYPE                                   )
          CALL ERRINT ( '#',  SEGNO                                   )
-         CALL ERRFNM ( '#',  UNIT                                    )
+         CALL ERRHAN ( '#',  HANDLE                                  )
          CALL SIGERR ( 'SPICE(BUG)'                                  )
          CALL CHKOUT ( 'ZZEKRP2N'                                    )
  

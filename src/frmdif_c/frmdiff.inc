@@ -33,6 +33,14 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    Version 2.3.0, 08-MAR-2017 (BVS).
+C
+C        Updated version.
+C
+C-    Version 2.2.0, 29-SEP-2016 (BVS).
+C
+C        Updated version.
+C
 C-    Version 2.1.0, 25-MAR-2014 (BVS).
 C
 C        Updated version.
@@ -52,7 +60,7 @@ C
       PARAMETER           ( PGMNAM = 'frmdiff' )
 
       CHARACTER*(*)         PGMVER
-      PARAMETER           ( PGMVER ='2.1.0, March 25, 2014')
+      PARAMETER           ( PGMVER ='2.3.0, March 8, 2017')
 
 C
 C     Command line keys.

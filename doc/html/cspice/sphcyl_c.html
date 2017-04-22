@@ -124,7 +124,7 @@
    radius     I   Distance of point from origin. 
    colat      I   Polar angle (co-latitude in radians) of point. 
    slon       I   Azimuthal angle (longitude) of point (radians). 
-   r          O   Distance of point from z axis. 
+   r          O   Distance of point from Z axis. 
    lon        O   angle (radians) of point from XZ plane. 
    z          O   Height of point above XY plane. 
  </PRE>
@@ -140,10 +140,10 @@
 <h4><a name="Detailed_Output">Detailed_Output</a></h4>
 <PRE>
  
-   r          Distance of the point of interest from z axis. 
+   r          Distance of the point of interest from Z axis. 
  
    lon        cylindrical angle (radians) of the point from the 
-               XZ plane. 
+              XZ plane. `lon' is set equal to `slon'. 
  
    z          Height of the point above XY plane. 
  </PRE>
@@ -170,7 +170,6 @@
  </PRE>
 <h4><a name="Examples">Examples</a></h4>
 <PRE>
- 
  
    Other than the obvious conversion between coordinate systems 
    this routine could be used to obtain the axial projection 
@@ -205,6 +204,10 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.1, 26-JUL-2016 (BVS)
+
+      Minor headers edits.
+
    -CSPICE Version 1.0.0, 08-FEB-1998 (EDW)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -219,7 +222,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:43 2014</pre>
+   <pre>Wed Apr  5 17:54:43 2017</pre>
 
 </body>
 </html>

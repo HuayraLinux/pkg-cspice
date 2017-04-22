@@ -120,14 +120,14 @@ C         file, the error will be diagnosed by routines called by this
 C         routine.
 C
 C     3)  If the input key is out of range, the error
-C         SPICE(INDEXOUTOFRANGE) is signalled.
+C         SPICE(INDEXOUTOFRANGE) is signaled.
 C
 C
 C     4)  If the tree traversal fails to terminate at the leaf node
-C         level, the error SPICE(BUG) is signalled.
+C         level, the error SPICE(BUG) is signaled.
 C
 C     5)  If the key is in range, but the key is not found, the error
-C         SPICE(BUG) is signalled.
+C         SPICE(BUG) is signaled.
 C
 C$ Files
 C
@@ -136,7 +136,7 @@ C     format.
 C
 C$ Particulars
 C
-C     This routine obtains the value assocated with a key, and also
+C     This routine obtains the value associated with a key, and also
 C     returns metadata describing the node containing the key and the
 C     key's position in the node.
 C
@@ -161,6 +161,14 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Added initializers for variables used to save old
+C        values.
 C
 C-    Beta Version 1.0.0, 26-OCT-1995 (NJB)
 C
@@ -203,7 +211,6 @@ C
       INTEGER               PREV
       INTEGER               PRVKEY
       INTEGER               TOTKEY
-      INTEGER               UNIT
  
       LOGICAL               FIRST
       LOGICAL               FOUND
@@ -220,8 +227,18 @@ C
 C
 C     Initial values
 C
-      DATA                  FIRST   / .TRUE.   /
- 
+      DATA                  FIRST  / .TRUE.   /
+
+      DATA                  OLDHAN / 0        /
+      DATA                  OLDIDX / 0        /
+      DATA                  OLDKEY / 0        /
+      DATA                  OLDLVL / 0        /
+      DATA                  OLDMAX / 0        /
+      DATA                  OLDNOD / 0        /
+      DATA                  OLDNOF / 0        /
+      DATA                  OLDTRE / 0        /
+      DATA                  OLDVAL / 0        /
+      DATA                  PAGE   / PGSIZI * 0 /
  
 C
 C     Use discovery check-in in this puppy.
@@ -343,12 +360,11 @@ C
       IF (  ( KEY .LT. 1 )  .OR.  ( KEY .GT. TOTKEY )  ) THEN
  
          CALL CHKIN  ( 'ZZEKTRLK'                                      )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Key = #; valid range = 1:#. Tree = #, file = #')
          CALL ERRINT ( '#',     KEY                                    )
          CALL ERRINT ( '#',     TOTKEY                                 )
          CALL ERRINT ( '#',     TREE                                   )
-         CALL ERRFNM ( '#',     UNIT                                   )
+         CALL ERRHAN ( '#',     HANDLE                                 )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'ZZEKTRLK'                                      )
          RETURN
@@ -418,13 +434,12 @@ C
          IF ( LEVEL .GT. DEPTH ) THEN
  
             CALL CHKIN  ( 'ZZEKTRLK'                                   )
-            CALL DASHLU ( HANDLE,  UNIT                                )
             CALL SETMSG ( 'Runaway node pointer chain.  Key = #; '//
      .                    'valid range = 1:#. Tree = #, file = #'      )
             CALL ERRINT ( '#',     KEY                                 )
             CALL ERRINT ( '#',     TOTKEY                              )
             CALL ERRINT ( '#',     TREE                                )
-            CALL ERRFNM ( '#',     UNIT                                )
+            CALL ERRHAN ( '#',     HANDLE                              )
             CALL SIGERR ( 'SPICE(BUG)'                                 )
             CALL CHKOUT ( 'ZZEKTRLK'                                   )
             RETURN
@@ -487,14 +502,13 @@ C
       IF ( .NOT. FOUND ) THEN
  
          CALL CHKIN  ( 'ZZEKTRLK'                                      )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Key #; valid range = 1:#. Tree = #, file = #.'//
      .                 '  Key was not found.  This probably indicates'//
      .                 ' a corrupted file or a bug in the EK code.'    )
          CALL ERRINT ( '#',     KEY                                    )
          CALL ERRINT ( '#',     TOTKEY                                 )
          CALL ERRINT ( '#',     TREE                                   )
-         CALL ERRFNM ( '#',     UNIT                                   )
+         CALL ERRHAN ( '#',     HANDLE                                 )
          CALL SIGERR ( 'SPICE(BUG)'                                    )
          CALL CHKOUT ( 'ZZEKTRLK'                                      )
          RETURN

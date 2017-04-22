@@ -85,11 +85,11 @@ C     1)  If HANDLE is invalid, the error will be diagnosed by routines
 C         called by this routine.
 C
 C     2)  If the EK architecture version is not current, the error
-C         SPICE(WRONGARCHITECTURE) is signalled.
+C         SPICE(WRONGARCHITECTURE) is signaled.
 C
 C     3)  If the DAS logical address ranges occupied by the EK are
 C         not consistent with those recorded by the paging system,
-C         the error SPICE(INVALIDFORMAT) is signalled.
+C         the error SPICE(INVALIDFORMAT) is signaled.
 C
 C     4)  If the EK is not open for the specified type of access, the
 C         error will be diagnosed by routines called by this routine.
@@ -114,7 +114,7 @@ C
 C        - Are the DAS address ranges in use consistent with those
 C          recorded in the file by the paging system?
 C
-C     If the file fails any test, an error is signalled.
+C     If the file fails any test, an error is signaled.
 C
 C$ Examples
 C
@@ -133,6 +133,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    Beta Version 1.0.0, 19-OCT-1995 (NJB)
 C
@@ -157,7 +162,7 @@ C
       INTEGER               TOPC
       INTEGER               TOPD
       INTEGER               TOPI
-      INTEGER               UNIT
+
  
  
       CALL CHKIN ( 'ZZEKPGCH' )
@@ -179,11 +184,10 @@ C
  
       IF ( ID .NE. ARCHID ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
          CALL SETMSG ( 'File # has architecture #, which is invalid '//
      .                 'for paged access.  You are using EK software '//
      .                 'version #.'                                  )
-         CALL ERRFNM ( '#',   UNIT                                   )
+         CALL ERRHAN ( '#',   HANDLE                                 )
          CALL ERRINT ( '#',   ID                                     )
          CALL ERRINT ( '#',   ARCHID                                 )
          CALL SIGERR ( 'SPICE(WRONGARCHITECTURE)'                    )
@@ -211,9 +215,8 @@ C
  
       IF ( LASTC .GT. TOPC ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
          CALL SETMSG ( 'File # has last char address #; `top'' = #.' )
-         CALL ERRFNM ( '#',   UNIT                                   )
+         CALL ERRHAN ( '#',   HANDLE                                 )
          CALL ERRINT ( '#',   LASTC                                  )
          CALL ERRINT ( '#',   TOPC                                   )
          CALL SIGERR ( 'SPICE(INVALIDFORMAT)'                        )
@@ -222,9 +225,8 @@ C
  
       ELSE IF ( LASTD .GT. TOPD ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
          CALL SETMSG ( 'File # has last d.p. address #; `top'' = #.' )
-         CALL ERRFNM ( '#',   UNIT                                   )
+         CALL ERRHAN ( '#',   HANDLE                                 )
          CALL ERRINT ( '#',   LASTD                                  )
          CALL ERRINT ( '#',   TOPD                                   )
          CALL SIGERR ( 'SPICE(INVALIDFORMAT)'                        )
@@ -233,9 +235,8 @@ C
  
       ELSE IF ( LASTI .GT. TOPI ) THEN
  
-         CALL DASHLU ( HANDLE, UNIT )
          CALL SETMSG ( 'File # has last int. address #; `top'' = #.' )
-         CALL ERRFNM ( '#',   UNIT                                   )
+         CALL ERRHAN ( '#',   HANDLE                                 )
          CALL ERRINT ( '#',   LASTI                                  )
          CALL ERRINT ( '#',   TOPI                                   )
          CALL SIGERR ( 'SPICE(INVALIDFORMAT)'                        )

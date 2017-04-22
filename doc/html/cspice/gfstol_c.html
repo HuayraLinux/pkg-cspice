@@ -100,7 +100,7 @@
 </PRE>
 <h4><a name="Required_Reading">Required_Reading</a></h4>
 <PRE>
-   <a href="../req/gf.html">GF</a>.REQ
+   <a href="../req/gf.html">GF</a>
 </PRE>
 <h4><a name="Keywords">Keywords</a></h4>
 <PRE>
@@ -118,7 +118,7 @@
 <PRE>
    value        The scalar double precision value to use as the GF subsystem
                 convergence tolerance. This value will override the default
-                tolerance, SPICE_GF_CNVTOL defined in SpiceGF.h Units are
+                tolerance, SPICE_GF_CNVTOL, defined in SpiceGF.h Units are
                 TDB seconds.
 </PRE>
 <h4><a name="Detailed_Output">Detailed_Output</a></h4>
@@ -290,10 +290,10 @@
                   <a href="timout_c.html">timout_c</a> ( left,  TIMFMT, TIMLEN, begstr );
                   <a href="timout_c.html">timout_c</a> ( right, TIMFMT, TIMLEN, endstr );
 
-                  printf ( &quot;Interval %ld\n&quot;
-                           &quot;   Start time: %s\n&quot;
+                  printf ( &quot;Interval %d\n&quot;
+                           &quot;   Start time: %s\n&quot; 
                            &quot;   Stop time:  %s\n&quot;,
-                           i, begstr, endstr      );
+                           (int)i, begstr, endstr      );
                   }
                }
 
@@ -321,6 +321,14 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.1, 28-JUN-2016 (EDW)
+
+      Edit to header, correct Required Reading entry eliminating &quot;.REQ&quot;
+      suffix.
+      
+      Edit to Example code, SpiceInts output as ints using 
+      explicit casting.
+
    -CSPICE Version 1.0.0, 27-SEP-2010
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -334,7 +342,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:35 2014</pre>
+   <pre>Wed Apr  5 17:54:36 2017</pre>
 
 </body>
 </html>

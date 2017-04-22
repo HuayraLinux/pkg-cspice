@@ -304,23 +304,23 @@ C     RESULT     is a SPICE window containing the intersection of the
 C                results of the search and the contents of RESULT
 C                on entry.
 C
+C                When RESULT is empty on input, the intervals of the
+C                output window stored in RESULT represent times when
+C                the state function UDFUNB returns the value .TRUE.
+C
 C$ Parameters
 C
 C     LBCELL     is the SPICELIB cell lower bound.
 C
 C$ Exceptions
 C
-C     1)  If TOL is negative, the error SPICE(VALUEOUTOFRANGE)
+C     1)  If TOL is non-positive, the error SPICE(VALUEOUTOFRANGE)
 C         will signal.
 C
-C     2)  If START +/- TOL is indistinguishable from START or
-C         FINISH +/- TOL is indistinguishable from FINISH, the
-C         error SPICE(INVALIDVALUE) will signal.
-C
-C     3)  If START is greater than FINISH or SVDTIM is greater than
+C     2)  If START is greater than FINISH or SVDTIM is greater than
 C         CURTIM, SPICE(BADTIMECASE) will signal.
 C
-C     4)  If the inner convergence loop fails to converge to TOL
+C     3)  If the inner convergence loop fails to converge to TOL
 C         within MXLOOP iterations, the error SPICE(NOCONVERG)
 C         will signal.
 C
@@ -366,9 +366,18 @@ C
 C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C     I.M. Underwood (JPL)
-C     L. S. Elson    (JPL)
+C     L.S. Elson     (JPL)
+C     E.D. Wright    (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.0,  31-JAN-2017 (NJB) (EDW)
+C
+C        Restrictions on the input tolerance have been loosened:
+C        it is no longer required that the tolerance must yield
+C        a new value when it is added to, or subtracted from,
+C        either of the input interval bounds. The tolerance
+C        still must be strictly positive. 
 C
 C-    SPICELIB Version 1.2.0,  24-OCT-2010 (EDW)
 C
@@ -390,20 +399,29 @@ C
 C-&
 
 C
-C     SPICELIB functions.
+C     SPICELIB functions
 C
 
       DOUBLE PRECISION      BRCKTD
+      DOUBLE PRECISION      DPMAX
       DOUBLE PRECISION      TOUCHD
 
       LOGICAL               FAILED
       LOGICAL               RETURN
 
 C
+C     Local parameters
+C
+      INTEGER               MSGLEN
+      PARAMETER           ( MSGLEN = 256 )
+
+C
 C     Local variables
 C
       DOUBLE PRECISION      BEGIN
       DOUBLE PRECISION      CURTIM
+      DOUBLE PRECISION      DIFF
+      DOUBLE PRECISION      PRVDIF
       DOUBLE PRECISION      SVDTIM
       DOUBLE PRECISION      T
       DOUBLE PRECISION      T1
@@ -419,7 +437,7 @@ C
       LOGICAL               L1
       LOGICAL               L2
 
-      CHARACTER*(256)       CONTXT
+      CHARACTER*(MSGLEN)    CONTXT
 
       INTEGER               NLOOP
 
@@ -443,7 +461,6 @@ C
       END IF
 
       CALL CHKIN  ( 'ZZGFSOLVX' )
-
 
 C
 C     Check the convergence tolerance.
@@ -472,47 +489,7 @@ C
 
       END IF
 
-C
-C     Make sure that TOL is not too small, i.e. that neither
-C     START + TOL nor START - TOL equals START.
-C
-      IF (  ( TOUCHD (START - TOL) .EQ. START )
-     .     .OR.
-     .      ( TOUCHD (START + TOL) .EQ. START ) ) THEN
-
-         CALL SETMSG ('TOL has value #1. '                      //
-     .                'This value is too small to distinguish ' //
-     .                'START - TOL or START + TOL from '        //
-     .                'START, #2.'                               )
-         CALL ERRDP  ( '#1', TOL                                 )
-         CALL ERRDP  ( '#2', START                               )
-         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                     )
-         CALL CHKOUT ( 'ZZGFSOLVX'                               )
-         RETURN
-
-      END IF
-
-
-C5
-C     Make sure that TOL is not too small, i.e. that neither
-C     FINISH + TOL nor FINISH - TOL equals FINISH.
-C
-      IF (  ( TOUCHD (FINISH - TOL) .EQ. FINISH )
-     .     .OR.
-     .      ( TOUCHD (FINISH + TOL) .EQ. FINISH ) ) THEN
-
-         CALL SETMSG ('TOL has value #1. '                      //
-     .                'This value is too small to distinguish ' //
-     .                'FINISH - TOL or FINISH + TOL from '      //
-     .                'FINISH, #2.'                              )
-         CALL ERRDP  ( '#1', TOL                                 )
-         CALL ERRDP  ( '#2', FINISH                              )
-         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                     )
-         CALL CHKOUT ( 'ZZGFSOLVX'                               )
-         RETURN
-
-      END IF
-
+ 
 
 C
 C     If active, update the progress reporter.
@@ -549,7 +526,7 @@ C     Determine if the state at the current time satisfies some
 C     constraint. This constraint may indicate only existence of
 C     a state.
 C
-      CALL UDFUNB ( UDFUNS, CURTIM,  CURSTE )
+      CALL UDFUNB ( UDFUNS, CURTIM, CURSTE )
 
       IF ( FAILED() ) THEN
          CALL CHKOUT (  'ZZGFSOLVX' )
@@ -718,6 +695,14 @@ C
             T2     = CURTIM
 
 C
+C           Set the states at T1 and T2 for use by the refinement
+C           function, in case the caller has passed in a function
+C           that uses them.
+C
+            L1     = SAVST
+            L2     = CURSTE
+
+C
 C           Make sure that T1 is not greater than T2. Signal an
 C           error for T1 > T2.
 C
@@ -738,12 +723,16 @@ C           interval down until it is less than some tolerance in
 C           length.  Do it as described below...
 C
 C           Loop while the difference between the times T1 and T2
-C           exceeds a specified tolerance.
-C
+C           exceeds a specified tolerance, and while the magnitude
+C           of the difference is decreasing from one loop iteration
+C           to the next.
+C           
+            PRVDIF = DPMAX()
+            DIFF   = TOUCHD( ABS(T2 - T1) )
+            NLOOP  = 0
 
-            NLOOP = 0
-
-            DO WHILE ( TOUCHD (T2 - T1) .GT. TOL )
+            DO WHILE (       ( DIFF .GT. TOL    )
+     .                 .AND. ( DIFF .LT. PRVDIF )  )
 
                NLOOP = NLOOP + 1
 
@@ -819,14 +808,23 @@ C
                   IF ( S .EQV. STATE1 ) THEN
 
                      T1  = T
+                     L1  = S
 
                   ELSE
 
                      T2 = T
+                     L2 = S
 
                   END IF
 
                END IF
+
+C
+C              Update PRVDIF and DIFF for the next loop termination
+C              test.
+C
+               PRVDIF = DIFF
+               DIFF   = TOUCHD( ABS(T2 - T1) )
 
             END DO
 

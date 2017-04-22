@@ -50,6 +50,10 @@ C     None.
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 11-MAY-2015 (NJB) 
+C
+C        Updated to support subtype 2.
+C
 C-    SPICELIB Version 1.0.0, 07-MAR-2014 (NJB) (BVS)
 C
 C-&
@@ -93,6 +97,13 @@ C
       PARAMETER           ( S19TP1 = S19TP0 + 1 )
 
 C
+C     Subtype 2:  Hermite interpolation, 6-element packets.
+C
+      INTEGER               S19TP2
+      PARAMETER           ( S19TP2 = S19TP1 + 1 )
+
+
+C
 C     Packet sizes associated with the various subtypes:
 C
       INTEGER               S19PS0
@@ -101,11 +112,14 @@ C
       INTEGER               S19PS1
       PARAMETER           ( S19PS1 =  6 )
 
+      INTEGER               S19PS2
+      PARAMETER           ( S19PS2 =  6 )
+
 C
 C     Number of subtypes:
 C
       INTEGER               S19NST
-      PARAMETER           ( S19NST = 2 )
+      PARAMETER           ( S19NST = 3 )
 
 C
 C     Maximum packet size for type 19:

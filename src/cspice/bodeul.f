@@ -107,6 +107,10 @@ C
 C     1) If the number of phase terms is insufficient, the error
 C        SPICE(KERNELVARNOTFOUND) is signaled.
 C
+C     2) If any of the PCK keywords required to compute the angles are
+C        not available in the kernel pool, the error will be signaled
+C        by routines in the call tree of this routine.
+C
 C$ Files
 C
 C     1) A text or binary PCK containing orientation data for the
@@ -192,84 +196,90 @@ C     constructing a fixed-offset frame specification.
 C
 C$ Examples
 C
-C      In the following code fragment, BODEUL is used to get the unit
-C      vector (POLE) parallel to the north pole of a target body (BODY)
-C      at a specific epoch (ET).
+C     In the following code fragment, BODEUL is used to get the unit
+C     vector (POLE) parallel to the north pole of a target body (BODY)
+C     at a specific epoch (ET).
 C
-C         CALL BODEUL ( BODY, ET, RA, DEC, W, LAMBDA )
-C         CALL RADREC ( 1.D0, RA,  DEC, POLE )
+C        CALL BODEUL ( BODY, ET, RA, DEC, W, LAMBDA )
+C        CALL RADREC ( 1.D0, RA,  DEC, POLE )
 C
-C      Note that the items necessary to compute the Euler angles
-C      must have been loaded into the kernel pool (by one or more
-C      previous calls to LDPOOL).
+C     Note that the items necessary to compute the Euler angles
+C     must have been loaded into the kernel pool (by one or more
+C     previous calls to LDPOOL).
 C
 C$ Restrictions
 C
-C      None.
+C     None.
 C
 C$ Literature_References
 C
-C      1)  Refer to the NAIF_IDS required reading file for a complete
-C          list of the NAIF integer ID codes for bodies.
+C     1)  Refer to the NAIF_IDS required reading file for a complete
+C         list of the NAIF integer ID codes for bodies.
 C
 C$ Author_and_Institution
 C
-C      N.J. Bachman    (JPL)
-C      H.A. Neilan     (JPL)
-C      W.L. Taber      (JPL)
-C      I.M. Underwood  (JPL)
-C      K.S. Zukor      (JPL)
+C     N.J. Bachman    (JPL)
+C     H.A. Neilan     (JPL)
+C     B.V. Semenov    (JPL)
+C     W.L. Taber      (JPL)
+C     I.M. Underwood  (JPL)
+C     K.S. Zukor      (JPL)
 C
 C$ Version
 C
-C-     SPICELIB Version 4.1.1, 02-JUL-2014 (NJB)
+C-    SPICELIB Version 4.2.0, 02-MAR-2016 (BVS)
 C
-C         Discussion of LAMBDA was updated. Other minor header
-C         updates were made.
+C        BUG FIX: changed available room in the BODVCD call 
+C        fetching 'NUT_PREC_ANGLES' from MAXANG to MAXANG*2.
 C
-C      Last update was 24-APR-2014 (NJB)
+C        Fixed indention in some header sections.
 C
-C         Corrected the brief and detailed descriptions of W.
+C        Removed BODEUL: prefix from the text of the long 
+C        error for insufficient angles.
 C
-C-     SPICELIB Version 4.1.0, 24-OCT-2005 (NJB)
+C     Last update was 24-APR-2014 (NJB)
 C
-C         Calls to ZZBODVCD have been replaced with calls to 
-C         BODVCD.
+C        Corrected the brief and detailed descriptions of W.
 C
-C-     SPICELIB Version 4.0.0, 13-FEB-2004 (NJB)
+C-    SPICELIB Version 4.1.0, 24-OCT-2005 (NJB)
 C
-C         Code has been updated to support satellite ID codes in the
-C         range 10000 to 99999 and to allow nutation precession angles
-C         to be associated with any object.
+C        Calls to ZZBODVCD have been replaced with calls to 
+C        BODVCD.
 C
-C         Implementation changes were made to improve robustness
-C         of the code.
+C-    SPICELIB Version 4.0.0, 13-FEB-2004 (NJB)
 C
-C-     SPICELIB Version 3.1.0, 21-MAR-1995 (KSZ)
+C        Code has been updated to support satellite ID codes in the
+C        range 10000 to 99999 and to allow nutation precession angles
+C        to be associated with any object.
 C
-C         REF frame is now passed correctly as a character string.
+C        Implementation changes were made to improve robustness
+C        of the code.
 C
-C-     SPICELIB Version 3.0.0, 10-MAR-1994 (KSZ)
+C-    SPICELIB Version 3.1.0, 21-MAR-1995 (KSZ)
+C
+C        REF frame is now passed correctly as a character string.
+C
+C-    SPICELIB Version 3.0.0, 10-MAR-1994 (KSZ)
 C
 C        Ability to get Euler angles from binary PCK file added.
 C        This uses the new routine PCKEUL.
 C
-C-     SPICELIB Version 2.0.1, 10-MAR-1992 (WLT)
+C-    SPICELIB Version 2.0.1, 10-MAR-1992 (WLT)
 C
-C         Comment section for permuted index source lines was added
-C         following the header.
+C        Comment section for permuted index source lines was added
+C        following the header.
 C
-C-     SPICELIB Version 2.0.0, 04-SEP-1991 (NJB)
+C-    SPICELIB Version 2.0.0, 04-SEP-1991 (NJB)
 C
-C         Updated to handle P_constants referenced to different epochs
-C         and inertial reference frames.
+C        Updated to handle P_constants referenced to different epochs
+C        and inertial reference frames.
 C
-C-     SPICELIB Version 1.1.0, 02-NOV-1990  (NJB)
+C-    SPICELIB Version 1.1.0, 02-NOV-1990  (NJB)
 C
-C         Allowed number of nutation precession angles increased to
-C         100.
+C        Allowed number of nutation precession angles increased to
+C        100.
 C
-C-     SPICELIB Version 1.0.0, 31-JAN-1990  (WLT) (IMU)
+C-    SPICELIB Version 1.0.0, 31-JAN-1990  (WLT) (IMU)
 C
 C-&
  
@@ -284,28 +294,28 @@ C-&
  
 C$ Revisions
 C
-C-     SPICELIB Version 4.1.0, 24-OCT-2005 (NJB)
+C-    SPICELIB Version 4.1.0, 24-OCT-2005 (NJB)
 C
-C         Calls to ZZBODVCD have been replaced with calls to 
-C         BODVCD.
+C        Calls to ZZBODVCD have been replaced with calls to 
+C        BODVCD.
 C
-C-     SPICELIB Version 4.0.0, 13-FEB-2004 (NJB)
+C-    SPICELIB Version 4.0.0, 13-FEB-2004 (NJB)
 C
-C         Code has been updated to support satellite ID codes in the
-C         range 10000 to 99999 and to allow nutation precession angles
-C         to be associated with any object.
+C        Code has been updated to support satellite ID codes in the
+C        range 10000 to 99999 and to allow nutation precession angles
+C        to be associated with any object.
 C
-C         Calls to deprecated kernel pool access routine RTPOOL 
-C         were replaced by calls to GDPOOL.
+C        Calls to deprecated kernel pool access routine RTPOOL 
+C        were replaced by calls to GDPOOL.
 C
-C         Calls to BODVAR have been replaced with calls to 
-C         ZZBODVCD.
+C        Calls to BODVAR have been replaced with calls to 
+C        ZZBODVCD.
 C
-C-     SPICELIB Version 3.1.0, 21-MAR-1995 (KSZ)
+C-    SPICELIB Version 3.1.0, 21-MAR-1995 (KSZ)
 C
-C         REF frame is now passed correctly as a character string.
+C        REF frame is now passed correctly as a character string.
 C
-C-     SPICELIB Version 3.0.0, 10-MAR-1994 (KSZ)
+C-    SPICELIB Version 3.0.0, 10-MAR-1994 (KSZ)
 C
 C        BODEUL now uses new software to check for the
 C        existence of binary PCK files, search the for
@@ -314,41 +324,40 @@ C        and return the appropriate Euler angles, using the
 C        new routine PCKEUL.  Otherwise the code calculates
 C        the Euler angles from the P_constants kernel file.
 C
-C-     SPICELIB Version 2.0.0, 04-SEP-1991 (NJB)
+C-    SPICELIB Version 2.0.0, 04-SEP-1991 (NJB)
 C
-C         Updated to handle P_constants referenced to different epochs
-C         and inertial reference frames.
+C        Updated to handle P_constants referenced to different epochs
+C        and inertial reference frames.
 C
-C         Updated to handle P_constants referenced to different epochs
-C         and inertial reference frames.
+C        Updated to handle P_constants referenced to different epochs
+C        and inertial reference frames.
 C
-C         BODEUL now checks the kernel pool for presence of the
-C         variables
+C        BODEUL now checks the kernel pool for presence of the
+C        variables
 C
-C            BODY#_CONSTANTS_REF_FRAME
+C           BODY#_CONSTANTS_REF_FRAME
 C
-C         and
+C        and
 C
-C            BODY#_CONSTANTS_JED_EPOCH
+C           BODY#_CONSTANTS_JED_EPOCH
 C
-C         where # is the NAIF integer code of the barycenter of a
-C         planetary system or of a body other than a planet or
-C         satellite.  If either or both of these variables are
-C         present, the P_constants for BODY are presumed to be
-C         referenced to the specified inertial frame or epoch.
-C         If the epoch of the constants is not J2000, the input
-C         time ET is converted to seconds past the reference epoch.
-C         If the frame of the constants is not J2000, the Euler angles
-C         defining the rotation from the P_constants' frame to
-C         body-fixed coordinates are transformed so that they define
-C         the rotation from J2000 coordinates to body-fixed
-C         coordinates.
+C        where # is the NAIF integer code of the barycenter of a
+C        planetary system or of a body other than a planet or
+C        satellite.  If either or both of these variables are
+C        present, the P_constants for BODY are presumed to be
+C        referenced to the specified inertial frame or epoch.
+C        If the epoch of the constants is not J2000, the input
+C        time ET is converted to seconds past the reference epoch.
+C        If the frame of the constants is not J2000, the Euler angles
+C        defining the rotation from the P_constants' frame to
+C        body-fixed coordinates are transformed so that they define
+C        the rotation from J2000 coordinates to body-fixed
+C        coordinates.
 C
+C-    SPICELIB Version 1.1.0, 02-NOV-1990  (NJB)
 C
-C-     SPICELIB Version 1.1.0, 02-NOV-1990  (NJB)
-C
-C         Allowed number of nutation precession angles increased to
-C         100.
+C        Allowed number of nutation precession angles increased to
+C        100.
 C
 C-    Beta Version 2.0.0, 23-JUN-1989 (HAN)
 C
@@ -585,7 +594,7 @@ C
          ITEM = 'NUT_PREC_ANGLES'
 
          IF ( BODFND ( REFID, ITEM ) ) THEN
-            CALL BODVCD ( REFID, ITEM, MAXANG, NTHETA, TCOEF )
+            CALL BODVCD ( REFID, ITEM, MAXANG*2, NTHETA, TCOEF )
             NTHETA = NTHETA / 2
          END IF
  
@@ -609,8 +618,8 @@ C
 
  
          IF ( MAX ( NA, ND, NW ) .GT. NTHETA ) THEN
-            CALL SETMSG ( 'BODEUL: Insufficient number of nutation/'//
-     .                 'precession angles for body * at time #.' )
+            CALL SETMSG ( 'Insufficient number of nutation/'//
+     .                    'precession angles for body * at time #.' )
             CALL ERRINT ( '*', BODY )
             CALL ERRDP  ( '#', ET   )
             CALL SIGERR ( 'SPICE(KERNELVARNOTFOUND)' )

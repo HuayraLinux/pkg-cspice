@@ -4,9 +4,10 @@ C$Procedure      CKCOVR ( CK coverage as ETs adjusted for round off )
 
 C$ Abstract
 C
-C     Find the ET coverage window adjusted for SCLK -> ET -> SCLK
+C     Find the ET coverage window adjusted for SCLK <-> ET
 C     conversion round off for a specified object in a specified CK
-C     file.
+C     file such the CK attitude is guaranteed to be computable 
+C     using PXFORM/SXFORM at all output window intervals ends.
 C
 C$ Disclaimer
 C
@@ -74,11 +75,11 @@ C     COVER      O   Window giving coverage for IDCODE.
 C
 C$ Detailed_Input
 C
-C     TBD.
+C     See Brief_I/O.
 C
 C$ Detailed_Output
 C
-C     TBD.
+C     See Brief_I/O.
 C
 C$ Parameters
 C
@@ -91,7 +92,11 @@ C     1) See exceptions signaled by CKCOV and SCT2E/SCE2C.
 C
 C$ Files
 C
-C     TBD.
+C     Input CK file should exist.
+C
+C     LSK and SCLK files needed to do time conversions for the SCLK
+C     ID associated with the input CK ID should be loaded prior to
+C     calling this routine.
 C
 C$ Particulars
 C
@@ -99,6 +104,8 @@ C     This routine passed all inputs directly to CKCOV, gets SCLK
 C     coverage window out of it, does SCLK -> ET -> SCLK conversion for
 C     each interval endpoint, computes the difference between each
 C     source and resulting SCLK, saves the maximum difference,
+C     if needed, increases this difference to a value that results in a
+C     difference in ETs corresponding to adjusted and un-adjusted SCLKs,
 C     contracts SCLK window by this difference multiplied by a factor,
 C     and then convert the resulting SCLK to ET for output.
 C
@@ -108,11 +115,15 @@ C     does not attempt to adjust coverage for such cases.
 C
 C$ Examples
 C
-C     TBD.
+C     None.
 C
 C$ Restrictions
 C
-C     TBD.
+C     This routine is intended to be called only the FRMDIFF 
+C     program.
+C
+C     This routine is intended to be called with SPICE error 
+C     handling mode set to ABORT.
 C
 C$ Literature_References
 C
@@ -123,6 +134,11 @@ C
 C     B.V. Semenov   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 08-MAR-2017 (BVS)
+C
+C        Modified to increase the maximum round off delta 
+C        to guarantee to produce a change in ETs, if needed.
 C
 C-    SPICELIB Version 1.1.0, 13-MAR-2012 (BVS)
 C
@@ -142,8 +158,9 @@ C-&
 C
 C     SPICELIB functions
 C
-      LOGICAL               RETURN
+      DOUBLE PRECISION      TOUCHD
       INTEGER               WNCARD
+      LOGICAL               RETURN
 
 C
 C     Local parameters
@@ -154,9 +171,14 @@ C
 C
 C     Local variables.
 C
+      DOUBLE PRECISION      ET2
+      DOUBLE PRECISION      ET1
       DOUBLE PRECISION      MAXDIF
       DOUBLE PRECISION      HDP1
       DOUBLE PRECISION      HDP2
+      DOUBLE PRECISION      SCLK1
+      DOUBLE PRECISION      SCLK2
+      DOUBLE PRECISION      SIGN
 
       INTEGER               I
       INTEGER               SCLKID
@@ -194,6 +216,37 @@ C
          MAXDIF = MAX( MAXDIF, DABS( COVER(I) - HDP2 ) )
 
       END DO
+
+C
+C     Increase the maximum round off if needed to produce
+C     change in ETs.
+C
+      IF ( MAXDIF .NE. 0.D0 ) THEN
+
+         CALL SCT2E( SCLKID, COVER(1),               ET1 )
+         CALL SCT2E( SCLKID, COVER(2*WNCARD(COVER)), ET2 )
+
+         IF ( DABS( ET1 ) .GT. DABS( ET2 ) ) THEN
+            ET1   = TOUCHD( DABS( ET1 ) )
+            SCLK1 = COVER(1)
+            SIGN  =  1.D0
+         ELSE
+            ET1   = TOUCHD( DABS( ET2 ) )
+            SCLK1 = COVER(2*WNCARD(COVER))
+            SIGN  = -1.D0
+         END IF
+
+         CALL SCT2E( SCLKID, SCLK1 + SIGN * MAXDIF, ET2 )
+
+         DO WHILE ( ET1 .EQ. ET2 ) 
+
+            MAXDIF = MAXDIF * 2.D0
+
+            CALL SCT2E( SCLKID, SCLK1 + SIGN * MAXDIF, ET2 )
+
+         END DO
+
+      END IF
 
 C
 C     If there is a roundoff, contract window on each side by factor *
