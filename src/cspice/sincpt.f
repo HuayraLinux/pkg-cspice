@@ -11,6 +11,9 @@ C     the surface intercept of the ray on a target body at a specified
 C     epoch, optionally corrected for light time and stellar
 C     aberration.
 C
+C     The surface of the target body may be represented by a triaxial
+C     ellipsoid or by topographic data provided by DSK files.
+C
 C     This routine supersedes SRFXPT.
 C
 C$ Disclaimer
@@ -40,9 +43,12 @@ C     ACTIONS OF RECIPIENT IN THE USE OF THE SOFTWARE.
 C
 C$ Required_Reading
 C
+C     CK
+C     DSK
 C     FRAMES
 C     NAIF_IDS
 C     PCK
+C     SCLK
 C     SPK
 C     TIME
 C
@@ -54,9 +60,13 @@ C$ Declarations
 
       IMPLICIT NONE
 
+      INCLUDE               'dsk.inc'      
       INCLUDE               'frmtyp.inc'
+      INCLUDE               'gf.inc'
       INCLUDE               'zzabcorr.inc'
       INCLUDE               'zzctr.inc'
+      INCLUDE               'zzdsk.inc'
+
       
       CHARACTER*(*)         METHOD
       CHARACTER*(*)         TARGET
@@ -91,20 +101,69 @@ C
 C$ Detailed_Input
 C
 C     METHOD      is a short string providing parameters defining
-C                 the computation method to be used. 
+C                 the computation method to be used. In the syntax
+C                 descriptions below, items delimited by brackets
+C                 are optional.
+C                
+C                 METHOD may be assigned the following values:   
 C
-C                 The only choice currently supported is
+C                    'ELLIPSOID'
+C 
+C                       The intercept computation uses a triaxial
+C                       ellipsoid to model the surface of the target
+C                       body. The ellipsoid's radii must be available
+C                       in the kernel pool.
 C
-C                    'Ellipsoid'        The intercept computation uses
-C                                       a triaxial ellipsoid to model
-C                                       the surface of the target body.
-C                                       The ellipsoid's radii must be
-C                                       available in the kernel pool.
 C
-C                 Neither case nor white space are significant in 
-C                 METHOD. For example, the string ' eLLipsoid ' is 
-C                 valid.                 
-
+C                    'DSK/UNPRIORITIZED[/SURFACES = <surface list>]'
+C
+C                       The intercept computation uses topographic data
+C                       to model the surface of the target body. These
+C                       data must be provided by loaded DSK files.
+C
+C                       The surface list specification is optional. The
+C                       syntax of the list is
+C
+C                          <surface 1> [, <surface 2>...]
+C
+C                       If present, it indicates that data only for the
+C                       listed surfaces are to be used; however, data
+C                       need not be available for all surfaces in the
+C                       list. If absent, loaded DSK data for any surface
+C                       associated with the target body are used.
+C
+C                       The surface list may contain surface names or
+C                       surface ID codes. Names containing blanks must
+C                       be delimited by double quotes, for example
+C
+C                          SURFACES = "Mars MEGDR 128 PIXEL/DEG"
+C                                         
+C                       If multiple surfaces are specified, their names
+C                       or IDs must be separated by commas.
+C
+C                       See the Particulars section below for details
+C                       concerning use of DSK data.
+C
+C
+C                 Neither case nor white space are significant in
+C                 METHOD, except within double-quoted strings. For
+C                 example, the string ' eLLipsoid ' is valid.
+C
+C                 Within double-quoted strings, blank characters are
+C                 significant, but multiple consecutive blanks are
+C                 considered equivalent to a single blank. Case is 
+C                 not significant. So
+C
+C                    "Mars MEGDR 128 PIXEL/DEG"
+C
+C                 is equivalent to 
+C
+C                    " mars megdr  128  pixel/deg "
+C
+C                 but not to
+C
+C                    "MARS MEGDR128PIXEL/DEG"
+C 
 C                 
 C     TARGET      is the name of the target body. TARGET is
 C                 case-insensitive, and leading and trailing blanks in
@@ -138,13 +197,17 @@ C                 correction. See the description of ABCORR below for
 C                 details.
 C
 C                                  
-C     FIXREF      is the name of the body-fixed, body-centered
-C                 reference frame associated with the target body. The
-C                 output intercept point SPOINT and the observer to
+C     FIXREF      is the name of a body-fixed reference frame centered
+C                 on the target body. FIXREF may be any such frame
+C                 supported by the SPICE system, including built-in
+C                 frames (documented in the Frames Required Reading)
+C                 and frames defined by a loaded frame kernel (FK). The
+C                 string FIXREF is case-insensitive, and leading and
+C                 trailing blanks in FIXREF are not significant.
+C
+C                 The output intercept point SPOINT and the observer-to-
 C                 intercept vector SRFVEC will be expressed relative to
-C                 this reference frame. The string FIXREF is
-C                 case-insensitive, and leading and trailing blanks in
-C                 FIXREF are not significant.
+C                 this reference frame.
 C
 C
 C     ABCORR      indicates the aberration corrections to be applied
@@ -355,10 +418,11 @@ C                 When light time correction is used, the duration of
 C                 light travel between SPOINT to the observer is
 C                 considered to be the one way light time. When both
 C                 light time and stellar aberration corrections are
-C                 used, SPOINT is selected such that, when SPOINT is
-C                 corrected for light time and stellar aberration, the
-C                 resulting vector is parallel to SPOINT lies on the
-C                 ray defined by the observer's location and DVEC.
+C                 used, SPOINT is compute such that, when the vector
+C                 from the observer to SPOINT is corrected for light
+C                 time and stellar aberration, the resulting vector
+C                 lies on the ray defined by the observer's location
+C                 and DVEC.
 C
 C                 The components of SPOINT are given in units of km.
 C
@@ -445,8 +509,9 @@ C
 C     5)  If the input frame FIXREF is not centered at the target body,
 C         the error SPICE(INVALIDFRAME) is signaled.
 C
-C     6)  If the input argument METHOD is not recognized, the error
-C         SPICE(INVALIDMETHOD) is signaled.
+C     6)  If the input argument METHOD cannot be parsed, the error
+C         is signaled either by this routine or by a routine in the
+C         call tree of this routine.
 C
 C     7)  If the target and observer have distinct identities but are
 C         at the same location (for example, the target is Mars and the
@@ -482,7 +547,17 @@ C         will be signaled.
 C
 C     13) If the direction vector DVEC is the zero vector, the error
 C         SPICE(ZEROVECTOR) will be signaled.
+C
+C     14) If METHOD specifies that the target surface is represented by
+C         DSK data, and no DSK files are loaded for the specified
+C         target, the error is signaled by a routine in the call tree
+C         of this routine.
 C         
+C     15) If METHOD specifies that the target surface is represented
+C         by DSK data, and DSK data are not available for a portion of 
+C         the target body's surface, an intercept might not be found.
+C         This routine does not revert to using an ellipsoidal surface
+C         in this case.
 C
 C$ Files
 C
@@ -508,6 +583,28 @@ C          be loaded. These may be provided in a text or binary PCK
 C          file. 
 C
 C     The following data may be required:
+C
+C        - DSK data: if METHOD indicates that DSK data are to be used,
+C          DSK files containing topographic data for the target body
+C          must be loaded. If a surface list is specified, data for
+C          at least one of the listed surfaces must be loaded.
+C
+C        - Surface name-ID associations: if surface names are specified
+C          in METHOD, the association of these names with their
+C          corresponding surface ID codes must be established by 
+C          assignments of the kernel variables
+C
+C             NAIF_SURFACE_NAME
+C             NAIF_SURFACE_CODE
+C             NAIF_SURFACE_BODY
+C
+C          Normally these associations are made by loading a text
+C          kernel containing the necessary assignments. An example
+C          of such an assignment is
+C
+C             NAIF_SURFACE_NAME += 'Mars MEGDR 128 PIXEL/DEG'
+C             NAIF_SURFACE_CODE += 1                    
+C             NAIF_SURFACE_BODY += 499
 C
 C        - Frame data: if a frame definition is required to convert
 C          the observer and target states to the body-fixed frame of
@@ -537,7 +634,9 @@ C
 C     Given a ray defined by a direction vector and the location of an
 C     observer, SINCPT computes the surface intercept point of the ray
 C     on a specified target body. SINCPT also determines the vector
-C     from the observer to the surface intercept point.
+C     from the observer to the surface intercept point. If the ray
+C     intersects the target in multiple locations, the intercept
+C     closest to the observer is selected.
 C
 C     When aberration corrections are used, this routine finds the
 C     value of SPOINT such that, if SPOINT is regarded as an ephemeris
@@ -564,7 +663,204 @@ C
 C     When comparing surface intercept point computations with results
 C     from sources other than SPICE, it's essential to make sure the
 C     same geometric definitions are used.
+C
+C
+C     Using DSK data
+C     ==============
+C
+C        DSK loading and unloading
+C        -------------------------
+C
+C        DSK files providing data used by this routine are loaded by
+C        calling FURNSH and can be unloaded by calling UNLOAD or
+C        KCLEAR. See the documentation of FURNSH for limits on numbers
+C        of loaded DSK files.
+C
+C        For run-time efficiency, it's desirable to avoid frequent
+C        loading and unloading of DSK files. When there is a reason to
+C        use multiple versions of data for a given target body---for
+C        example, if topographic data at varying resolutions are to be
+C        used---the surface list can be used to select DSK data to be
+C        used for a given computation. It is not necessary to unload
+C        the data that are not to be used. This recommendation presumes
+C        that DSKs containing different versions of surface data for a
+C        given body have different surface ID codes.
+C
+C
+C        DSK data priority
+C        -----------------
+C
+C        A DSK coverage overlap occurs when two segments in loaded DSK
+C        files cover part or all of the same domain---for example, a
+C        given longitude-latitude rectangle---and when the time
+C        intervals of the segments overlap as well.
+C
+C        When DSK data selection is prioritized, in case of a coverage
+C        overlap, if the two competing segments are in different DSK
+C        files, the segment in the DSK file loaded last takes
+C        precedence. If the two segments are in the same file, the
+C        segment located closer to the end of the file takes
+C        precedence.
+C
+C        When DSK data selection is unprioritized, data from competing
+C        segments are combined. For example, if two competing segments
+C        both represent a surface as sets of triangular plates, the
+C        union of those sets of plates is considered to represent the
+C        surface. 
+C
+C        Currently only unprioritized data selection is supported.
+C        Because prioritized data selection may be the default behavior
+C        in a later version of the routine, the UNPRIORITIZED keyword is
+C        required in the METHOD argument.
+C
+C        
+C        Syntax of the METHOD input argument
+C        -----------------------------------
+C
+C        The keywords and surface list in the METHOD argument
+C        are called "clauses." The clauses may appear in any
+C        order, for example
+C
+C           DSK/<surface list>/UNPRIORITIZED
+C           DSK/UNPRIORITIZED/<surface list>
+C           UNPRIORITIZED/<surface list>/DSK
+C
+C        The simplest form of the METHOD argument specifying use of
+C        DSK data is one that lacks a surface list, for example:
+C
+C           'DSK/UNPRIORITIZED'
+C
+C        For applications in which all loaded DSK data for the target
+C        body are for a single surface, and there are no competing
+C        segments, the above string suffices. This is expected to be
+C        the usual case.
+C
+C        When, for the specified target body, there are loaded DSK
+C        files providing data for multiple surfaces for that body, the
+C        surfaces to be used by this routine for a given call must be
+C        specified in a surface list, unless data from all of the
+C        surfaces are to be used together.
+C
+C        The surface list consists of the string
+C
+C           SURFACES =
+C
+C        followed by a comma-separated list of one or more surface
+C        identifiers. The identifiers may be names or integer codes in
+C        string format. For example, suppose we have the surface
+C        names and corresponding ID codes shown below:
+C
+C           Surface Name                              ID code
+C           ------------                              -------
+C           'Mars MEGDR 128 PIXEL/DEG'                1
+C           'Mars MEGDR 64 PIXEL/DEG'                 2
+C           'Mars_MRO_HIRISE'                         3
+C
+C        If data for all of the above surfaces are loaded, then
+C        data for surface 1 can be specified by either
+C
+C           'SURFACES = 1'
+C
+C        or
+C
+C           'SURFACES = "Mars MEGDR 128 PIXEL/DEG"'
+C
+C        Double quotes are used to delimit the surface name because
+C        it contains blank characters. 
+C           
+C        To use data for surfaces 2 and 3 together, any
+C        of the following surface lists could be used:
+C
+C           'SURFACES = 2, 3'
+C
+C           'SURFACES = "Mars MEGDR  64 PIXEL/DEG", 3'
+C
+C           'SURFACES = 2, Mars_MRO_HIRISE'
+C
+C           'SURFACES = "Mars MEGDR 64 PIXEL/DEG", Mars_MRO_HIRISE'
+C         
+C        An example of a METHOD argument that could be constructed
+C        using one of the surface lists above is
+C
+C           'DSK/UNPRIORITIZED/SURFACES = "Mars MEGDR 64 PIXEL/DEG", 3'
+C
+C
+C        Round-off errors and mitigating algorithms
+C        ------------------------------------------
+C
+C        When topographic data are used to represent the surface of a
+C        target body, round-off errors can produce some results that
+C        may seem surprising.
+C
+C        Note that, since the surface in question might have mountains,
+C        valleys, and cliffs, the points of intersection found for
+C        nearly identical sets of inputs may be quite far apart from
+C        each other: for example, a ray that hits a mountain side in a
+C        nearly tangent fashion may, on a different host computer, be
+C        found to miss the mountain and hit a valley floor much farther
+C        from the observer, or even miss the target altogether.
+C        
+C        Round-off errors can affect segment selection: for example, a
+C        ray that is expected to intersect the target body's surface
+C        near the boundary between two segments might hit either
+C        segment, or neither of them; the result may be
+C        platform-dependent.
+C
+C        A similar situation exists when a surface is modeled by a set
+C        of triangular plates, and the ray is expected to intersect the
+C        surface near a plate boundary.
+C        
+C        To avoid having the routine fail to find an intersection when
+C        one clearly should exist, this routine uses two "greedy"
+C        algorithms:
+C       
+C           1) If the ray passes sufficiently close to any of the 
+C              boundary surfaces of a segment (for example, surfaces of
+C              maximum and minimum longitude or latitude), that segment
+C              is tested for an intersection of the ray with the
+C              surface represented by the segment's data.
+C
+C              This choice prevents all of the segments from being
+C              missed when at least one should be hit, but it could, on
+C              rare occasions, cause an intersection to be found in a
+C              segment other than the one that would be found if higher
+C              precision arithmetic were used.
+C              
+C           2) For type 2 segments, which represent surfaces as 
+C              sets of triangular plates, each plate is expanded very
+C              slightly before a ray-plate intersection test is
+C              performed. The default plate expansion factor is 
+C
+C                 1 + 1.E-10
+C
+C              In other words, the sides of the plate are lengthened by
+C              1/10 of a micron per km. The expansion keeps the centroid
+C              of the plate fixed.
+C
+C              Plate expansion prevents all plates from being missed
+C              in cases where clearly at least one should be hit.
+C
+C              As with the greedy segment selection algorithm, plate
+C              expansion can occasionally cause an intercept to be
+C              found on a different plate than would be found if higher
+C              precision arithmetic were used. It also can occasionally
+C              cause an intersection to be found when the ray misses
+C              the target by a very small distance. 
+C
+C         
+C        Aberration corrections
+C        ----------------------
+C
+C        For irregularly shaped target bodies, the distance between the
+C        observer and the nearest surface intercept need not be a
+C        continuous function of time; hence the one-way light time
+C        between the intercept and the observer may be discontinuous as
+C        well. In such cases, the computed light time, which is found
+C        using an iterative algorithm, may converge slowly or not at
+C        all. In all cases, the light time computation will terminate,
+C        but the result may be less accurate than expected.
 C     
+C
 C$ Examples
 C
 C     The numerical results shown for this example may differ across
@@ -580,13 +876,23 @@ C        observation epoch. Light time and stellar aberration
 C        corrections are used. For simplicity, camera distortion is
 C        ignored.
 C
+C        Intercepts are computed using both triaxial ellipsoid and 
+C        topographic surface models. 
+C
+C        The topographic model is based on data from the MGS MOLA DEM
+C        megr90n000cb, which has a resolution of 4 pixels/degree. A
+C        triangular plate model was produced by computing a 720 x 1440
+C        grid of interpolated heights from this DEM, then tessellating
+C        the height grid. The plate model is stored in a type 2 segment
+C        in the referenced DSK file.
+C
 C        Use the meta-kernel shown below to load the required SPICE
 C        kernels.
-C
+C           
 C
 C           KPL/MK
 C
-C           File: mgs_example2.tm
+C           File: sincpt_ex1.tm
 C
 C           This meta-kernel is intended to support operation of SPICE
 C           example programs. The kernels shown here should not be
@@ -600,236 +906,273 @@ C
 C           The names and contents of the kernels referenced
 C           by this meta-kernel are as follows:
 C
-C              File name                     Contents
-C              ---------                     --------
-C              de418.bsp                     Planetary ephemeris
-C              pck00008.tpc                  Planet orientation and
-C                                            radii
-C              naif0008.tls                  Leapseconds
-C              mgs_moc_v20.ti                MGS MOC instrument
-C                                            parameters
-C              mgs_sclkscet_00061.tsc        MGS SCLK coefficients
-C              mgs_sc_ext12.bc               MGS s/c bus attitude
-C              mgs_ext12_ipng_mgs95j.bsp     MGS ephemeris
+C              File name                        Contents
+C              ---------                        --------
+C              de430.bsp                        Planetary ephemeris
+C              mar097.bsp                       Mars satellite ephemeris
+C              pck00010.tpc                     Planet orientation and
+C                                               radii
+C              naif0011.tls                     Leapseconds 
+C              mgs_moc_v20.ti                   MGS MOC instrument
+C                                               parameters
+C              mgs_sclkscet_00061.tsc           MGS SCLK coefficients
+C              mgs_sc_ext12.bc                  MGS s/c bus attitude
+C              mgs_ext12_ipng_mgs95j.bsp        MGS ephemeris
+C              megr90n000cb_plate.bds           Plate model based on
+C                                               MEGDR DEM, resolution
+C                                               4 pixels/degree.
 C
 C           \begindata
 C
-C              KERNELS_TO_LOAD = ( 'de418.bsp',
-C                                  'pck00008.tpc',
-C                                  'naif0008.tls',
+C              KERNELS_TO_LOAD = ( 'de430.bsp',
+C                                  'mar097.bsp',
+C                                  'pck00010.tpc',
+C                                  'naif0011.tls',
 C                                  'mgs_moc_v20.ti',
 C                                  'mgs_sclkscet_00061.tsc',
 C                                  'mgs_sc_ext12.bc',
-C                                  'mgs_ext12_ipng_mgs95j.bsp' )
+C                                  'mgs_ext12_ipng_mgs95j.bsp',
+C                                  'megr90n000cb_plate.bds'      )
 C           \begintext
 C
 C
 C        Example code begins here.
 C
-C          PROGRAM EX1
-C          IMPLICIT NONE
-C    C
-C    C     SPICELIB functions
-C    C
-C          DOUBLE PRECISION      VNORM
 C
-C    C
-C    C     Local parameters
-C    C
-C          CHARACTER*(*)         META
-C          PARAMETER           ( META   = 'mgs_example2.tm' )
+C           PROGRAM EX1
+C           IMPLICIT NONE
+C     C
+C     C     SPICELIB functions
+C     C
+C           DOUBLE PRECISION      VNORM
 C
-C          INTEGER               ABCLEN
-C          PARAMETER           ( ABCLEN = 20 )
+C     C
+C     C     Local parameters
+C     C
+C           CHARACTER*(*)         META
+C           PARAMETER           ( META   = 'sincpt_ex1.tm' )
 C
-C          INTEGER               LNSIZE
-C          PARAMETER           ( LNSIZE = 78 )
+C           INTEGER               ABCLEN
+C           PARAMETER           ( ABCLEN = 20 )
 C
-C          INTEGER               METLEN
-C          PARAMETER           ( METLEN = 40 )
+C           INTEGER               LNSIZE
+C           PARAMETER           ( LNSIZE = 78 )
 C
-C          INTEGER               NAMLEN
-C          PARAMETER           ( NAMLEN = 32 )
+C           INTEGER               METLEN
+C           PARAMETER           ( METLEN = 40 )
 C
-C          INTEGER               TIMLEN
-C          PARAMETER           ( TIMLEN = 50 )
+C           INTEGER               NAMLEN
+C           PARAMETER           ( NAMLEN = 32 )
 C
-C          INTEGER               SHPLEN
-C          PARAMETER           ( SHPLEN = 80 )
+C           INTEGER               TIMLEN
+C           PARAMETER           ( TIMLEN = 50 )
 C
-C          INTEGER               NCORNR
-C          PARAMETER           ( NCORNR = 4 )
+C           INTEGER               SHPLEN
+C           PARAMETER           ( SHPLEN = 80 )
 C
-C    C
-C    C     Local variables
-C    C
-C          CHARACTER*(ABCLEN)    ABCORR
-C          CHARACTER*(NAMLEN)    CAMERA
-C          CHARACTER*(NAMLEN)    DREF
-C          CHARACTER*(METLEN)    METHOD
-C          CHARACTER*(NAMLEN)    OBSRVR
-C          CHARACTER*(SHPLEN)    SHAPE
-C          CHARACTER*(NAMLEN)    TARGET
-C          CHARACTER*(LNSIZE)    TITLE
-C          CHARACTER*(TIMLEN)    UTC
+C           INTEGER               NCORNR
+C           PARAMETER           ( NCORNR = 4 )
 C
-C          DOUBLE PRECISION      BOUNDS ( 3, NCORNR )
-C          DOUBLE PRECISION      BSIGHT ( 3 )
-C          DOUBLE PRECISION      DIST
-C          DOUBLE PRECISION      DPR
-C          DOUBLE PRECISION      DVEC   ( 3 )
-C          DOUBLE PRECISION      ET
-C          DOUBLE PRECISION      LAT
-C          DOUBLE PRECISION      LON
-C          DOUBLE PRECISION      RADIUS
-C          DOUBLE PRECISION      SPOINT ( 3 )
-C          DOUBLE PRECISION      SRFVEC ( 3 )
-C          DOUBLE PRECISION      TRGEPC
+C           INTEGER               NMETH
+C           PARAMETER           ( NMETH  = 2 )
 C
-C          INTEGER               CAMID
-C          INTEGER               I
-C          INTEGER               J
-C          INTEGER               N
+C     C
+C     C     Local variables
+C     C
+C           CHARACTER*(ABCLEN)    ABCORR
+C           CHARACTER*(NAMLEN)    CAMERA
+C           CHARACTER*(NAMLEN)    DREF
+C           CHARACTER*(NAMLEN)    FIXREF
+C           CHARACTER*(METLEN)    METHDS ( NMETH )
+C           CHARACTER*(METLEN)    METHOD
+C           CHARACTER*(NAMLEN)    OBSRVR
+C           CHARACTER*(SHPLEN)    SHAPE
+C           CHARACTER*(NAMLEN)    SRFTYP ( NMETH )
+C           CHARACTER*(NAMLEN)    TARGET
+C           CHARACTER*(LNSIZE)    TITLE
+C           CHARACTER*(TIMLEN)    UTC
 C
-C          LOGICAL               FOUND
+C           DOUBLE PRECISION      BOUNDS ( 3, NCORNR )
+C           DOUBLE PRECISION      BSIGHT ( 3 )
+C           DOUBLE PRECISION      DIST
+C           DOUBLE PRECISION      DPR
+C           DOUBLE PRECISION      DVEC   ( 3 )
+C           DOUBLE PRECISION      ET
+C           DOUBLE PRECISION      LAT
+C           DOUBLE PRECISION      LON
+C           DOUBLE PRECISION      RADIUS
+C           DOUBLE PRECISION      SPOINT ( 3 )
+C           DOUBLE PRECISION      SRFVEC ( 3 )
+C           DOUBLE PRECISION      TRGEPC
 C
-C          DATA                  ABCORR / 'CN+S'      /
-C          DATA                  CAMERA / 'MGS_MOC_NA'/
-C          DATA                  METHOD / 'Ellipsoid' /
-C          DATA                  OBSRVR / 'MGS'       /
-C          DATA                  TARGET / 'Mars'      /
-C          DATA                  UTC    / '2003 OCT 13 06:00:00 UTC' /
+C           INTEGER               CAMID
+C           INTEGER               I
+C           INTEGER               J
+C           INTEGER               K
+C           INTEGER               N
 C
-C    C
-C    C     Load kernel files:
-C    C
-C          CALL FURNSH ( META )
+C           LOGICAL               FOUND
 C
-C    C
-C    C     Convert the UTC request time to ET (seconds past
-C    C     J2000, TDB).
-C    C
-C          CALL STR2ET ( UTC, ET )
+C           DATA                  ABCORR / 'CN+S'              /
+C           DATA                  CAMERA / 'MGS_MOC_NA'        /
+C           DATA                  FIXREF / 'IAU_MARS'          /
+C           DATA                  METHDS / 'ELLIPSOID',
+C          .                               'DSK/UNPRIORITIZED' /
+C           DATA                  OBSRVR / 'MGS'               /
+C           DATA                  SRFTYP / 'Ellipsoid',
+C          .                      'MGS/MOLA topography, 4 pixel/deg'  /
+C           DATA                  TARGET / 'Mars'                     /
+C           DATA                  UTC    / '2003 OCT 13 06:00:00 UTC' /
 C
-C    C
-C    C     Get the MGS MOC Narrow angle camera (MGS_MOC_NA)
-C    C     ID code. Then look up the field of view (FOV)
-C    C     parameters by calling GETFOV.
-C    C
-C          CALL BODN2C ( CAMERA, CAMID, FOUND )
+C     C
+C     C     Load kernel files:
+C     C
+C           CALL FURNSH ( META )
 C
-C          IF ( .NOT. FOUND ) THEN
-C             CALL SETMSG ( 'Could not find ID code for ' //
-C         .                 'instrument #.'               )
-C             CALL ERRCH  ( '#', CAMERA                   )
-C             CALL SIGERR ( 'SPICE(NOTRANSLATION)'        )
-C          END IF
+C     C
+C     C     Convert the UTC request time to ET (seconds past
+C     C     J2000, TDB).
+C     C
+C           CALL STR2ET ( UTC, ET )
 C
-C    C
-C    C     GETFOV will return the name of the camera-fixed frame
-C    C     in the string DREF, the camera boresight vector in
-C    C     the array BSIGHT, and the FOV corner vectors in the
-C    C     array BOUNDS.
-C    C
-C          CALL GETFOV ( CAMID,  NCORNR, SHAPE,  DREF,
-C         .              BSIGHT, N,      BOUNDS       )
+C     C
+C     C     Get the MGS MOC Narrow angle camera (MGS_MOC_NA)
+C     C     ID code. Then look up the field of view (FOV)
+C     C     parameters by calling GETFOV.
+C     C
+C           CALL BODN2C ( CAMERA, CAMID, FOUND )
 C
+C           IF ( .NOT. FOUND ) THEN
+C              CALL SETMSG ( 'Could not find ID code for ' //
+C          .                 'instrument #.'               )
+C              CALL ERRCH  ( '#', CAMERA                   )
+C              CALL SIGERR ( 'SPICE(NOTRANSLATION)'        )
+C           END IF
 C
-C          WRITE (*,*) ' '
-C          WRITE (*,*) 'Surface Intercept Locations for Camera'
-C          WRITE (*,*) 'FOV Boundary and Boresight Vectors'
-C          WRITE (*,*) ' '
-C          WRITE (*,*) '   Instrument:            ', CAMERA
-C          WRITE (*,*) '   Epoch:                 ', UTC
-C          WRITE (*,*) '   Aberration correction: ', ABCORR
-C          WRITE (*,*) ' '
-C
-C    C
-C    C     Now compute and display the surface intercepts for the
-C    C     boresight and all of the FOV boundary vectors.
-C    C
-C          DO I = 1, NCORNR+1
-C
-C             IF ( I .LE. NCORNR ) THEN
-C
-C                TITLE = 'Corner vector #'
-C                CALL REPMI ( TITLE, '#', I, TITLE )
-C
-C                CALL VEQU ( BOUNDS(1,I), DVEC )
-C
-C             ELSE
-C
-C                TITLE = 'Boresight vector'
-C                CALL VEQU ( BSIGHT, DVEC )
-C
-C             END IF
-C
-C    C
-C    C        Compute the surface intercept point using
-C    C        the specified aberration corrections.
-C    C
-C             CALL SINCPT ( METHOD, TARGET, ET,     'IAU_MARS',
-C         .                 ABCORR, OBSRVR, DREF,   DVEC,
-C         .                 SPOINT, TRGEPC, SRFVEC, FOUND      )
-C
-C             IF ( FOUND ) THEN
-C    C
-C    C           Compute range from observer to apparent intercept.
-C    C
-C                DIST = VNORM ( SRFVEC )
-C    C
-C    C           Convert rectangular coordinates to planetocentric
-C    C           latitude and longitude. Convert radians to degrees.
-C    C
-C                CALL RECLAT ( SPOINT, RADIUS, LON, LAT )
-C
-C                LON = LON * DPR ()
-C                LAT = LAT * DPR ()
-C    C
-C    C           Display the results.
-C    C
-C                WRITE (*,*) ' '
-C                WRITE (*,*) TITLE
-C
-C                TITLE = '  Vector in # frame = '
-C                CALL REPMC ( TITLE, '#', DREF, TITLE )
-C
-C                WRITE (*,*) ' '
-C                WRITE (*,*) TITLE
-C
-C                IF ( I .LE. NCORNR ) THEN
-C                   WRITE (*,*) '  ', ( BOUNDS(J,I), J = 1, 3 )
-C                ELSE
-C                   WRITE (*,*) '  ', BSIGHT
-C                END IF
-C
-C                WRITE (*,*) ' '
-C                WRITE (*,*) '  Intercept:'
-C                WRITE (*,*)
-C         .      '     Radius                   (km)  = ', RADIUS
-C                WRITE (*,*)
-C         .      '     Planetocentric Latitude  (deg) = ', LAT
-C                WRITE (*,*)
-C         .      '     Planetocentric Longitude (deg) = ', LON
-C                WRITE (*,*)
-C         .      '     Range                    (km)  = ', DIST
-C                WRITE (*,*) ' '
-C
-C             ELSE
-C
-C                WRITE (*,*) ' '
-C                WRITE (*,*) 'Intercept not found.'
-C                WRITE (*,*) ' '
-C
-C             END IF
-C
-C          END DO
-C
-C          END
+C     C
+C     C     GETFOV will return the name of the camera-fixed frame
+C     C     in the string DREF, the camera boresight vector in
+C     C     the array BSIGHT, and the FOV corner vectors in the
+C     C     array BOUNDS.
+C     C
+C           CALL GETFOV ( CAMID,  NCORNR, SHAPE,  DREF,
+C          .              BSIGHT, N,      BOUNDS       )
 C
 C
-C     When this program was executed on a PC/Linux/g77 platform, the
-C     output was:
+C           WRITE (*,*) ' '
+C           WRITE (*,*) 'Surface Intercept Locations for Camera'
+C           WRITE (*,*) 'FOV Boundary and Boresight Vectors'
+C           WRITE (*,*) ' '
+C           WRITE (*,*) '   Instrument:            ', CAMERA
+C           WRITE (*,*) '   Epoch:                 ', UTC
+C           WRITE (*,*) '   Aberration correction: ', ABCORR
+C           WRITE (*,*) ' '
+C
+C     C
+C     C     Now compute and display the surface intercepts for the
+C     C     boresight and all of the FOV boundary vectors.
+C     C
+C           DO I = 1, NCORNR+1
+C
+C              IF ( I .LE. NCORNR ) THEN
+C
+C                 TITLE = 'Corner vector #'
+C                 CALL REPMI ( TITLE, '#', I, TITLE )
+C
+C                 CALL VEQU ( BOUNDS(1,I), DVEC )
+C
+C              ELSE
+C
+C                 TITLE = 'Boresight vector'
+C                 CALL VEQU ( BSIGHT, DVEC )
+C
+C              END IF
+C
+C              WRITE (*,*) ' '
+C              WRITE (*,*) TITLE
+C
+C              TITLE = '  Vector in # frame = '
+C              CALL REPMC ( TITLE, '#', DREF, TITLE )
+C
+C              WRITE (*,*) ' '
+C              WRITE (*,*) TITLE
+C
+C              IF ( I .LE. NCORNR ) THEN
+C                 WRITE (*, '(1X,3F20.14)') ( BOUNDS(J,I), J = 1, 3 )
+C              ELSE
+C                 WRITE (*, '(1X,3F20.14)') BSIGHT
+C              END IF
+C
+C              WRITE (*,*) ' '
+C              WRITE (*,*) '  Intercept:'
+C
+C     C
+C     C        Compute the surface intercept point using
+C     C        the specified aberration corrections. Loop
+C     C        over the set of computation methods.
+C     C
+C              DO K = 1, NMETH
+C
+C                 METHOD = METHDS(K)
+C
+C                 CALL SINCPT ( METHOD, TARGET, ET,
+C          .                    FIXREF, ABCORR, OBSRVR,
+C          .                    DREF,   DVEC,   SPOINT,
+C          .                    TRGEPC, SRFVEC, FOUND   )
+C
+C                 IF ( FOUND ) THEN
+C     C
+C     C              Compute range from observer to apparent
+C     C              intercept.
+C     C
+C                    DIST = VNORM ( SRFVEC )
+C     C
+C     C              Convert rectangular coordinates to
+C     C              planetocentric latitude and longitude.
+C     C              Convert radians to degrees.
+C     C
+C                    CALL RECLAT ( SPOINT, RADIUS, LON, LAT )
+C
+C                    LON = LON * DPR ()
+C                    LAT = LAT * DPR ()
+C     C
+C     C              Display the results.
+C     C
+C
+C                    WRITE (*,*) ' '
+C                    CALL TOSTDO ( '     Surface representation: '
+C          .         //            SRFTYP(K)                      )
+C                    WRITE (*,*) ' '
+C                    WRITE (*,*)
+C          .         '     Radius                   (km)  = ', RADIUS
+C                    WRITE (*,*)
+C          .         '     Planetocentric Latitude  (deg) = ', LAT
+C                    WRITE (*,*)
+C          .         '     Planetocentric Longitude (deg) = ', LON
+C                    WRITE (*,*)
+C          .         '     Range                    (km)  = ', DIST
+C
+C                 ELSE
+C
+C                    CALL TOSTDO ( '   Surface representation: '
+C          .         //            SRFTYP(K)                     )
+C                    WRITE (*,*) '     Intercept not found.'
+C                    WRITE (*,*) ' '
+C
+C                 END IF
+C
+C              END DO
+C
+C              WRITE (*,*) ' '
+C
+C           END DO
+C
+C           END
+C
+C
+C     When this program was executed on a PC/Linux/gfortran 64-bit 
+C     platform, the output was:
+C
 C
 C        Surface Intercept Locations for Camera
 C        FOV Boundary and Boresight Vectors
@@ -842,61 +1185,111 @@ C
 C        Corner vector 1
 C
 C          Vector in MGS_MOC_NA frame =
-C            1.85713838E-06 -0.00380156227  0.999992774
+C            0.00000185713838   -0.00380156226592    0.99999277403434
 C
 C          Intercept:
-C             Radius                   (km)  =   3384.94114
-C             Planetocentric Latitude  (deg) =  -48.4774819
-C             Planetocentric Longitude (deg) =  -123.474079
-C             Range                    (km)  =   388.983104
+C
+C            Surface representation: Ellipsoid
+C
+C             Radius                   (km)  =    3384.9411357607282
+C             Planetocentric Latitude  (deg) =   -48.477482367206768
+C             Planetocentric Longitude (deg) =   -123.47407481971256
+C             Range                    (km)  =    388.98308225698992
+C
+C            Surface representation: MGS/MOLA topography, 4 pixel/deg
+C
+C             Radius                   (km)  =    3387.6408267726060
+C             Planetocentric Latitude  (deg) =   -48.492259559975274
+C             Planetocentric Longitude (deg) =   -123.47541193495911
+C             Range                    (km)  =    386.14510040407890
 C
 C
 C        Corner vector 2
 C
 C          Vector in MGS_MOC_NA frame =
-C            1.85713838E-06  0.00380156227  0.999992774
+C            0.00000185713838    0.00380156226592    0.99999277403434
 C
 C          Intercept:
-C             Radius                   (km)  =   3384.9397
-C             Planetocentric Latitude  (deg) =  -48.4816363
-C             Planetocentric Longitude (deg) =  -123.398823
-C             Range                    (km)  =   388.975121
+C
+C            Surface representation: Ellipsoid
+C
+C             Radius                   (km)  =    3384.9396985743228
+C             Planetocentric Latitude  (deg) =   -48.481636778911913
+C             Planetocentric Longitude (deg) =   -123.39881874871132
+C             Range                    (km)  =    388.97510005267645
+C
+C            Surface representation: MGS/MOLA topography, 4 pixel/deg
+C
+C             Radius                   (km)  =    3387.6403704507966
+C             Planetocentric Latitude  (deg) =   -48.496386688872484
+C             Planetocentric Longitude (deg) =   -123.40074354811055
+C             Range                    (km)  =    386.13616443321536
 C
 C
 C        Corner vector 3
 C
 C          Vector in MGS_MOC_NA frame =
-C           -1.85713838E-06  0.00380156227  0.999992774
+C           -0.00000185713838    0.00380156226592    0.99999277403434
 C
 C          Intercept:
-C             Radius                   (km)  =   3384.93969
-C             Planetocentric Latitude  (deg) =  -48.4816619
-C             Planetocentric Longitude (deg) =  -123.398826
-C             Range                    (km)  =   388.974662
+C
+C            Surface representation: Ellipsoid
+C
+C             Radius                   (km)  =    3384.9396897286833
+C             Planetocentric Latitude  (deg) =   -48.481662348858336
+C             Planetocentric Longitude (deg) =   -123.39882195503854
+C             Range                    (km)  =    388.97464113550637
+C
+C            Surface representation: MGS/MOLA topography, 4 pixel/deg
+C
+C             Radius                   (km)  =    3387.6403603146173
+C             Planetocentric Latitude  (deg) =   -48.496412042429789
+C             Planetocentric Longitude (deg) =   -123.40074672915324
+C             Range                    (km)  =    386.13571069851952
 C
 C
 C        Corner vector 4
 C
 C          Vector in MGS_MOC_NA frame =
-C           -1.85713838E-06 -0.00380156227  0.999992774
+C           -0.00000185713838   -0.00380156226592    0.99999277403434
 C
 C          Intercept:
-C             Radius                   (km)  =   3384.94113
-C             Planetocentric Latitude  (deg) =  -48.4775075
-C             Planetocentric Longitude (deg) =  -123.474082
-C             Range                    (km)  =   388.982645
+C
+C            Surface representation: Ellipsoid
+C
+C             Radius                   (km)  =    3384.9411269137699
+C             Planetocentric Latitude  (deg) =   -48.477507940479093
+C             Planetocentric Longitude (deg) =   -123.47407797517752
+C             Range                    (km)  =    388.98262331952731
+C
+C            Surface representation: MGS/MOLA topography, 4 pixel/deg
+C
+C             Radius                   (km)  =    3387.6408166344654
+C             Planetocentric Latitude  (deg) =   -48.492284916898356
+C             Planetocentric Longitude (deg) =   -123.47541506563026
+C             Range                    (km)  =    386.14464664863749
 C
 C
 C        Boresight vector
 C
 C          Vector in MGS_MOC_NA frame =
-C            0.  0.  1.
+C            0.00000000000000    0.00000000000000    1.00000000000000
 C
 C          Intercept:
-C             Radius                   (km)  =   3384.94041
-C             Planetocentric Latitude  (deg) =  -48.4795798
-C             Planetocentric Longitude (deg) =  -123.436454
-C             Range                    (km)  =   388.975736
+C
+C            Surface representation: Ellipsoid
+C
+C             Radius                   (km)  =    3384.9404100068609
+C             Planetocentric Latitude  (deg) =   -48.479580262226833
+C             Planetocentric Longitude (deg) =   -123.43644973546644
+C             Range                    (km)  =    388.97571440620783
+C
+C            Surface representation: MGS/MOLA topography, 4 pixel/deg
+C
+C             Radius                   (km)  =    3387.6402755067679
+C             Planetocentric Latitude  (deg) =   -48.494341863340743
+C             Planetocentric Longitude (deg) =   -123.43808042359795
+C             Range                    (km)  =    386.13761526562394
 C
 C
 C 
@@ -913,13 +1306,31 @@ C        vector: compare the Mars surface intercept of the ray
 C        emanating from the spacecraft and pointed along this vector
 C        with the sub-observer point.
 C
+C        Perform the sub-observer point and surface intercept
+C        computations using both triaxial ellipsoid and topographic
+C        surface models. 
+C
+C        For this example, the topographic model is based on the MGS
+C        MOLA DEM megr90n000eb, which has a resolution of 16
+C        pixels/degree. Eight DSKs, each covering longitude and
+C        latitude ranges of 90 degrees, were made from this data set.
+C        For the region covered by a given DSK, a grid of approximately
+C        1500 x 1500 interpolated heights was produced, and this grid
+C        was tessellated using approximately 4.5 million triangular
+C        plates, giving a total plate count of about 36 million for the
+C        entire DSK set.
+C
+C        All DSKs in the set use the surface ID code 499001, so there
+C        is no need to specify the surface ID in the METHOD strings
+C        passed to SINCPT and SUBPNT.
+C
 C        Use the meta-kernel shown below to load the required SPICE
 C        kernels.
 C
 C
 C           KPL/MK
 C
-C           File: mro_example.tm
+C           File: sincpt_ex2.tm
 C
 C           This meta-kernel is intended to support operation of SPICE
 C           example programs. The kernels shown here should not be
@@ -933,233 +1344,301 @@ C
 C           The names and contents of the kernels referenced
 C           by this meta-kernel are as follows:
 C
-C              File name                     Contents
-C              ---------                     --------
-C              de418.bsp                     Planetary ephemeris
-C              pck00008.tpc                  Planet orientation and
-C                                                 radii
-C              naif0008.tls                  Leapseconds
-C              mro_psp4_ssd_mro95a.bsp       MRO ephemeris
-C              mro_v11.tf                    MRO frame specifications
-C              mro_sclkscet_00022_65536.tsc  MRO SCLK coefficients and
-C                                                 parameters
-C              mro_sc_psp_070925_071001.bc   MRO attitude
-C
+C              File name                        Contents
+C              ---------                        --------
+C              de430.bsp                        Planetary ephemeris
+C              mar097.bsp                       Mars satellite ephemeris
+C              pck00010.tpc                     Planet orientation and
+C                                               radii
+C              naif0011.tls                     Leapseconds
+C              mro_psp4_ssd_mro95a.bsp          MRO ephemeris
+C              mro_v11.tf                       MRO frame specifications
+C              mro_sclkscet_00022_65536.tsc     MRO SCLK coefficients
+C                                               parameters
+C              mro_sc_psp_070925_071001.bc      MRO attitude
+C              megr90n000eb_*_plate.bds         Plate model DSKs based 
+C                                               on MEGDR DEM, resolution
+C                                               16 pixels/degree.
 C
 C           \begindata
 C
-C              KERNELS_TO_LOAD = ( 'de418.bsp',
-C                                  'pck00008.tpc',
-C                                  'naif0008.tls',
-C                                  'mro_psp4_ssd_mro95a.bsp',
-C                                  'mro_v11.tf',
-C                                  'mro_sclkscet_00022_65536.tsc',
-C                                  'mro_sc_psp_070925_071001.bc'  )
+C              KERNELS_TO_LOAD = ( 
+C
+C                 'de430.bsp',
+C                 'mar097.bsp',
+C                 'pck00010.tpc',
+C                 'naif0011.tls',
+C                 'mro_psp4_ssd_mro95a.bsp',
+C                 'mro_v11.tf',
+C                 'mro_sclkscet_00022_65536.tsc',
+C                 'mro_sc_psp_070925_071001.bc',
+C                 'megr90n000eb_LL000E00N_UR090E90N_plate.bds'
+C                 'megr90n000eb_LL000E90S_UR090E00S_plate.bds'
+C                 'megr90n000eb_LL090E00N_UR180E90N_plate.bds'
+C                 'megr90n000eb_LL090E90S_UR180E00S_plate.bds'
+C                 'megr90n000eb_LL180E00N_UR270E90N_plate.bds'
+C                 'megr90n000eb_LL180E90S_UR270E00S_plate.bds'
+C                 'megr90n000eb_LL270E00N_UR360E90N_plate.bds'
+C                 'megr90n000eb_LL270E90S_UR360E00S_plate.bds'  )
+C                                  
 C           \begintext
 C
 C
+C
 C       Example code begins here.
+C          
+C
+C           PROGRAM EX2
+C           IMPLICIT NONE
+C     C
+C     C     SPICELIB functions
+C     C
+C           DOUBLE PRECISION      DPR
+C           DOUBLE PRECISION      VDIST
+C           DOUBLE PRECISION      VNORM
+C
+C     C
+C     C     Local parameters
+C     C
+C           CHARACTER*(*)         META
+C           PARAMETER           ( META   = 'sincpt_ex2.tm' )
+C
+C           CHARACTER*(*)         F1
+C           PARAMETER           ( F1     = '(A,F21.9)' )
+C
+C           CHARACTER*(*)         F2
+C           PARAMETER           ( F2     = '(A)' )
+C
+C           INTEGER               FRNMLN
+C           PARAMETER           ( FRNMLN = 32 )
+C
+C           INTEGER               MTHLEN
+C           PARAMETER           ( MTHLEN = 50 )
+C
+C           INTEGER               CORLEN
+C           PARAMETER           ( CORLEN = 5 )
+C
+C           INTEGER               NCORR
+C           PARAMETER           ( NCORR  = 2 )
+C
+C           INTEGER               NMETH
+C           PARAMETER           ( NMETH  = 2 )
+C
+C     C
+C     C     Local variables
+C     C
+C           CHARACTER*(CORLEN)    ABCORR ( NCORR )
+C           CHARACTER*(FRNMLN)    FIXREF
+C           CHARACTER*(FRNMLN)    HIREF
+C           CHARACTER*(MTHLEN)    SINMTH ( NMETH )
+C           CHARACTER*(MTHLEN)    SUBMTH ( NMETH )
+C
+C           DOUBLE PRECISION      ALT
+C           DOUBLE PRECISION      ET
+C           DOUBLE PRECISION      LAT
+C           DOUBLE PRECISION      LON
+C           DOUBLE PRECISION      MROVEC ( 3 )
+C           DOUBLE PRECISION      RADIUS
+C           DOUBLE PRECISION      SPOINT ( 3 )
+C           DOUBLE PRECISION      SRFVEC ( 3 )
+C           DOUBLE PRECISION      TRGEPC
+C           DOUBLE PRECISION      XFORM  ( 3, 3 )
+C           DOUBLE PRECISION      XEPOCH
+C           DOUBLE PRECISION      XPOINT ( 3 )
+C           DOUBLE PRECISION      XVEC   ( 3 )
+C
+C           INTEGER               I
+C           INTEGER               J
+C
+C           LOGICAL               FOUND
+C
+C     C
+C     C     Initial values
+C     C
+C           DATA                  ABCORR / 'LT+S', 'CN+S'            /
+C           DATA                  FIXREF / 'IAU_MARS'                /
+C           DATA                  SINMTH / 'Ellipsoid',
+C          .                               'DSK/Unprioritized'       /
+C           DATA                  SUBMTH / 'Ellipsoid/Near point',
+C          .                               'DSK/Unprioritized/Nadir' /
+C
+C     C
+C     C     Load kernel files via the meta-kernel.
+C     C
+C           CALL FURNSH ( META )
+C
+C     C
+C     C     Convert the TDB request time string to seconds past
+C     C     J2000, TDB.
+C     C
+C           CALL STR2ET ( '2007 SEP 30 00:00:00 TDB', ET )
+C
+C     C
+C     C     Compute the sub-spacecraft point using the
+C     C     "NEAR POINT: ELLIPSOID" definition.
+C     C     Compute the results using both LT+S and CN+S
+C     C     aberration corrections.
+C     C
+C     C     Repeat the computation for each method.
+C     C
+C     C
+C           DO I = 1, NMETH
+C
+C              WRITE(*,F2) ' '
+C              WRITE(*,F2) 'Sub-observer point computation method = '
+C          .               // SUBMTH(I)
+C
+C              DO J = 1, NCORR
+C
+C                 CALL SUBPNT ( SUBMTH(I),
+C          .                    'Mars', ET,     FIXREF, ABCORR(J),
+C          .                    'MRO',  SPOINT, TRGEPC, SRFVEC    )
+C     C
+C     C           Compute the observer's altitude above SPOINT.
+C     C
+C                 ALT = VNORM ( SRFVEC )
+C     C
+C     C           Express SRFVEC in the MRO_HIRISE_LOOK_DIRECTION
+C     C           reference frame at epoch ET. Since SRFVEC is
+C     c           expressed relative to the IAU_MARS frame at
+C     C           TRGEPC, we must call PXFRM2 to compute the position
+C     C           transformation matrix from IAU_MARS at TRGEPC to the
+C     C           MRO_HIRISE_LOOK_DIRECTION frame at time ET.
+C     C
+C     C           To make code formatting a little easier, we'll
+C     C           store the long MRO reference frame name in a
+C     C           variable:
+C     C
+C                 HIREF = 'MRO_HIRISE_LOOK_DIRECTION'
+C
+C                 CALL PXFRM2 ( FIXREF, HIREF,  TRGEPC, ET, XFORM )
+C                 CALL MXV    ( XFORM,  SRFVEC, MROVEC )
+C
+C     C
+C     C           Convert rectangular coordinates to planetocentric
+C     C           latitude and longitude. Convert radians to degrees.
+C     C
+C                 CALL RECLAT ( SPOINT, RADIUS, LON, LAT  )
+C
+C                 LON = LON * DPR ()
+C                 LAT = LAT * DPR ()
+C     C
+C     C           Write the results.
+C     C
+C                 WRITE(*,F2) ' '
+C                 WRITE(*,F2) '   Aberration correction = '//ABCORR(J)
+C                 WRITE(*,F1) ' '
+C                 WRITE(*,F2) '      MRO-to-sub-observer vector in'
+C                 WRITE(*,F2) '      MRO HIRISE look direction frame'
+C                 WRITE(*,F1) '        X-component             (km) = ',
+C          .                  MROVEC(1)
+C                 WRITE(*,F1) '        Y-component             (km) = ',
+C          .                  MROVEC(2)
+C                 WRITE(*,F1) '        Z-component             (km) = ',
+C          .               MROVEC(3)
+C                 WRITE(*,F1) '      Sub-observer point radius (km) = ',
+C          .                  RADIUS
+C                 WRITE(*,F1) '      Planetocentric latitude  (deg) = ',
+C          .                  LAT
+C                 WRITE(*,F1) '      Planetocentric longitude (deg) = ',
+C          .                  LON
+C                 WRITE(*,F1) '      Observer altitude         (km) = ',
+C          .                  ALT
+C
+C     C
+C     C           Consistency check: find the surface intercept on
+C     C           Mars of the ray emanating from the spacecraft and
+C     C           having direction vector MROVEC in the MRO HIRISE
+C     C           reference frame at ET. Call the intercept point
+C     C           XPOINT. XPOINT should coincide with SPOINT, up to
+C     C           a small round-off error.
+C     C
+C                 CALL SINCPT ( SINMTH(I), 'Mars', ET,    FIXREF,
+C          .                    ABCORR(J), 'MRO',  HIREF, MROVEC,
+C          .                    XPOINT,    XEPOCH, XVEC,  FOUND  )
+C
+C                 IF ( .NOT. FOUND ) THEN
+C                    WRITE (*,F1) 'Bug: no intercept'
+C                 ELSE
+C     C
+C     C              Report the distance between XPOINT and SPOINT.
+C     C
+C                    WRITE (*,* ) ' '
+C                    WRITE (*,F1) '   Intercept comparison '
+C          .         //           'error (km) = ',
+C          .                      VDIST( XPOINT, SPOINT )
+C                 END IF
+C
+C              END DO
+C
+C           END DO
+C
+C           END
 C
 C
-C          PROGRAM EX2
-C          IMPLICIT NONE
-C    C
-C    C     SPICELIB functions
-C    C
-C          DOUBLE PRECISION      DPR
-C          DOUBLE PRECISION      VDIST
-C          DOUBLE PRECISION      VNORM
+C     When this program was executed on a PC/Linux/gfortran 64-bit 
+C     platform, the output was:
+C           
 C
-C    C
-C    C     Local parameters
-C    C
-C          CHARACTER*(*)         META
-C          PARAMETER           ( META   = 'mro_example.tm' )
+C        Sub-observer point computation method = Ellipsoid/Near point
 C
-C          CHARACTER*(*)         F1
-C          PARAMETER           ( F1     = '(A,F21.9)' )
+C           Aberration correction = LT+S
 C
-C          CHARACTER*(*)         F2
-C          PARAMETER           ( F2     = '(A)' )
+C              MRO-to-sub-observer vector in
+C              MRO HIRISE look direction frame
+C                X-component             (km) =           0.286933229
+C                Y-component             (km) =          -0.260425939
+C                Z-component             (km) =         253.816326385
+C              Sub-observer point radius (km) =        3388.299078378
+C              Planetocentric latitude  (deg) =         -38.799836378
+C              Planetocentric longitude (deg) =        -114.995297227
+C              Observer altitude         (km) =         253.816622175
 C
-C          INTEGER               FRNMLN
-C          PARAMETER           ( FRNMLN = 32 )
+C           Intercept comparison error (km) =           0.000002144
 C
-C          INTEGER               MTHLEN
-C          PARAMETER           ( MTHLEN = 50 )
+C           Aberration correction = CN+S
 C
-C          INTEGER               CORLEN
-C          PARAMETER           ( CORLEN = 5 )
+C              MRO-to-sub-observer vector in
+C              MRO HIRISE look direction frame
+C                X-component             (km) =           0.286933107
+C                Y-component             (km) =          -0.260426683
+C                Z-component             (km) =         253.816315915
+C              Sub-observer point radius (km) =        3388.299078376
+C              Planetocentric latitude  (deg) =         -38.799836382
+C              Planetocentric longitude (deg) =        -114.995297449
+C              Observer altitude         (km) =         253.816611705
 C
-C          INTEGER               NCORR
-C          PARAMETER           ( NCORR  = 2 )
+C           Intercept comparison error (km) =           0.000000001
 C
-C    C
-C    C     Local variables
-C    C
-C          CHARACTER*(CORLEN)    ABCORR ( NCORR )
-C          CHARACTER*(FRNMLN)    HIREF
-C          CHARACTER*(MTHLEN)    METHOD
+C        Sub-observer point computation method = DSK/Unprioritized/Nadir
 C
-C          DOUBLE PRECISION      ALT
-C          DOUBLE PRECISION      ET
-C          DOUBLE PRECISION      LAT
-C          DOUBLE PRECISION      LON
-C          DOUBLE PRECISION      MROVEC ( 3 )
-C          DOUBLE PRECISION      R1     ( 3, 3 )
-C          DOUBLE PRECISION      R2     ( 3, 3 )
-C          DOUBLE PRECISION      RADIUS
-C          DOUBLE PRECISION      SPOINT ( 3 )
-C          DOUBLE PRECISION      SRFVEC ( 3 )
-C          DOUBLE PRECISION      TRGEPC
-C          DOUBLE PRECISION      XFORM  ( 3, 3 )
-C          DOUBLE PRECISION      XEPOCH
-C          DOUBLE PRECISION      XPOINT ( 3 )
-C          DOUBLE PRECISION      XVEC   ( 3 )
+C           Aberration correction = LT+S
 C
-C          INTEGER               I
+C              MRO-to-sub-observer vector in
+C              MRO HIRISE look direction frame
+C                X-component             (km) =           0.282372596
+C                Y-component             (km) =          -0.256289313
+C                Z-component             (km) =         249.784871247
+C              Sub-observer point radius (km) =        3392.330239436
+C              Planetocentric latitude  (deg) =         -38.800230156
+C              Planetocentric longitude (deg) =        -114.995297338
+C              Observer altitude         (km) =         249.785162334
 C
-C          LOGICAL               FOUND
+C           Intercept comparison error (km) =           0.000002412
 C
-C    C
-C    C     Initial values
-C    C
-C          DATA                  ABCORR / 'LT+S', 'CN+S' /
-C    C
-C    C     Load kernel files via the meta-kernel.
-C    C
-C          CALL FURNSH ( META )
+C           Aberration correction = CN+S
 C
-C    C
-C    C     Convert the TDB request time string to seconds past
-C    C     J2000, TDB.
-C    C
-C          CALL STR2ET ( '2007 SEP 30 00:00:00 TDB', ET )
+C              MRO-to-sub-observer vector in
+C              MRO HIRISE look direction frame
+C                X-component             (km) =           0.282372464
+C                Y-component             (km) =          -0.256290075
+C                Z-component             (km) =         249.784860121
+C              Sub-observer point radius (km) =        3392.330239564
+C              Planetocentric latitude  (deg) =         -38.800230162
+C              Planetocentric longitude (deg) =        -114.995297569
+C              Observer altitude         (km) =         249.785151209
 C
-C    C
-C    C     Compute the sub-spacecraft point using the
-C    C     "NEAR POINT: ELLIPSOID" definition.
-C    C     Compute the results using both LT+S and CN+S
-C    C     aberration corrections.
-C    C
-C          METHOD = 'Near point: ellipsoid'
-C
-C          WRITE(*,F2) ' '
-C          WRITE(*,F2) 'Computation method = '//METHOD
-C
-C          DO I = 1, NCORR
-C
-C             CALL SUBPNT ( METHOD,
-C         .                 'Mars', ET,     'IAU_MARS', ABCORR(I),
-C         .                 'MRO',  SPOINT, TRGEPC,     SRFVEC    )
-C    C
-C    C        Compute the observer's altitude above SPOINT.
-C    C
-C             ALT = VNORM ( SRFVEC )
-C    C
-C    C        Express SRFVEC in the MRO_HIRISE_LOOK_DIRECTION
-C    C        reference frame at epoch ET. Since SRFVEC is expressed
-C    C        relative to the IAU_MARS frame at TRGEPC, we must
-C    C        call PXFRM2 to compute the position transformation matrix
-C    C        from IAU_MARS at TRGEPC to the MRO_HIRISE_LOOK_DIRECTION 
-C    C        frame at time ET.
-C    C
-C    C        To make code formatting a little easier, we'll store
-C    C        the long MRO reference frame name in a variable:
-C    C
-C             HIREF = 'MRO_HIRISE_LOOK_DIRECTION'
-C
-C             CALL PXFRM2 ( 'IAU_MARS', HIREF,  TRGEPC, ET, XFORM )
-C             CALL MXV    (  XFORM,     SRFVEC, MROVEC )
-C
-C    C
-C    C        Convert rectangular coordinates to planetocentric
-C    C        latitude and longitude. Convert radians to degrees.
-C    C
-C             CALL RECLAT ( SPOINT, RADIUS, LON, LAT  )
-C
-C             LON = LON * DPR ()
-C             LAT = LAT * DPR ()
-C    C
-C    C        Write the results.
-C    C
-C             WRITE(*,F2) ' '
-C             WRITE(*,F2) 'Aberration correction = '//ABCORR(I)
-C             WRITE(*,F1) ' '
-C             WRITE(*,F2) '  MRO-to-sub-observer vector in'
-C             WRITE(*,F2) '  MRO HIRISE look direction frame'
-C             WRITE(*,F1) '     X-component             (km) = ',
-C         .               MROVEC(1)
-C             WRITE(*,F1) '     Y-component             (km) = ',
-C         .               MROVEC(2)
-C             WRITE(*,F1) '     Z-component             (km) = ',
-C         .               MROVEC(3)
-C             WRITE(*,F1) '  Sub-observer point radius  (km) = ', RADIUS
-C             WRITE(*,F1) '  Planetocentric latitude   (deg) = ', LAT
-C             WRITE(*,F1) '  Planetocentric longitude  (deg) = ', LON
-C             WRITE(*,F1) '  Observer altitude          (km) = ', ALT
-C
-C    C
-C    C        Consistency check: find the surface intercept on
-C    C        Mars of the ray emanating from the spacecraft and having
-C    C        direction vector MROVEC in the MRO HIRISE look direction
-C    C        reference frame at ET. Call the intercept point
-C    C        XPOINT. XPOINT should coincide with SPOINT, up to a
-C    C        small round-off error.
-C    C
-C             CALL SINCPT ( 'Ellipsoid', 'Mars', ET,    'IAU_MARS',
-C         .                 ABCORR(I),   'MRO',  HIREF, MROVEC,
-C         .                 XPOINT,      XEPOCH, XVEC,  FOUND  )
-C
-C             IF ( .NOT. FOUND ) THEN
-C                WRITE (*,F1) 'Bug: no intercept'
-C             ELSE
-C    C
-C    C           Report the distance between XPOINT and SPOINT.
-C    C
-C                WRITE (*,F1) '  Intercept comparison error (km) = ',
-C         .                   VDIST( XPOINT, SPOINT )
-C             END IF
-C
-C             WRITE(*,F1) ' '
-C
-C          END DO
-C
-C          END
-C
-C
-C     When this program was executed on a PC/Linux/gfortran platform,
-C     the output was:
-C
-C
-C        Computation method = Near point: ellipsoid
-C
-C        Aberration correction = LT+S
-C
-C          MRO-to-sub-observer vector in
-C          MRO HIRISE look direction frame
-C             X-component             (km) =           0.286931987
-C             Y-component             (km) =          -0.260417167
-C             Z-component             (km) =         253.816284981
-C          Sub-observer point radius  (km) =        3388.299078207
-C          Planetocentric latitude   (deg) =         -38.799836879
-C          Planetocentric longitude  (deg) =        -114.995294746
-C          Observer altitude          (km) =         253.816580760
-C          Intercept comparison error (km) =           0.000002144
-C
-C
-C        Aberration correction = CN+S
-C
-C          MRO-to-sub-observer vector in
-C          MRO HIRISE look direction frame
-C             X-component             (km) =           0.286931866
-C             Y-component             (km) =          -0.260417914
-C             Z-component             (km) =         253.816274506
-C          Sub-observer point radius  (km) =        3388.299078205
-C          Planetocentric latitude   (deg) =         -38.799836883
-C          Planetocentric longitude  (deg) =        -114.995294968
-C          Observer altitude          (km) =         253.816570285
-C          Intercept comparison error (km) =           0.000000001
+C           Intercept comparison error (km) =           0.000000001
 C
 C
 C$ Restrictions
@@ -1192,6 +1671,14 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 3.0.0, 04-APR-2017 (NJB)
+C
+C       01-FEB-2016 (NJB)
+C
+C        Upgraded to support surfaces represented by DSKs. 
+C
+C        Updated kernels are used in header example programs.
+C     
 C-    SPICELIB Version 2.0.0, 31-MAR-2014 (NJB) (SCK) (BVS)
 C
 C        Bug fix: FIRST is now set to .FALSE. at the completion
@@ -1257,7 +1744,18 @@ C-&
 
 C$ Revisions
 C
-C     None.
+C-    SPICELIB Version 3.0.0, 01-FEB-2016 (NJB)
+C
+C        Upgraded to support surfaces represented by DSKs.
+C     
+C        The routine was re-written so as to use a private
+C        routine to implement the intersection algorithm.
+C        That routine has been generalized so that it does
+C        not depend on the target surface representation: it
+C        uses callback routines to compute ray-surface intercepts
+C        for a specified ray and time, the surface tangency point
+C        for a given ray, and the radius of an outer bounding
+C        sphere for the target.
 C
 C-&
 
@@ -1265,49 +1763,23 @@ C-&
 C
 C     SPICELIB functions
 C
-      DOUBLE PRECISION      CLIGHT
-      DOUBLE PRECISION      DASINE
-      DOUBLE PRECISION      TOUCHD
-      DOUBLE PRECISION      VDIST
-      DOUBLE PRECISION      VNORM
-      DOUBLE PRECISION      VSEP
-      
       LOGICAL               EQSTR
       LOGICAL               FAILED
       LOGICAL               RETURN
       LOGICAL               VZERO
 
 C
+C     EXTERNAL routines
+C 
+      EXTERNAL              ZZMAXRAD
+      EXTERNAL              ZZRAYSFX
+      EXTERNAL              ZZRAYNP
+
+C
 C     Local parameters
 C     
       CHARACTER*(*)         RNAME
       PARAMETER           ( RNAME  = 'SINCPT' )
-
-C
-C     This value will become system-dependent when systems
-C     using 128-bit d.p. numbers are supported by SPICELIB.
-C     CNVLIM, when added to 1.0D0, should yield 1.0D0. 
-C
-      DOUBLE PRECISION      CNVLIM
-      PARAMETER           ( CNVLIM = 1.D-17 )
-
-C
-C     Round-off error limit for arc sine input:
-C
-      DOUBLE PRECISION      RNDTOL
-      PARAMETER           ( RNDTOL = 1.D-14 )
-
-C
-C     Fraction of target body angular radius used to define
-C     region outside of which rays are immediately rejected
-C     as non-intersecting.
-C
-      DOUBLE PRECISION      MARGIN
-      PARAMETER           ( MARGIN = 1.01D0 )
-
-
-      INTEGER               MAXITR
-      PARAMETER           ( MAXITR =  10 )
 
 C
 C     Saved body name length.
@@ -1321,67 +1793,35 @@ C
       INTEGER               FRNMLN
       PARAMETER           ( FRNMLN = 32 )
 
-
-      
 C
 C     Local variables
 C
-      CHARACTER*(CORLEN)    LOCCOR
+      CHARACTER*(CVTLEN)    PNTDEF
       CHARACTER*(CORLEN)    PRVCOR
-
-      DOUBLE PRECISION      DIST
-      DOUBLE PRECISION      ETDIFF
-      DOUBLE PRECISION      J2DIR  ( 3 )
-      DOUBLE PRECISION      J2EST  ( 3 )
-      DOUBLE PRECISION      J2GEOM ( 3 )
-      DOUBLE PRECISION      J2POS  ( 3 )
-      DOUBLE PRECISION      J2TMAT ( 3, 3 )
-      DOUBLE PRECISION      LT
-      DOUBLE PRECISION      LTCENT
-      DOUBLE PRECISION      LTDIFF
-      DOUBLE PRECISION      MAXRAD
-      DOUBLE PRECISION      NEGPOS ( 3 )
-      DOUBLE PRECISION      OBSPOS ( 3 )
-      DOUBLE PRECISION      PNEAR  ( 3 )
-      DOUBLE PRECISION      PREVET
-      DOUBLE PRECISION      PREVLT
-      DOUBLE PRECISION      R2JMAT ( 3, 3 )
-      DOUBLE PRECISION      RADII  ( 3 )
-      DOUBLE PRECISION      RANGE
-      DOUBLE PRECISION      RAYALT
-      DOUBLE PRECISION      REFEPC
-      DOUBLE PRECISION      REJECT
-      DOUBLE PRECISION      RELERR
-      DOUBLE PRECISION      RPOS   ( 3 )
-      DOUBLE PRECISION      S
-      DOUBLE PRECISION      SRFLEN
-      DOUBLE PRECISION      SSBOST ( 6 )
-      DOUBLE PRECISION      SSBTST ( 6 )
-      DOUBLE PRECISION      STLDIR ( 3 )
-      DOUBLE PRECISION      STLERR ( 3 )
-      DOUBLE PRECISION      STLTMP ( 3 )
-      DOUBLE PRECISION      TPOS   ( 3 )
-      DOUBLE PRECISION      TRGDIR ( 3 )
-      DOUBLE PRECISION      UDIR   ( 3 )
-      DOUBLE PRECISION      XFORM  ( 3, 3 )
+      CHARACTER*(MTHLEN)    PRVMTH
+      CHARACTER*(SHPLEN)    SHPSTR
+      CHARACTER*(SUBLEN)    SUBTYP
+      CHARACTER*(TMTLEN)    TRMSTR
 
       INTEGER               DCENTR
       INTEGER               DCLASS
-      INTEGER               DTYPID
       INTEGER               DFRCDE
+      INTEGER               DTYPID
       INTEGER               FXCENT
       INTEGER               FXCLSS
       INTEGER               FXFCDE
       INTEGER               FXTYID
-      INTEGER               I
-      INTEGER               NITR
-      INTEGER               NRADII
+      INTEGER               NSURF
       INTEGER               OBSCDE
+      INTEGER               SHAPE
+      INTEGER               SRFLST ( MAXSRF )
       INTEGER               TRGCDE
       
       LOGICAL               ATTBLK ( NABCOR )
       LOGICAL               FIRST
       LOGICAL               FND
+      LOGICAL               PRI
+      LOGICAL               SURFUP
       LOGICAL               USECN
       LOGICAL               USELT
       LOGICAL               USESTL
@@ -1411,14 +1851,21 @@ C
       CHARACTER*(FRNMLN)    SVDREF
       INTEGER               SVDFRC
 
-
+C
+C     Saved surface name/ID item declarations.
+C
+      INTEGER               SVCTR5 ( CTRSIZ )
 
 C
 C     Saved variables
 C
       SAVE                  FIRST
-      SAVE                  LOCCOR
+      SAVE                  NSURF
+      SAVE                  PRI
       SAVE                  PRVCOR
+      SAVE                  PRVMTH
+      SAVE                  SHAPE
+      SAVE                  SRFLST
       SAVE                  USECN
       SAVE                  USELT
       SAVE                  USESTL
@@ -1448,14 +1895,17 @@ C
       SAVE                  SVDREF
       SAVE                  SVDFRC
 
-
+C
+C     Saved surface name/ID items.
+C
+      SAVE                  SVCTR5
  
 C
 C     Initial values
 C
       DATA                  FIRST  / .TRUE.  /
-      DATA                  LOCCOR / ' '     /
       DATA                  PRVCOR / ' '     /
+      DATA                  PRVMTH / ' '     /
       DATA                  USECN  / .FALSE. / 
       DATA                  USELT  / .FALSE. / 
       DATA                  USESTL / .FALSE. / 
@@ -1479,7 +1929,6 @@ C
 C     Counter initialization is done separately.
 C
       IF ( FIRST ) THEN
-
 C
 C        Initialize counters.
 C
@@ -1487,10 +1936,17 @@ C
          CALL ZZCTRUIN( SVCTR2 )
          CALL ZZCTRUIN( SVCTR3 )
          CALL ZZCTRUIN( SVCTR4 )
+         CALL ZZCTRUIN( SVCTR5 )
 
       END IF
 
       IF (  FIRST  .OR.  ( ABCORR .NE. PRVCOR )  ) THEN
+C
+C        Make sure the results of this block won't be reused
+C        if we bail out due to an error.
+C
+         PRVCOR = ' '
+
 C
 C        The aberration correction flag differs from the value it
 C        had on the previous call, if any. Analyze the new flag.
@@ -1501,12 +1957,6 @@ C
             CALL CHKOUT ( RNAME )
             RETURN
          END IF
-
-C
-C        The aberration correction flag is valid; save it.
-C
-         PRVCOR = ABCORR
-
 C
 C        Set logical flags indicating the attributes of the requested
 C        correction:
@@ -1529,36 +1979,10 @@ C
          USELT   =  ATTBLK ( LTIDX  )
          USECN   =  ATTBLK ( CNVIDX )
          USESTL  =  ATTBLK ( STLIDX )
-
 C
-C        The variable LOCCOR will contain a representation of
-C        the aberration correction specification with stellar
-C        aberration omitted.
-C         
-         IF ( ATTBLK(GEOIDX) ) THEN
-
-            LOCCOR = 'NONE'
-
-         ELSE
-
-            IF ( XMIT ) THEN
-               LOCCOR = 'X'
-            ELSE
-               LOCCOR = ' '
-            END IF
-
-            IF ( USECN ) THEN
-               CALL SUFFIX ( 'CN', 0, LOCCOR )
-            ELSE IF ( USELT ) THEN
-               CALL SUFFIX ( 'LT', 0, LOCCOR )
-            END IF
-
-         END IF
-
+C        The aberration correction flag is valid; save it.
 C
-C        At this point, the first pass actions were successful.
-C
-         FIRST = .FALSE.
+         PRVCOR = ABCORR
 
       END IF
 
@@ -1574,7 +1998,9 @@ C
      .   //            '''#'', is not a recognized name for an '
      .   //            'ephemeris object. The cause of this '
      .   //            'problem may be that you need an updated '
-     .   //            'version of the SPICE Toolkit. '           )
+     .   //            'version of the SPICE Toolkit, or that you '
+     .   //            'failed to load a kernel containing a '
+     .   //            'name-ID mapping for this body.'           )
          CALL ERRCH  ( '#', TARGET                                )
          CALL SIGERR ( 'SPICE(IDCODENOTFOUND)'                    )
          CALL CHKOUT ( RNAME                                      )
@@ -1592,7 +2018,9 @@ C
      .   //            '''#'', is not a recognized name for an '
      .   //            'ephemeris object. The cause of this '
      .   //            'problem may be that you need an updated '
-     .   //            'version of the SPICE Toolkit. '           )
+     .   //            'version of the SPICE Toolkit, or that you '
+     .   //            'failed to load a kernel containing a '
+     .   //            'name-ID mapping for this body.'           )
          CALL ERRCH  ( '#', OBSRVR                                )
          CALL SIGERR ( 'SPICE(IDCODENOTFOUND)'                    )
          CALL CHKOUT ( RNAME                                      )
@@ -1671,67 +2099,7 @@ C
          RETURN
 
       END IF
-
-C
-C     Get the sign S prefixing LT in the expression for TRGEPC.
-C     When light time correction is not used, setting S = 0
-C     allows us to seamlessly set TRGEPC equal to ET.
-C
-      IF ( USELT ) THEN
-
-         IF ( XMIT ) THEN
-            S   =  1.D0
-         ELSE
-            S   = -1.D0
-         END IF
-         
-      ELSE
-         S = 0.D0
-      END IF
- 
-C
-C     Determine the position of the observer in target
-C     body-fixed coordinates.
-C
-C         -  Call SPKEZP to compute the position of the target body as
-C            seen from the observing body and the light time (LT)
-C            between them. We request that the coordinates of POS be
-C            returned relative to the body fixed reference frame
-C            associated with the target body, using aberration
-C            corrections specified by LOCCOR; these are the corrections
-C            the input argument ABCORR, minus the stellar aberration
-C            correction if it was called for.
-C
-C         -  Call VMINUS to negate the direction of the vector (OBSPOS)
-C            so it will be the position of the observer as seen from
-C            the target body in target body fixed coordinates.
-C
-C            Note that this result is not the same as the result of
-C            calling SPKEZP with the target and observer switched. We
-C            computed the vector FROM the observer TO the target in
-C            order to get the proper light time and stellar aberration
-C            corrections (if requested). Now we need the inverse of
-C            that corrected vector in order to compute the intercept
-C            point.
-C
-
-      CALL SPKEZP ( TRGCDE, ET, FIXREF, LOCCOR, OBSCDE, TPOS, LT )
- 
-C
-C     Negate the target's position to obtain the position of the
-C     observer relative to the target.
-C
-      CALL VMINUS ( TPOS, OBSPOS )
-
-C
-C     We now need to convert the direction vector into the
-C     body fixed frame associated with the target. The target
-C     epoch is dependent on the aberration correction. The
-C     coefficient S has been set to give us the correct answer
-C     for each case.
-C
-      TRGEPC = ET  +  S*LT
-
+   
 C
 C     Determine the attributes of the frame designated by DREF.
 C
@@ -1756,573 +2124,134 @@ C
          RETURN
 
       END IF
- 
+
 C
-C     Transform the direction vector from frame DREF to the body-fixed
-C     frame associated with the target. The epoch TRGEPC associated
-C     with the body-fixed frame has been set already.
+C     Check whether the surface name/ID mapping has been updated.
+C
+      CALL ZZSRFTRK ( SVCTR5, SURFUP )
+
+C
+C     Initialize the SINCPT utility package for the next computation.
+C     The choice of initialization routine depends on the target
+C     surface type.
 C     
-C     We'll compute the transformation in two parts: first
-C     from frame DREF to J2000, then from J2000 to the target
-C     frame.
+      IF ( FIRST  .OR.  SURFUP  .OR.  ( METHOD .NE. PRVMTH ) ) THEN
 C
-      IF ( DCLASS .EQ. INERTL ) THEN
+C        Set the previous method string to an invalid value, so it
+C        cannot match any future, valid input. This will force this
+C        routine to parse the input method on the next call if any
+C        failure occurs in this branch. Once success is assured, we can
+C        record the current method in the previous method string.
 C
-C        Inertial frames can be evaluated at any epoch.
-C
-         REFEPC = ET
+         PRVMTH = ' '
 
-
-      ELSE IF ( .NOT. USELT ) THEN
 C
-C        We're not using light time corrections (converged or
-C        otherwise), so there's no time offset.
+C        Parse the method string. If the string is valid, the
+C        outputs SHAPE and SUBTYP will always be be set. However,
+C        SUBTYP is not used in this routine. 
 C
-         REFEPC = ET
-
-
-      ELSE IF ( DCENTR .EQ. OBSCDE ) THEN
+C        For DSK shapes, the surface list array and count will be set
+C        if the method string contains a surface list.
 C
-C        If the center of frame DREF is the observer (which is
-C        usually the case if the observer is a spacecraft), then
-C        the epoch of frame DREF is simply ET.
-C
-C        There's no offset between the center for frame DREF
-C        and the observer.
-C
-         REFEPC = ET
-
-      ELSE
-C
-C        Find the light time from the observer to the center of 
-C        frame DREF.
-C           
-         CALL SPKEZP ( DCENTR, ET, 'J2000', ABCORR, OBSCDE,
-     .                 RPOS,   LTCENT                       )
-  
+         CALL ZZPRSMET ( TRGCDE, METHOD, MAXSRF, SHPSTR, SUBTYP, 
+     .                   PRI,    NSURF,  SRFLST, PNTDEF, TRMSTR )
          IF ( FAILED() ) THEN
             CALL CHKOUT ( RNAME )
             RETURN
          END IF
 
-         REFEPC  =  ET  +  S * LTCENT
+         IF (  EQSTR( SHPSTR, 'ELLIPSOID' )  ) THEN
 
-      END IF
+            SHAPE = ELLSHP
 
-C
-C     The epoch REFEPC associated with frame DREF has been set.
-C
-C     Compute the transformation from frame DREF to J2000 and the
-C     transformation from J2000 to the target body-fixed frame.
-C
-C     Map DVEC to both the J2000 and target body-fixed frames. We'll
-C     store DVEC, expressed relative to the J2000 frame, in the
-C     variable J2DIR. DVEC in the target body-fixed frame will be
-C     stored in TRGDIR.
-C
-C     We may need both versions of DVEC: if we use light time
-C     correction, we'll update "intercept epoch", and hence the
-C     transformation between J2000 and the target body-fixed frame.
-C     The transformation between DREF and J2000 doesn't change, on the
-C     other hand, so we don't have to recompute J2DIR. We need TRGDIR
-C     in all cases.
-C
-      CALL PXFORM ( DREF, 'J2000', REFEPC,  R2JMAT )
+         ELSE IF (  EQSTR( SHPSTR, 'DSK' )  ) THEN
 
-      IF ( FAILED() ) THEN
-         CALL CHKOUT ( RNAME )
-         RETURN
-      END IF
+            SHAPE = DSKSHP
 
-      CALL MXV ( R2JMAT, DVEC, J2DIR )
-
-C
-C     Save this version of J2DIR as J2GEOM. Later we'll
-C     modify J2DIR, if necessary, to account for stellar
-C     aberration. 
-C
-      CALL VEQU ( J2DIR, J2GEOM )
-
-C
-C     Map J2DIR (in the J2000 frame) to the target body-fixed
-C     frame.
-C
-      CALL PXFORM ( 'J2000', FIXREF,  TRGEPC,  J2TMAT )
-
-      IF ( FAILED() ) THEN
-         CALL CHKOUT ( RNAME )
-         RETURN
-      END IF
-
-      CALL MXV ( J2TMAT, J2DIR, TRGDIR )
-
-C
-C     At this point,
-C
-C        TRGEPC is set.
-C        TRGDIR is set.
-C        J2DIR is set.
-C
-C
-C     Get the J2000-relative state of the observer relative to
-C     the solar system barycenter at ET. We'll use this in
-C     several places later.
-C
-      CALL SPKSSB ( OBSCDE, ET, 'J2000', SSBOST )
-
-C
-C     If we're using stellar aberration correction, at this point we'll
-C     account for it. We're going to find a surface point such that
-C     the radiation path from that point to the observer, after
-C     correction for stellar aberration, is parallel to the ray. So
-C     by applying the inverse of the correction to the ray, we obtain
-C     the ray with which we must perform our intercept computation.
-C 
-      IF ( USESTL ) THEN
-C
-C        We approximate the inverse stellar aberration correction by
-C        using the correction for the reverse transmission direction.
-C        If we're in the reception case, we apply the transmission
-C        stellar aberration correction to J2DIR and vice versa.
-C      
-C        We iterate our estimates until we have the desired level
-C        of convergence or reach the iteration limit.
-C
-         NITR = 5
-
-         IF ( XMIT ) THEN
-C
-C           Use reception stellar aberration correction
-C           routine STELAB to generate a first estimate of
-C           the direction vector after stellar aberration
-C           has been "removed"---that is, apply the inverse
-C           of the transmission stellar aberration correction
-C           mapping to J2DIR.
-C
-            CALL STELAB ( J2DIR, SSBOST(4), STLDIR )
-
-C
-C           Now improve our estimate.
-C
-            RELERR = 1.D0
-            I      = 1
-            
-            DO WHILE ( ( I .LE. NITR ) .AND. ( RELERR .GT. CNVLIM ) )
-C
-C              Estimate the error in our previous approximation 
-C              by applying the reception stellar aberration
-C              to STLDIR and finding the difference with J2DIR.
-C
-               CALL STLABX ( STLDIR, SSBOST(4), J2EST  )            
-               CALL VSUB   ( J2DIR,  J2EST,     STLERR )
-
-C
-C              Adding the error in the reception mapping to STLDIR
-C              will give us an improved estimate of the inverse.
-C
-               CALL VADD ( STLERR, STLDIR, STLTMP )
-               CALL VEQU ( STLTMP,         STLDIR )
-
-               RELERR = VNORM(STLERR) / VNORM(STLDIR)
-               I      = I + 1
-
-            END DO
-
-C
-C           At this point we've found a good estimate of the
-C           direction vector under the inverse of the transmission
-C           stellar aberration correction mapping.
-C
          ELSE
 C
-C           Use transmission stellar aberration correction
-C           routine STLABX to generate a first estimate of
-C           the direction vector after stellar aberration
-C           has been "removed."  
+C           This is a backstop check.
 C
-            CALL STLABX ( J2DIR, SSBOST(4), STLDIR )
+            CALL SETMSG ( '[1] Returned shape value from method '
+     .      //            'string was <#>.'                      )
+            CALL ERRCH  ( '#', SHPSTR                            )
+            CALL SIGERR ( 'SPICE(BUG)'                           )
+            CALL CHKOUT ( RNAME                                  )
+            RETURN
 
-C
-C           Now improve our estimate.
-C
-            RELERR = 1.D0
-            I      = 1
-            
-            DO WHILE ( ( I .LE. NITR ) .AND. ( RELERR .GT. CNVLIM ) )
-C
-C              Estimate the error in our previous approximation 
-C              by applying the reception stellar aberration
-C              to STLDIR and finding the difference with J2DIR.
-C
-               CALL STELAB ( STLDIR, SSBOST(4), J2EST  )            
-               CALL VSUB   ( J2DIR,  J2EST,     STLERR )
-
-C
-C              Adding the error in the reception mapping to STLDIR
-C              will give us an improved estimate of the inverse.
-C
-               CALL VADD ( STLERR, STLDIR, STLTMP )
-               CALL VEQU ( STLTMP,         STLDIR )
-
-               RELERR = VNORM(STLERR) / VNORM(STLDIR)
-               I      = I + 1
-
-            END DO
-
-C
-C           At this point we've found a good estimate of the
-C           direction vector under the inverse of the reception
-C           stellar aberration correction mapping.
-C
          END IF
 
 C
-C        Replace the J2000-relative ray direction with the corrected
-C        direction.
+C        There should be no subtype specification in the method 
+C        string.
 C
-         CALL VEQU ( STLDIR,  J2DIR )
-         CALL MXV  ( J2TMAT,  J2DIR,   TRGDIR )
+         IF ( SUBTYP .NE. ' ' ) THEN
+            
+            CALL SETMSG ( 'Spurious sub-observer point type <#> '
+     .      //            'was present in the method string #. ' 
+     .      //            'The sub-observer type is valid in '
+     .      //            'the method strings for SUBPNT and '
+     .      //            'SUBSLR, but is not applicable for SINCPT.' )
+            CALL ERRCH  ( '#', SUBTYP                                 )
+            CALL ERRCH  ( '#', METHOD                                 )
+            CALL SIGERR ( 'SPICE(INVALIDMETHOD)'                      )
+            CALL CHKOUT ( RNAME                                       )
+            RETURN
+
+         END IF
+
+         PRVMTH = METHOD
 
       END IF
 
 C
-C     Find the surface intercept point and distance from observer to 
-C     intercept point using the specified geometric definition.
+C     At this point, the first pass actions were successful.
 C
-      IF (  EQSTR( METHOD, 'Ellipsoid' )  ) THEN 
-C
-C        Find the surface intercept given the target epoch,
-C        observer-target position, and target body orientation
-C        we've already computed. If we're not using light
-C        time correction, this is all we must do. Otherwise,
-C        our result will give us an initial estimate of the
-C        target epoch, which we'll then improve.
-C
-C        Get the radii of the target body from the kernel pool.
-C
-         CALL BODVCD ( TRGCDE, 'RADII', 3, NRADII, RADII )
+      FIRST = .FALSE.
 
+
+      IF ( SHAPE .EQ. ELLSHP ) THEN
 C
-C        Make an easy test to see whether we can quit now because
-C        an intercept cannot exist. If the ray is separated from
-C        the observer-target center vector by more than (MARGIN *
-C        the maximum triaxial radius), we're done. Let REJECT be
-C        the angular separation limit.
+C        Initialize the intercept algorithm to use the reference
+C        ellipsoid of the target body. 
 C        
-         MAXRAD = MAX  ( RADII(1), RADII(2), RADII(3) )
+         CALL ZZSUELIN ( TRGCDE )
 
-         RANGE  = VNORM( OBSPOS )
 
-         IF ( RANGE .EQ. 0.D0 ) THEN
+      ELSE IF ( SHAPE .EQ. DSKSHP ) THEN
 C
-C           We've already ensured that observer and target are
-C           distinct, so this should be a very unusual occurrence.
+C        This is the DSK case.
 C
-            CALL SETMSG ( 'Observer-target distance is zero. '
-     .      //            'Observer is #; target is #.'       )
-            CALL ERRCH  ( '#', OBSRVR                         )
-            CALL ERRCH  ( '#', TARGET                         )
-            CALL SIGERR ( 'SPICE(NOSEPARATION)'               )
-            CALL CHKOUT ( RNAME                               )
-            RETURN
-
-         END IF
-
-
-         IF ( RANGE .GT. MARGIN*MAXRAD ) THEN
+C        If the method string listed a set of surface IDs, NSURF is
+C        positive and SRFLST contains those IDs.
 C
-C           Compute the arc sine with SPICE error checking.
-C
-            REJECT = DASINE ( MARGIN * MAXRAD / RANGE,  RNDTOL ) 
-
-            CALL VMINUS ( OBSPOS, NEGPOS )
-         
-            IF (  VSEP( NEGPOS, TRGDIR )  .GT.  REJECT  ) THEN
-C
-C              The angular separation of ray and target is too great
-C              for a solution to exist, even with a better light time
-C              estimate.
-C
-               CALL CHKOUT ( RNAME )
-               RETURN
-
-            END IF
-
-         END IF
-
-C
-C        Locate the intercept of the ray with the target; if there's no
-C        intercept, find the closest point on the target to the ray.
-C
-         CALL SURFPT ( OBSPOS, TRGDIR, RADII(1), RADII(2), RADII(3), 
-     .                 SPOINT, FOUND                                 )
-   
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( RNAME )
-            RETURN
-         END IF
-
-C
-C        If we found an intercept, and if we're not using light time
-C        corrections, we're almost done now. We still need SRFVEC.
-C        SPOINT, TRGEPC, and FOUND have already been set.
+C        Initialize the intercept algorithm to use a DSK
+C        model for the surface of the target body. 
 C        
-         IF (  FOUND  .AND.  ( .NOT. USELT )  ) THEN
+         CALL ZZSUDSKI ( TRGCDE, NSURF, SRFLST, FXFCDE )
 
-            CALL VSUB ( SPOINT, OBSPOS, SRFVEC )
-
-            CALL CHKOUT ( RNAME )
-            RETURN
-
-         END IF
-
-C
-C        From this point onward, we're dealing with a case calling for
-C        light time and possibly stellar aberration corrections.
-C
-         IF ( .NOT. FOUND ) THEN
-C
-C           If there's no intercept, we're probably done. However,
-C           we need to guard against the possibility that the ray does
-C           intersect the ellipsoid but we haven't discovered it
-C           because our first light time estimate was too poor. 
-C
-C           We'll make an improved light time estimate as follows:
-C           Find the nearest point on the ellipsoid to the ray. Find
-C           the light time between the observer and this point.  
-C
-C           If we're using converged Newtonian corrections, we
-C           iterate this procedure up to three times.
-C
-            IF ( USECN ) THEN
-               NITR = 3
-            ELSE
-               NITR = 1
-            END IF
-
-            I = 1
-
-            DO WHILE (  ( I .LE. NITR ) .AND. ( .NOT. FOUND )  )
-
-               CALL NPEDLN ( RADII(1), RADII(2), RADII(3), OBSPOS,  
-     .                       TRGDIR,   PNEAR,    RAYALT           )
-
-               LT =  VDIST ( OBSPOS, PNEAR ) / CLIGHT()
-
-C
-C              Use the new light time estimate to repeat the intercept 
-C              computation.
-C
-               TRGEPC  =  ET  +  S*LT
-
-C
-C              Get the J2000-relative state of the target relative to
-C              the solar system barycenter at the target epoch.
-C
-               CALL SPKSSB ( TRGCDE, TRGEPC, 'J2000', SSBTST )
-
-               IF ( FAILED() ) THEN
-                  CALL CHKOUT ( RNAME )
-                  RETURN
-               END IF
-
-C
-C              Find the position of the observer relative to the target.
-C              Convert this vector from the J2000 frame to the target
-C              frame at TRGEPC.
-C
-               CALL VSUB   ( SSBOST,  SSBTST, J2POS         )
-               CALL PXFORM ( 'J2000', FIXREF, TRGEPC, XFORM )
-
-               IF ( FAILED() ) THEN
-                  CALL CHKOUT ( RNAME )
-                  RETURN
-               END IF 
-           
-C
-C              Convert the observer's position relative to the target
-C              from the J2000 frame to the target frame at the target
-C              epoch.
-C
-               CALL MXV ( XFORM, J2POS, OBSPOS )
-
-C
-C              Convert the ray's direction vector from the J2000 frame
-C              to the target frame at the target epoch.
-C   
-               CALL MXV ( XFORM, J2DIR, TRGDIR )
-
-C
-C              Repeat the intercept computation.
-C
-               CALL SURFPT ( OBSPOS,   TRGDIR, RADII(1), RADII(2),  
-     .                       RADII(3), SPOINT, FOUND               )
-
-               I = I + 1
-
-            END DO
-C
-C           If there's still no intercept, we're done.
-C
-            IF ( .NOT. FOUND ) THEN
-               CALL CHKOUT ( RNAME )
-               RETURN
-            END IF
-
-         END IF
-
-C
-C        Making it to this point means we've got an intersection. 
-C
-C        Since we're using light time corrections, we're going to make
-C        an estimate of light time to the intercept point, then re-do
-C        our computation of the target position and orientation using
-C        the new light time value.
-C
-         IF ( USECN ) THEN
-            NITR = MAXITR
-         ELSE
-            NITR = 1
-         END IF
-
-C
-C        Compute new light time estimate and new target epoch.
-C
-         DIST  =   VDIST ( OBSPOS, SPOINT )
-         LT     =  DIST / CLIGHT()
-         TRGEPC =  ET  +  S * LT
-
-         PREVLT = 0.D0
-         PREVET = TRGEPC
-
-         I      = 0
-         LTDIFF = 1.D0
-         ETDIFF = 1.D0
-
-         DO WHILE (       ( I      .LT.   NITR                ) 
-     .              .AND. ( LTDIFF .GT. ( CNVLIM * ABS(LT) )  )
-     .              .AND. ( ETDIFF .GT.   0.D0                )  )
-
-C
-C           Get the J2000-relative state of the target relative to
-C           the solar system barycenter at the target epoch.
-C
-            CALL SPKSSB ( TRGCDE, TRGEPC, 'J2000', SSBTST )
-
-            IF ( FAILED() ) THEN
-               CALL CHKOUT ( RNAME )
-               RETURN
-            END IF
-
-C
-C           Find the position of the observer relative to the target.
-C           Convert this vector from the J2000 frame to the target
-C           frame at TRGEPC.
-C
-C           Note that SSBOST contains the J2000-relative state of the
-C           observer relative to the solar system barycenter at ET.
-C
-            CALL VSUB   ( SSBOST,  SSBTST, J2POS         )
-            CALL PXFORM ( 'J2000', FIXREF, TRGEPC, XFORM )
-
-            IF ( FAILED() ) THEN
-               CALL CHKOUT ( RNAME )
-               RETURN
-            END IF
-         
-C
-C           Convert the observer's position relative to the target from
-C           the J2000 frame to the target frame at the target epoch.
-C
-            CALL MXV    ( XFORM,  J2POS, OBSPOS )
-            CALL VMINUS ( OBSPOS, NEGPOS )
-
-C
-C           Convert the ray's direction vector from the J2000 frame
-C           to the target frame at the target epoch.
-C
-            CALL MXV ( XFORM, J2DIR, TRGDIR )
-
-C
-C           Repeat the intercept computation.
-C
-            CALL SURFPT ( OBSPOS, TRGDIR, RADII(1), RADII(2), RADII(3), 
-     .                    SPOINT, FOUND                                )
- 
-C
-C           If there's no intercept, we're done.
-C
-            IF ( .NOT. FOUND ) THEN
-                CALL CHKOUT ( RNAME )
-               RETURN
-            END IF
-
-C
-C           Compute the distance between intercept and observer.
-C
-            DIST    =   VDIST ( OBSPOS, SPOINT )
-
-C
-C           Compute new light time estimate and new target epoch.
-C
-            LT      =  DIST / CLIGHT()
-
-            TRGEPC  =  ET  +  S * LT
-
-C
-C           We use the d.p. identity function TOUCHD to force the
-C           compiler to create double precision arguments from the
-C           differences LT-PREVLT and TRGEPC-PREVET. Some compilers
-C           will perform extended-precision register arithmetic, which
-C           can prevent a difference from rounding to zero. Simply
-C           storing the result of the subtraction in a double precision
-C           variable doesn't solve the problem, because that variable
-C           can be optimized out of existence.
-C
-            LTDIFF  =   ABS( TOUCHD(LT     - PREVLT) )
-            ETDIFF  =   ABS( TOUCHD(TRGEPC - PREVET) )
-            PREVLT  =   LT
-            PREVET  =   TRGEPC        
-            I       =   I + 1
-
-         END DO
-                   
       ELSE
-      
-         CALL SETMSG ( 'The computation method # was not recognized. ' )
-         CALL ERRCH  ( '#',  METHOD                                    )
-         CALL SIGERR ( 'SPICE(INVALIDMETHOD)'                          )
-         CALL CHKOUT ( RNAME                                           )
+C
+C        This is a backstop check.
+C
+         CALL SETMSG ( '[2] Returned shape value from method '
+     .   //            'string was <#>.'                      )
+         CALL ERRCH  ( '#', SHPSTR                            )
+         CALL SIGERR ( 'SPICE(BUG)'                           )
+         CALL CHKOUT ( RNAME                                  )
          RETURN
-         
+
       END IF
 
 C
-C     FOUND, SPOINT, TRGEPC, and OBSPOS have been set at this point.
-C     We need SRFVEC. Since OBSPOS doesn't take into account stellar
-C     aberration, we can' derive SRFVEC from OBSPOS as is done in
-C     the related routines SUBPNT and SUBSLR. Here, we derive
-C     SRFVEC from J2GEOM, which is the input ray direction expressed in 
-C     the J2000 frame. We use XFORM, which is computed in the loop
-C     above, to convert J2GEOM to FIXREF, evaluated at TRGEPC.
-C     
-      CALL MXV    ( XFORM, J2GEOM, UDIR )
-      CALL VHATIP ( UDIR )
-
+C     Perform the intercept computation.
 C
-C     Let SRFLEN be the length of SRFVEC; we CAN get this
-C     length from OBSPOS and SPOINT, since stellar 
-C     aberration correction (as implemented in SPICE)
-C     doesn't change the length of the vector SPOINT-OBSPOS.
-C     
-      SRFLEN = VDIST ( SPOINT, OBSPOS )
-
-C
-C     Scale UDIR to obtain the desired value of SRFVEC.
-C
-      CALL VSCL ( SRFLEN, UDIR, SRFVEC )
-      
-
+      CALL ZZSFXCOR ( ZZRAYNP, ZZMAXRAD, ZZRAYSFX, TRGCDE,  
+     .                ET,      ABCORR,   USELT,    USECN,        
+     .                USESTL,  XMIT,     FIXREF,   OBSCDE,   
+     .                DFRCDE,  DCLASS,   DCENTR,   DVEC,    
+     .                SPOINT,  TRGEPC,   SRFVEC,   FOUND  )
+     
       CALL CHKOUT ( RNAME )
       RETURN
       END

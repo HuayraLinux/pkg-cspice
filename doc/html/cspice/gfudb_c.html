@@ -453,9 +453,6 @@
    the Z position component, with also a positive value for the Vz
    velocity component.
 
-
-   Code:
-
       #include &lt;stdio.h&gt;
       #include &lt;stdlib.h&gt;
       #include &lt;string.h&gt;
@@ -553,7 +550,7 @@
                ./
                <a href="wnfetd_c.html">wnfetd_c</a> ( &amp;result, i, &amp;left, &amp;right );
 
-               printf ( &quot;Interval %ld\n&quot;, i );
+               printf ( &quot;Interval %d\n&quot;, (int)i );
 
                <a href="timout_c.html">timout_c</a> ( left, TIMFMT, TIMLEN, begstr );
                printf   ( &quot;   Interval start: %s \n&quot;, begstr );
@@ -793,7 +790,7 @@
                ./
                <a href="wnfetd_c.html">wnfetd_c</a> ( &amp;result, i, &amp;left, &amp;right );
 
-               printf ( &quot;Interval %ld\n&quot;, i );
+               printf ( &quot;Interval %d\n&quot;, (int)i );
 
                <a href="timout_c.html">timout_c</a> ( left, TIMFMT, TIMLEN, begstr );
                printf   ( &quot;   Interval start: %s \n&quot;, begstr );
@@ -951,6 +948,11 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.1, 28-JUN-2016 (EDW)
+
+      Edit to Example code, SpiceInts output as ints using 
+      explicit casting.
+      
    -CSPICE Version 1.0.0, 23-OCT-2013 (EDW) (NJB)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -964,7 +966,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:35 2014</pre>
+   <pre>Wed Apr  5 17:54:36 2017</pre>
 
 </body>
 </html>

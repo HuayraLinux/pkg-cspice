@@ -255,11 +255,19 @@ C     None.
 C
 C$ Author_and_Institution
 C
-C     N.G. Khavenson (IKI RAS, Russia)
-C     B.V. Semenov   (NAIF, JPL)
-C     E.D. Wright    (NAIF)
+C     N.G. Khavenson  (IKI RAS, Russia)
+C     J. Diaz del Rio (ODC Space)
+C     B.V. Semenov    (NAIF, JPL)
+C     E.D. Wright     (NAIF, JPL)
 C
 C$ Version
+C
+C-    Version 1.3.0, 20-JAN-2016 (JDR,BVS)
+C
+C        BUG FIX: in entry SETUPI: corrected input record line 
+C        count value substitution in the SPICE(BADLINEPERRECCOUNT) 
+C        error: CALL ERRCH ( '#', WRKCHR ) -> CALL ERRINT ( '#', 
+C        INTVAL ).
 C
 C-    Version 1.2.0, 24-FEB-2012 (BVS)
 C
@@ -1106,10 +1114,17 @@ C     None.
 C
 C$ Author_and_Institution
 C
-C     N.G. Khavenson (IKI RAS, Russia)
-C     B.V. Semenov   (NAIF, JPL)
+C     N.G. Khavenson  (IKI RAS, Russia)
+C     J. Diaz del Rio (ODC Space)
+C     B.V. Semenov    (NAIF, JPL)
 C
 C$ Version
+C
+C-    Version 1.1.0, 20-JAN-2016 (JDR,BVS)
+C
+C        BUG FIX: corrected input record line count value substitution
+C        in the SPICE(BADLINEPERRECCOUNT) error: CALL ERRCH ( '#',
+C        WRKCHR ) -> CALL ERRINT ( '#', INTVAL ).
 C
 C-    Version 1.0.9, 12-FEB-2012 (BVS)
 C
@@ -1426,14 +1441,14 @@ C              Provided number of lines per record is less than
 C              or equal to zero: how are we supposed to deal with
 C              this???
 C                     
-               CALL SETMSG ( 'Number of lines, which a single '   //
-     .                       'input file record occupies ''#'', ' //
-     .                       'specified in the setup file '       //
-     .                       'keyword ''#'' is not a positive '   //
-     .                       'integer number . '                  )
-               CALL ERRCH  ( '#', WRKCHR                          )  
-               CALL ERRCH  ( '#', KLNPRC                          )  
-               CALL SIGERR ( 'SPICE(BADLINEPERRECCOUNT)'          )
+               CALL SETMSG ( 'Number of lines, which a single '      //
+     .                       'input file record occupies ''#'', '    //
+     .                       'specified in the setup file '          //
+     .                       'keyword ''#'' is not a positive '      //
+     .                       'integer number . '                     )
+               CALL ERRINT ( '#', INTVAL                             )  
+               CALL ERRCH  ( '#', KLNPRC                             )  
+               CALL SIGERR ( 'SPICE(BADLINEPERRECCOUNT)'             )
                   
             END IF 
          

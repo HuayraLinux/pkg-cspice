@@ -44,6 +44,8 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
       INCLUDE 'ekcoldsc.inc'
       INCLUDE 'eksegdsc.inc'
       INCLUDE 'ektype.inc'
@@ -128,7 +130,7 @@ C         will be diagnosed by routines called by this routine.
 C
 C     4)  If COLUMN specifies a column of whose data type is not
 C         double precision, the error SPICE(WRONGDATATYPE) will be
-C         signalled.
+C         signaled.
 C
 C     5)  If RECNO is out of range, the error will be diagnosed by
 C         routines called by this routine.
@@ -147,7 +149,7 @@ C         routines called by this routine.
 C
 C     9)  If COLUMN specifies a column of whose class is not
 C         an character class known to this routine, the error
-C         SPICE(NOCLASS) will be signalled.
+C         SPICE(NOCLASS) will be signaled.
 C
 C     10) If an I/O error occurs while reading or writing the indicated
 C         file, the error will be diagnosed by routines called by this
@@ -311,6 +313,10 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 05-FEB-2015 (NJB)
+C
+C        Updated to use ERRHAN.
+C
 C-    SPICELIB Version 1.1.0, 18-JUN-1999 (WLT)
 C
 C        Removed an unbalanced call to CHKOUT
@@ -341,7 +347,6 @@ C
       INTEGER               DTYPE
       INTEGER               RECPTR
       INTEGER               SEGDSC ( SDSCSZ )
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -364,15 +369,14 @@ C
       IF (  ( DTYPE .NE. DP ) .AND. ( DTYPE .NE. TIME )  ) THEN
  
          CALL CHKIN  ( 'EKACED'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
-         CALL SETMSG ( 'Column # is of type #; EKACED only works '    //
-     .                 'with d.p. or time columns.  RECNO = #; SEGNO '//
-     .                 '= #; EK = #.'                                  )
+         CALL SETMSG ( 'Column # is of type #; EKACED only works '    
+     .   //            'with d.p. or time columns.  RECNO = #; SEGNO '
+     .   //            '= #; EK = #.'                                  )
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  DTYPE                                     )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(WRONGDATATYPE)'                          )
          CALL CHKOUT ( 'EKACED'                                        )
          RETURN
@@ -411,18 +415,17 @@ C        This is an unsupported d.p. column class.
 C
          SEGNO  =  SEGDSC ( SNOIDX )
  
-         CALL CHKIN  ( 'EKACED'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
-         CALL SETMSG ( 'Class # from input column descriptor is not ' //
-     .                 'a supported d.p. class.  COLUMN = #; '        //
-     .                 'RECNO = #; SEGNO = #; EK = #.'                 )
-         CALL ERRINT ( '#',  CLASS                                     )
-         CALL ERRCH  ( '#',  COLUMN                                    )
-         CALL ERRINT ( '#',  RECNO                                     )
-         CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
-         CALL SIGERR ( 'SPICE(NOCLASS)'                                )
-         CALL CHKOUT ( 'EKACED'                                        )
+         CALL CHKIN  ( 'EKACED'                                       )
+         CALL SETMSG ( 'Class # from input column descriptor is not ' 
+     .   //            'a supported d.p. class.  COLUMN = #; '        
+     .   //            'RECNO = #; SEGNO = #; EK = #.'                )
+         CALL ERRINT ( '#',  CLASS                                    )
+         CALL ERRCH  ( '#',  COLUMN                                   )
+         CALL ERRINT ( '#',  RECNO                                    )
+         CALL ERRINT ( '#',  SEGNO                                    )
+         CALL ERRHAN ( '#',  HANDLE                                   )
+         CALL SIGERR ( 'SPICE(NOCLASS)'                               )
+         CALL CHKOUT ( 'EKACED'                                       )
          RETURN
  
       END IF

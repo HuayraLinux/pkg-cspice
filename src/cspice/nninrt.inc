@@ -41,7 +41,7 @@ C
 C$ Declarations
  
       INTEGER               NNINRT
-      PARAMETER           ( NNINRT = 105 )
+      PARAMETER           ( NNINRT = 106 )
  
  
 C$ Brief_I/O
@@ -67,6 +67,13 @@ C
 C     None.
 C
 C$ Version
+C
+C-    SPICELIB Version 1.6.0, 30-OCT-2014 (BVS)
+C
+C        Increased the number of non-inertial frames from 105 to 106
+C        in order to accomodate the following PCK based frame:
+C
+C           IAU_BENNU
 C
 C-    SPICELIB Version 1.5.0, 11-OCT-2011 (BVS)
 C

@@ -45,6 +45,8 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
       INCLUDE 'ekcoldsc.inc'
       INCLUDE 'eksegdsc.inc'
       INCLUDE 'ektype.inc'
@@ -121,11 +123,11 @@ C         will be diagnosed by routines called by this routine.
 C
 C     5)  If COLUMN specifies a column of whose data type is not
 C         double precision, the error SPICE(WRONGDATATYPE) will be
-C         signalled.
+C         signaled.
 C
 C     6)  If COLUMN specifies a column of whose class is not
 C         a double precision class known to this routine, the error
-C         SPICE(NOCLASS) will be signalled.
+C         SPICE(NOCLASS) will be signaled.
 C
 C     7)  If an attempt is made to read an uninitialized column entry,
 C         the error will be diagnosed by routines called by this 
@@ -169,6 +171,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.3.0, 06-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
 C
 C-    SPICELIB Version 1.2.0, 20-JUN-1999 (WLT)
 C
@@ -221,7 +228,6 @@ C
       INTEGER               DTYPE
       INTEGER               RECPTR
       INTEGER               SEGDSC ( SDSCSZ )
-      INTEGER               UNIT
  
       LOGICAL               FOUND
  
@@ -246,7 +252,6 @@ C
       IF ( ( DTYPE .NE. DP ) .AND. ( DTYPE .NE. TIME )  ) THEN
  
          CALL CHKIN  ( 'EKRCED'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Column # is of type #; EKRCED only works '    //
      .                 'with d.p. or TIME columns.  RECNO = #; '      //
      .                 'SEGNO =  #; EK = #.'                           )
@@ -254,7 +259,7 @@ C
          CALL ERRINT ( '#',  DTYPE                                     )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(WRONGDATATYPE)'                          )
          CALL CHKOUT ( 'EKRCED'                                        )
          RETURN
@@ -304,7 +309,6 @@ C
          SEGNO  =  SEGDSC ( SNOIDX )
  
          CALL CHKIN  ( 'EKRCED'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Class # from input column descriptor is not ' //
      .                 'a supported d.p. class.  COLUMN = #; '        //
      .                 'RECNO = #; SEGNO = #; EK = #.'                 )
@@ -312,7 +316,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(NOCLASS)'                                )
          CALL CHKOUT ( 'EKRCED'                                        )
          RETURN

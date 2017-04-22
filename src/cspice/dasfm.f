@@ -59,6 +59,7 @@ C$ Declarations
  
       IMPLICIT NONE
  
+      INCLUDE 'das.inc'
       INCLUDE 'errhnd.inc'
  
       INTEGER               LBCELL
@@ -80,25 +81,17 @@ C$ Declarations
       INTEGER               FHSET  ( LBCELL : * )
       CHARACTER*(*)         ACCESS
  
- 
+C
 C     The record length should be big enough to hold the greatest of the
 C     following:
- 
+C
 C        -- NWD double precision numbers.
 C        -- NWI integers.
 C        -- NWC characters.
+C
+C     These parameters are declared in das.inc.
+C
  
-C     These parameters are named to enhance ease of maintenance of
-C     the code; the values should not be changed.
- 
-      INTEGER               NWD
-      PARAMETER           ( NWD     =  128 )
- 
-      INTEGER               NWI
-      PARAMETER           ( NWI     =  256 )
- 
-      INTEGER               NWC
-      PARAMETER           ( NWC     = 1024 )
  
  
 C     For the following environments, record length is measured in
@@ -136,12 +129,6 @@ C     Source:      NAIF Program
       PARAMETER           ( FILEN  =  255 )
  
  
-C     FTSIZE is the maximum number of DAS files that a user can have
-C     open simultaneously. See the description in the $ Parameters
-C     section for details.
- 
-      INTEGER               FTSIZE
-      PARAMETER           ( FTSIZE =  21 )
  
 C$ Brief_I/O
 C
@@ -327,6 +314,10 @@ C     least one DAS file is opened with write access.
 C
 C$ Particulars
 C
+C     As of the N0066 version of the SPICE Toolkit, DASFM uses the
+C     SPICE handle manager subsystem and makes use of run-time
+C     translation.
+C
 C     DASFM serves as an umbrella, allowing data to be shared by its
 C     entry points:
 C
@@ -447,6 +438,19 @@ C     F.S. Turner     (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 8.0.0, 06-APR-2016 (NJB)
+C
+C        Corrected call to ZZDDHCLS in DASUFS.
+C
+C        26-FEB-2015 (NJB)
+C
+C           Now uses DAF/DAS handle manager subsystem.
+C
+C           FTSIZE is now 5000.
+C
+C           Corrected miscellaneous spelling errors in comments
+C           throughout this file.
 C
 C-    SPICELIB Version 7.24.0 10-APR-2014 (NJB)
 C
@@ -583,7 +587,7 @@ C        Added MAC-OSX environments.
 C
 C-    SPICELIB Version 6.0.0, 11-DEC-2001 (NJB) (FST)
 C
-C        To accomodate future updates to the DAS system, including
+C        To accommodate future updates to the DAS system, including
 C        integration with the handle manager and FTP validation
 C        checks, the following entry points were modified:
 C
@@ -602,7 +606,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -786,14 +790,12 @@ C-&
 C
 C     SPICELIB functions
 C
-      INTEGER               ISRCHC
       INTEGER               LNKNFN
       INTEGER               LNKNXT
       INTEGER               LTRIM
       INTEGER               RTRIM
  
       LOGICAL               ELEMI
-      LOGICAL               EXISTS
       LOGICAL               FAILED
       LOGICAL               RETURN
  
@@ -802,9 +804,6 @@ C     Local parameters
 C
       INTEGER               ACCLEN
       PARAMETER           ( ACCLEN =   10 )
- 
-      INTEGER               ARCLEN
-      PARAMETER           ( ARCLEN =    3 )
  
       INTEGER               IDWLEN
       PARAMETER           ( IDWLEN =    8 )
@@ -948,7 +947,7 @@ C          ---------
 C          84 bytes - (All file records utilize this space.)
 C
 C     So the size of the remaining portion (or tail) of the DAS
-C     file record for computing enviroments as described above
+C     file record for computing environments as described above
 C     would be:
 C
 C        1024 bytes - DAS record size
@@ -979,7 +978,6 @@ C     All column names in the file table begin with `FT'.  The
 C     columns are:
 C
 C        HAN      Handle
-C        LUN      Logical unit
 C        ACC      Access method
 C        LNK      Number of links
 C        SUM      File summary
@@ -995,7 +993,6 @@ C     NEXT is incremented each time a file is opened to become the
 C     next file handle assigned.
 C
       INTEGER               FTHAN  (         FTSIZE )
-      INTEGER               FTLUN  (         FTSIZE )
       INTEGER               FTACC  (         FTSIZE )
       INTEGER               FTLNK  (         FTSIZE )
       INTEGER               FTSUM  ( SUMSIZ, FTSIZE )
@@ -1015,33 +1012,17 @@ C
       INTEGER               PREV   ( 3 )
  
 C
-C     Length of binary file format name.
-C
-      INTEGER               BFFLEN
-      PARAMETER           ( BFFLEN =  8 )
- 
-C
-C     Number of binary file formats.
-C
-      INTEGER               NUMBFF
-      PARAMETER           ( NUMBFF = 4 )
- 
-C
 C     Other local variables
 C
       CHARACTER*(ACCLEN)    ACC
-      CHARACTER*(BFFLEN)    BFFLST ( NUMBFF )
-      CHARACTER*(FILEN)     DASFIL
       CHARACTER*(FMTLEN)    FORMAT
       CHARACTER*(IDWLEN)    IDWORD
-      CHARACTER*(LMSGLN)    LNGMSG
+      CHARACTER*(FILEN)     LOCDAS
       CHARACTER*(IFNLEN)    LOCIFN
       CHARACTER*(FMTLEN)    LOCFMT
       CHARACTER*(TAILEN)    TAIL
-      CHARACTER*(ARCLEN)    TARCH
       CHARACTER*(TYPLEN)    TTYPE
  
-      INTEGER               BFF
       INTEGER               CURTYP
       INTEGER               DIRREC ( NWI )
       INTEGER               DSCTYP
@@ -1050,6 +1031,7 @@ C
       INTEGER               FHLIST ( LBCELL : FTSIZE )
       INTEGER               FINDEX
       INTEGER               I
+      INTEGER               INQSTA
       INTEGER               IOSTAT
       INTEGER               LAST
       INTEGER               LDREC  ( 3 )
@@ -1065,14 +1047,12 @@ C
       INTEGER               NUMBER
       INTEGER               NW     ( 3 )
       INTEGER               NXTDIR
-      INTEGER               NXTHAN
       INTEGER               NXTREC
       INTEGER               POS
       INTEGER               PRVTYP
       INTEGER               TYPE
  
       LOGICAL               FOUND
-      LOGICAL               OPENED
       LOGICAL               PASS1
  
 C
@@ -1086,20 +1066,13 @@ C
       DATA                  FTACC   / FTSIZE * -1    /
       DATA                  FTHAN   / FTSIZE *  0    /
       DATA                  FTLNK   / FTSIZE * -1    /
-      DATA                  FTLUN   / FTSIZE * -1    /
  
       DATA                  PASS1   / .TRUE.         /
       DATA                  FTHEAD  / 0              /
-      DATA                  NXTHAN  / 0              /
  
       DATA                  NEXT    /  2,   3,   1   /
       DATA                  PREV    /  3,   1,   2   /
       DATA                  NW      /  NWC, NWD, NWI /
- 
-      DATA                  BFFLST  / 'BIG-IEEE',
-     .                                'LTL-IEEE',
-     .                                'VAX-GFLT',
-     .                                'VAX-DFLT'  /
  
 C
 C     Standard SPICE error handling.
@@ -1253,6 +1226,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 8.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 7.0.0, 28-SEP-2005 (NJB)
 C
 C        Error handling for non-native files was added.
@@ -1270,7 +1247,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -1380,9 +1357,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASOPR' )
       END IF
+ 
+      CALL CHKIN ( 'DASOPR' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -1395,446 +1372,279 @@ C
          PASS1 = .FALSE.
  
       END IF
-C
-C     Check to see whether the filename is blank. If it is, signal an
-C     error, check out, and return.
-C
-      IF ( FNAME .EQ. ' ' ) THEN
  
-         CALL SETMSG ( 'The file name is blank. ' )
-         CALL SIGERR ( 'SPICE(BLANKFILENAME)'     )
-         CALL CHKOUT ( 'DASOPR'                   )
+C
+C     Try to open the file for READ access.
+C
+C
+C        The file may or may not already be open. If so, it should have
+C        not been opened for writing (FTACC .EQ. WRITE). If opened for
+C        reading, ZZDDHOPN will just increment the number of links and
+C        return the handle.
+C
+      CALL ZZDDHOPN ( FNAME, 'READ', 'DAS', HANDLE )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPR' )
          RETURN
- 
-      END IF
-C
-C     If the file doesn't exist, we can't continue.
-C
-      IF (  .NOT.  EXISTS( FNAME(:RTRIM(FNAME)) )  )  THEN
- 
-         CALL SETMSG ( 'The file ''#'' was not found.' )
-         CALL ERRCH  ( '#',  FNAME                     )
-         CALL SIGERR ( 'SPICE(FILENOTFOUND)'           )
-         CALL CHKOUT ( 'DASOPR'                        )
-         RETURN
- 
       END IF
  
 C
-C     The file may or may not already be open. If so, it should have
-C     not been opened for writing FTACC .EQ. WRITE. If opened for
-C     reading, just increment the number of links and return the handle.
-C     If opened elsewhere, panic.
+C     Determine whether this file is already in the file table.
+C     Search for a matching handle.
 C
-      INQUIRE ( FILE   = FNAME( :RTRIM(FNAME) ),
-     .          OPENED = OPENED,
-     .          NUMBER = NUMBER  )
+      FINDEX = FTHEAD
+      FOUND  = .FALSE.
  
-      IF ( OPENED ) THEN
+      DO WHILE (  ( .NOT. FOUND )  .AND.  ( FINDEX .GT. 0 )  )
+ 
+         IF ( FTHAN(FINDEX) .EQ. HANDLE ) THEN
+            FOUND = .TRUE.
+         ELSE
+            FINDEX = LNKNXT ( FINDEX, POOL )
+         END IF
+ 
+      END DO
+ 
+      IF ( FOUND ) THEN
 C
-C        Peruse the `unit' column of the file table; see whether this
-C        unit is present.
+C        The file is already open for read access. Increment the number
+C        of links to this file.
 C
-         FINDEX  =  FTHEAD
-         FOUND   = .FALSE.
+         FTLNK(FINDEX) = FTLNK(FINDEX) + 1
+         HANDLE        = FTHAN(FINDEX)
+C
+C        There's nothing else to do.
+C
+         CALL CHKOUT ( 'DASOPR' )
+         RETURN
  
-         DO WHILE (  ( .NOT. FOUND )  .AND.  ( FINDEX .GT. 0 )  )
+      END IF
  
-            IF ( FTLUN(FINDEX) .EQ. NUMBER ) THEN
-               FOUND = .TRUE.
-            ELSE
-               FINDEX = LNKNXT ( FINDEX, POOL )
+C
+C     This file has no entry in the file table. We need to
+C     create a new entry. See whether there's room for it.
+C
+      IF ( LNKNFN(POOL) .EQ. 0  ) THEN
+ 
+         CALL SETMSG ( 'The file table is full, with # entries. '
+     .   //            'Could not open ''#''.'                    )
+         CALL ERRINT ( '#', FTSIZE                                )
+         CALL ERRCH  ( '#', FNAME                                 )
+         CALL SIGERR ( 'SPICE(DASFTFULL)'                         )
+         CALL CHKOUT ( 'DASOPR'                                   )
+         RETURN
+ 
+      END IF
+ 
+C
+C     Read the file's file record.
+C
+      CALL ZZDASRFR ( HANDLE, IDWORD, LOCIFN, LOCRRC,
+     .                LOCRCH, LOCCRC, LOCCCH         )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPR' )
+         RETURN
+      END IF
+ 
+C
+C     Update the file table to include information about our newly
+C     opened DAS file. Link the information for this file at the
+C     head of the file table list.
+C
+      CALL LNKAN  ( POOL, NEW          )
+      CALL LNKILB ( NEW,  FTHEAD, POOL )
+ 
+      FTHEAD           =   NEW
+      FTHAN (FTHEAD)   =   HANDLE
+      FTACC (FTHEAD)   =   READ
+      FTLNK (FTHEAD)   =   1
+ 
+C
+C     Fill in the file summary. We already know how many reserved
+C     records and comment records there are. To find the number of the
+C     first free record, the last logical address of each type, and the
+C     locations of the last descriptors of each type, we must examine
+C     the directory records. We do not assume that the data records in
+C     the DAS file have been segregated.
+C
+      CALL CLEARI ( SUMSIZ, FTSUM (1,FTHEAD) )
+ 
+      FTSUM ( RRCIDX, FTHEAD )  =  LOCRRC
+      FTSUM ( RCHIDX, FTHEAD )  =  LOCRCH
+      FTSUM ( CRCIDX, FTHEAD )  =  LOCCRC
+      FTSUM ( CCHIDX, FTHEAD )  =  LOCCCH
+ 
+C
+C     We'll find the values for each data type separately.
+C
+      DO TYPE = 1, 3
+C
+C        The first directory record is located right after the
+C        last comment record.
+C
+         NREC  =  LOCRRC + LOCCRC + 2
+ 
+C
+C        Keep track of the record number of the last data
+C        record of the current type.
+C
+         LDREC(TYPE)  =  0
+ 
+C
+C        Find the last directory containing a descriptor of a
+C        record cluster of the current type.
+C
+         CALL ZZDASGRI( HANDLE, NREC, DIRREC )
+ 
+         MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE )
+         NXTDIR  =  DIRREC ( FWDLOC              )
+ 
+ 
+         DO WHILE ( NXTDIR .GT. 0 )
+C
+C           Read the directory record. If this record contains
+C           descriptors for clusters we're interested in, update the
+C           directory record number.
+C
+            CALL ZZDASGRI ( HANDLE, NXTDIR, DIRREC )
+ 
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASOPR' )
+               RETURN
             END IF
+ 
+ 
+            IF (  DIRREC(RNGBAS + 2*TYPE)  .GT.  0  ) THEN
+ 
+               MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE  )
+               NREC    =  NXTDIR
+ 
+            END IF
+ 
+            NXTDIR = DIRREC ( FWDLOC )
  
          END DO
  
-         IF ( FOUND ) THEN
- 
-            IF ( FTACC(FINDEX) .EQ. WRITE ) THEN
- 
-               CALL SETMSG ( '''#'' already opened for write access.' )
-               CALL ERRCH  ( '#', FNAME                               )
-               CALL SIGERR ( 'SPICE(DASRWCONFLICT)'                   )
-               CALL CHKOUT ( 'DASOPR'                                 )
-               RETURN
- 
-            ELSE
 C
-C              The file is open for read access.  Increment the number
-C              of links to this file.
+C        At this point, NREC is the record number of the directory
+C        containing the last descriptor for clusters of TYPE, if
+C        there are any such descriptors.
 C
-               FTLNK(FINDEX) = FTLNK(FINDEX) + 1
-               HANDLE        = FTHAN(FINDEX)
+C        MAXADR is the maximum logical address of TYPE.
+C
+         FTSUM ( LLABAS + TYPE,  FTHEAD )  =  MAXADR
  
-            END IF
- 
+         IF ( MAXADR .GT. 0 ) THEN
+            FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  NREC
          ELSE
-C
-C           The file is open, but it wasn't opened by DAS routines.
-C
-            CALL SETMSG ( '''#'' is already connected to unit #.' )
-            CALL ERRCH  ( '#', FNAME                              )
-            CALL ERRINT ( '#', NUMBER                             )
-            CALL SIGERR ( 'SPICE(DASIMPROPOPEN)'                  )
-            CALL CHKOUT ( 'DASOPR'                                )
-            RETURN
- 
+            FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  0
          END IF
- 
 C
-C        If it hasn't been opened, it needs to be, but only if there
-C        is room for another file.
+C        We still need to set the word location of the final
+C        descriptor of TYPE, if there are any descriptors of TYPE.
 C
-      ELSE IF ( LNKNFN(POOL) .EQ. 0  ) THEN
- 
-         CALL SETMSG ( 'The file table is full, with # entries. '     //
-     .                 'Could not open ''#''.'                         )
-         CALL ERRINT ( '#', FTSIZE                                     )
-         CALL ERRCH  ( '#', FNAME                                      )
-         CALL SIGERR ( 'SPICE(DASFTFULL)'                              )
-         CALL CHKOUT ( 'DASOPR'                                        )
-         RETURN
- 
+         IF ( MAXADR .GT. 0 ) THEN
 C
-C     To open for reading: get a free unit, open the file, get the
-C     internal file name, and increment the number of links.
+C           Re-read the directory record containing the last descriptor
+C           of the current type.
 C
-C     Look out for:
-C
-C        -- No free logical units.
-C
-C        -- Error opening the file.
-C
-C        -- No ID word in the first record.
-C
-      ELSE
- 
-         CALL GETLUN ( NUMBER )
- 
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'DASOPR' )
-            RETURN
-         END IF
- 
-         OPEN ( UNIT      = NUMBER,
-     .          FILE      = FNAME( :RTRIM(FNAME) ),
-     .          ACCESS    = 'DIRECT',
-     .          RECL      = RECL,
-     .          STATUS    = 'OLD',
-     .          IOSTAT    = IOSTAT    )
- 
-         IF ( IOSTAT .NE. 0 ) THEN
- 
-            CLOSE ( NUMBER )
- 
-            CALL SETMSG ( 'Attempt to open file ''#'' failed. Value'  //
-     .                    ' of IOSTAT was #.'                          )
-            CALL ERRCH  ( '#', FNAME                                   )
-            CALL ERRINT ( '#', IOSTAT                                  )
-            CALL SIGERR ( 'SPICE(DASOPENFAIL)'                         )
-            CALL CHKOUT ( 'DASOPR'                                     )
-            RETURN
- 
-         ELSE
-C
-C           Try to determine the binary file format of this file.
-C
-            CALL ZZDDHPPF ( NUMBER, 2, BFF )
+            CALL ZZDASGRI ( HANDLE, NREC, DIRREC )
  
             IF ( FAILED() ) THEN
- 
-               CLOSE ( NUMBER )
- 
                CALL CHKOUT ( 'DASOPR' )
                RETURN
             END IF
  
 C
-C           Find the local binary file format.
+C           Traverse the directory record, looking for the last
+C           descriptor of TYPE. We'll keep track of the maximum logical
+C           address of TYPE for each cluster of TYPE whose descriptor
+C           we examine. When this value is the maximum logical address
+C           of TYPE, we've found the last descriptor of TYPE.
 C
-            CALL ZZPLATFM ( 'FILE_FORMAT', LOCFMT )
- 
+C           Also keep track of the end record numbers for each
+C           cluster.
 C
-C           Compare binary format to local format.  These must match.
-C
-            IF (  BFF  .NE.  ISRCHC( LOCFMT, NUMBFF, BFFLST )  )  THEN
+            LAST    =  DIRREC( RNGBAS  +  (2*TYPE - 1)  )  -  1
+            DSCTYP  =  DIRREC( BEGDSC                   )
+            PRVTYP  =  PREV  ( DSCTYP                   )
+            ENDREC  =  NREC
+            POS     =  BEGDSC
  
-               CLOSE ( NUMBER )
+            DO WHILE ( LAST .LT. MAXADR )
  
-               LNGMSG = 'File ''#'' has the non-native binary format '//
-     .                  '#. The SPICE Toolkit does not support read'  //
-     .                  'ing non-native files, such as E-kernels, '   //
-     .                  'that are based on SPICE''s DAS architecture.'//
-     .                  ' To port a DAS file between platforms having'//
-     .                  ' incompatible binary formats, for example '  //
-     .                  'big-endian (Sun) vs little-endian (PC), use' //
-     .                  ' the SPICE utility toxfr to create a '       //
-     .                  'transfer format version of the file, then '  //
-     .                  'move (ftp) the transfer file in ASCII mode. '//
-     .                  'You will need to perform line terminator '   //
-     .                  'conversion when moving files between Windows'//
-     .                  ' and Unix systems if the ASCII mode of ftp ' //
-     .                  'is unavailable; the freeware utilities '     //
-     .                  'dos2unix and unix2dos are means for doing '  //
-     .                  'this. Then transform the file to binary '    //
-     .                  'format on the target system using the SPICE '//
-     .                  'utility tobin. See the SPICE document '      //
-     .                  'convert.ug for details on using the SPICE '  //
-     .                  'utility programs.'
+               POS = POS + 1
  
-               CALL SETMSG ( LNGMSG                 )
-               CALL ERRCH  ( '#', FNAME             )
-               CALL ERRCH  ( '#', BFFLST(BFF)       )
-               CALL SIGERR ( 'SPICE(NONNATIVEFILE)' )
-               CALL CHKOUT ( 'DASOPR'               )
-               RETURN
- 
-            END IF
- 
- 
-            READ ( NUMBER, REC=1, IOSTAT=IOSTAT ) IDWORD,
-     .                                            LOCIFN,
-     .                                            LOCRRC,
-     .                                            LOCRCH,
-     .                                            LOCCRC,
-     .                                            LOCCCH
- 
-            IF ( IOSTAT .NE. 0 ) THEN
- 
-               CLOSE ( NUMBER )
- 
-               CALL SETMSG ( 'Could not read file record.  File was ' //
-     .                       '''#''.  IOSTAT was #.'                   )
-               CALL ERRCH  ( '#', FNAME                                )
-               CALL ERRINT ( '#', IOSTAT                               )
-               CALL SIGERR ( 'SPICE(FILEREADFAILED)'                   )
-               CALL CHKOUT ( 'DASOPR'                                  )
-               RETURN
- 
-            END IF
-C
-C           Check the ID word to see if we have opened a DAS file. First
-C           separate the ID word into its components and verify that we
-C           are looking at a DAS file. If we're not, then this routine
-C           should not be used.
-C
-            CALL IDW2AT ( IDWORD, TARCH, TTYPE )
- 
-            IF ( TARCH .NE. 'DAS' ) THEN
- 
-               CLOSE ( NUMBER )
- 
-               CALL SETMSG ( 'File ''#'' is not a DAS file. A common' //
-     .                       ' error is attempting to open a text'    //
-     .                       ' version of the file rather than the'   //
-     .                       ' binary version of the file.'            )
-               CALL ERRCH  ( '#', FNAME                                )
-               CALL SIGERR ( 'SPICE(NOTADASFILE)'                      )
-               CALL CHKOUT ( 'DASOPR'                                  )
-               RETURN
- 
-            END IF
-C
-C           At this point, we know that we have a valid DAS file, and
-C           we're set up to read from it, so ...
-C
-C           Update the file table to include information about
-C           our newly opened DAS file.  Link the information
-C           for this file at the head of the file table list.
-C
-C           Set the output argument HANDLE as well.
-C
-            CALL LNKAN  ( POOL, NEW          )
-            CALL LNKILB ( NEW,  FTHEAD, POOL )
- 
-            FTHEAD           =   NEW
-            NXTHAN           =   NXTHAN + 1
- 
-            FTHAN (FTHEAD)   =   NXTHAN
-            FTLUN (FTHEAD)   =   NUMBER
-            FTACC (FTHEAD)   =   READ
-            FTLNK (FTHEAD)   =   1
- 
-C
-C           Fill in the file summary.  We already know how many
-C           reserved records and comment records there are.  To find
-C           the number of the first free record, the last logical
-C           address of each type, and the locations of the last
-C           descriptors of each type, we must examine the directory
-C           records.  Note that we do not assume that the data records
-C           in the DAS file have been segregated:  we could be
-C           restoring a DAS file whose creation was interrupted.
-C
-            CALL CLEARI ( SUMSIZ, FTSUM (1,FTHEAD) )
- 
-            FTSUM ( RRCIDX, FTHEAD )  =  LOCRRC
-            FTSUM ( RCHIDX, FTHEAD )  =  LOCRCH
-            FTSUM ( CRCIDX, FTHEAD )  =  LOCCRC
-            FTSUM ( CCHIDX, FTHEAD )  =  LOCCCH
- 
-C
-C           We'll find the values for each data type separately.
-C
-            DO TYPE = 1, 3
-C
-C              The first directory record is located right after the
-C              last comment record.
-C
-               NREC  =  LOCRRC + LOCCRC + 2
- 
-C
-C              Keep track of the record number of the last data
-C              record of the current type.
-C
-               LDREC(TYPE)  =  0
- 
-C
-C              Find the last directory containing a descriptor of a
-C              record cluster of the current type.
-C
-               CALL DASIOI ( 'READ', NUMBER, NREC, DIRREC )
- 
-               MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE )
-               NXTDIR  =  DIRREC ( FWDLOC              )
- 
- 
-               DO WHILE ( NXTDIR .GT. 0 )
-C
-C                 Read the directory record.  If this record contains
-C                 descriptors for clusters we're interested in, update
-C                 the directory record number.
-C
-                  CALL DASIOI ( 'READ', NUMBER, NXTDIR, DIRREC )
- 
-                  IF (  DIRREC(RNGBAS + 2*TYPE)  .GT.  0  ) THEN
-                     MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE  )
-                     NREC    =  NXTDIR
-                  END IF
- 
-                  NXTDIR = DIRREC ( FWDLOC )
- 
-               END DO
- 
-C
-C              At this point, NREC is the record number of the directory
-C              containing the last descriptor for clusters of TYPE, if
-C              there are any such descriptors.
-C
-C              MAXADR is the maximum logical address of TYPE.
-C
-               FTSUM ( LLABAS + TYPE,  FTHEAD )  =  MAXADR
- 
-               IF ( MAXADR .GT. 0 ) THEN
-                  FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  NREC
+               IF ( DIRREC(POS) .GT. 0 ) THEN
+                  CURTYP = NEXT(PRVTYP)
                ELSE
-                  FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  0
-               END IF
-C
-C              We still need to set the word location of the final
-C              descriptor of TYPE, if there are any descriptors of TYPE.
-C
-               IF ( MAXADR .GT. 0 ) THEN
-C
-C                 Re-read the directory record containing the last
-C                 descriptor of the current type.
-C
-                  CALL DASIOI ( 'READ', NUMBER, NREC, DIRREC )
-C
-C                 Traverse the directory record, looking for the last
-C                 descriptor of TYPE.  We'll keep track of the maximum
-C                 logical address of TYPE for each cluster of TYPE
-C                 whose descriptor we examine.  When this value is
-C                 the maximum logical address of TYPE, we've found
-C                 the last descriptor of TYPE.
-C
-C                 Also keep track of the end record numbers for each
-C                 cluster.
-C
-                  LAST    =  DIRREC( RNGBAS  +  (2*TYPE - 1)  )  -  1
-                  DSCTYP  =  DIRREC( BEGDSC                   )
-                  PRVTYP  =  PREV  ( DSCTYP                   )
-                  ENDREC  =  NREC
-                  POS     =  BEGDSC
- 
-                  DO WHILE ( LAST .LT. MAXADR )
- 
-                     POS = POS + 1
- 
-                     IF ( DIRREC(POS) .GT. 0 ) THEN
-                        CURTYP = NEXT(PRVTYP)
-                     ELSE
-                        CURTYP = PREV(PRVTYP)
-                     END IF
- 
-                     IF ( CURTYP .EQ. TYPE ) THEN
-                        LAST = LAST  +  NW(TYPE) * ABS( DIRREC(POS) )
-                     END IF
- 
-                     ENDREC = ENDREC + ABS( DIRREC(POS) )
-                     PRVTYP = CURTYP
- 
-                  END DO
-C
-C                 At this point, POS is the word position of the last
-C                 descriptor of TYPE, and ENDREC is the record number
-C                 of the last data record of TYPE.
-C
-                  FTSUM ( LWDBAS + TYPE, FTHEAD )  =  POS
-                  LDREC ( TYPE )                   =  ENDREC
- 
- 
-               ELSE
-C
-C                 There's no data of TYPE in the file.
-C
-                  FTSUM ( LWDBAS + TYPE, FTHEAD )  =  0
-                  LDREC ( TYPE )                   =  0
- 
+                  CURTYP = PREV(PRVTYP)
                END IF
  
+               IF ( CURTYP .EQ. TYPE ) THEN
+                  LAST = LAST  +  NW(TYPE) * ABS( DIRREC(POS) )
+               END IF
+ 
+               ENDREC = ENDREC + ABS( DIRREC(POS) )
+               PRVTYP = CURTYP
  
             END DO
- 
 C
-C           We're almost done; we need to find the number of the first
-C           free record.  This record follows all of the data records
-C           and all of the directory records.  It may happen that the
-C           last record in use is an empty directory.
+C           At this point, POS is the word position of the last
+C           descriptor of TYPE, and ENDREC is the record number
+C           of the last data record of TYPE.
 C
-            CALL MAXAI ( LDREC, 3, LDRMAX, LOC )
- 
-            NREC     =     LOCRRC + LOCCRC + 2
- 
-            CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
- 
-            NXTREC   =     DIRREC(FWDLOC)
+            FTSUM ( LWDBAS + TYPE, FTHEAD )  =  POS
+            LDREC ( TYPE )                   =  ENDREC
  
  
-            DO WHILE ( NXTREC .NE. 0 )
- 
-               NREC     =     NXTREC
- 
-               CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
- 
-               NXTREC   =     DIRREC(FWDLOC)
- 
-            END DO
- 
+         ELSE
 C
-C           Now NREC is the last directory record.
+C           There's no data of TYPE in the file.
 C
-            FTSUM ( FREIDX, FTHEAD)   =   MAX ( LDRMAX, NREC )  +  1
- 
-C
-C           Insert the new handle into our handle set.
-C
-            HANDLE   =   FTHAN(FTHEAD)
- 
-            CALL INSRTI ( HANDLE, FHLIST )
+            FTSUM ( LWDBAS + TYPE, FTHEAD )  =  0
+            LDREC ( TYPE )                   =  0
  
          END IF
  
-      END IF
+      END DO
+ 
+C
+C     We're almost done; we need to find the number of the first free
+C     record. This record follows all of the data records and all of
+C     the directory records. It may happen that the last record in use
+C     is an empty directory.
+C
+      CALL MAXAI ( LDREC, 3, LDRMAX, LOC )
+ 
+      NREC   = LOCRRC + LOCCRC + 2
+ 
+      CALL ZZDASGRI ( HANDLE,  NREC,  DIRREC  )
+ 
+      NXTREC = DIRREC(FWDLOC)
+ 
+ 
+      DO WHILE ( NXTREC .NE. 0 )
+ 
+         NREC   = NXTREC
+ 
+         CALL ZZDASGRI ( HANDLE,  NREC,  DIRREC  )
+ 
+         NXTREC = DIRREC(FWDLOC)
+ 
+      END DO
+ 
+C
+C     Now NREC is the last directory record.
+C
+      FTSUM ( FREIDX, FTHEAD)   =   MAX ( LDRMAX, NREC )  +  1
+ 
+C
+C     Insert the new handle into our handle set.
+C
+      CALL INSRTI ( HANDLE, FHLIST )
  
       CALL CHKOUT ( 'DASOPR' )
       RETURN
@@ -1976,6 +1786,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 8.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 7.0.0, 28-SEP-2005 (NJB)
 C
 C        Error handling for non-native files was added.
@@ -1993,7 +1807,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -2071,9 +1885,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASOPW' )
       END IF
+ 
+      CALL CHKIN ( 'DASOPW' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -2086,51 +1900,9 @@ C
          PASS1 = .FALSE.
  
       END IF
-C
-C     Check to see whether the filename is blank. If it is, signal an
-C     error, check out, and return.
-C
-      IF ( FNAME .EQ. ' ' ) THEN
  
-         CALL SETMSG ( 'The file name is blank. ' )
-         CALL SIGERR ( 'SPICE(BLANKFILENAME)'     )
-         CALL CHKOUT ( 'DASOPW'                   )
-         RETURN
  
-      END IF
-C
-C     If the file doesn't exist, we can't continue.
-C
-      IF (  .NOT.  EXISTS( FNAME(:RTRIM(FNAME)) )  )  THEN
- 
-         CALL SETMSG ( 'The file ''#'' was not found.' )
-         CALL ERRCH  ( '#',  FNAME                     )
-         CALL SIGERR ( 'SPICE(FILENOTFOUND)'           )
-         CALL CHKOUT ( 'DASOPW'                        )
-         RETURN
- 
-      END IF
- 
-C
-C     A file may not be opened for writing if it is already open.
-C
-      INQUIRE ( FILE   = FNAME( :RTRIM(FNAME) ),
-     .          OPENED = OPENED,
-     .          NUMBER = NUMBER  )
- 
-      IF ( OPENED ) THEN
- 
-         CALL SETMSG ( 'File ''#'' already opened.'  )
-         CALL ERRCH  ( '#', FNAME                    )
-         CALL SIGERR ( 'SPICE(DASOPENCONFLICT)'      )
-         CALL CHKOUT ( 'DASOPW'                      )
-         RETURN
- 
-C
-C        If it hasn't been opened, it needs to be, but only if there
-C        is room for another file.
-C
-      ELSE IF ( LNKNFN(POOL) .EQ. 0  ) THEN
+      IF ( LNKNFN(POOL) .EQ. 0  ) THEN
  
          CALL SETMSG ( 'The file table is full, with # entries. '     //
      .                 'Could not open ''#''.'                         )
@@ -2140,352 +1912,243 @@ C
          CALL CHKOUT ( 'DASOPW'                                        )
          RETURN
  
+      END IF
+ 
 C
-C     To open for writing: get a free unit, open the file, get the
+C     Open the file for writing:   open the file, get the
 C     internal file name, and set the number of links to one.
 C
-C     Look out for:
+      CALL ZZDDHOPN ( FNAME, 'WRITE', 'DAS', HANDLE )
+ 
 C
-C        -- No free logical units.
+C     Read the file record.
 C
-C        -- Error opening the file.
+      CALL ZZDASRFR ( HANDLE, IDWORD, LOCIFN, LOCRRC,
+     .                LOCRCH, LOCCRC, LOCCCH         )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPW' )
+         RETURN
+      END IF
+ 
 C
-      ELSE
- 
-         CALL GETLUN ( NUMBER )
- 
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'DASOPW' )
-            RETURN
-         END IF
- 
-         OPEN ( UNIT   = NUMBER,
-     .          FILE   = FNAME( :RTRIM(FNAME) ),
-     .          ACCESS = 'DIRECT',
-     .          RECL   = RECL,
-     .          STATUS = 'OLD',
-     .          IOSTAT = IOSTAT    )
- 
-         IF ( IOSTAT .NE. 0 ) THEN
- 
-            CLOSE ( NUMBER )
- 
-            CALL SETMSG ( 'Attempt to open file ''#'' failed. Value'  //
-     .                    ' of IOSTAT was #.'                          )
-            CALL ERRCH  ( '#', FNAME                                   )
-            CALL ERRINT ( '#', IOSTAT                                  )
-            CALL SIGERR ( 'SPICE(DASOPENFAIL)'                         )
-            CALL CHKOUT ( 'DASOPW'                                     )
-            RETURN
- 
-         ELSE
+C     At this point, we know that we have a valid DAS file, and
+C     we're set up to read from it, so ...
 C
-C           Try to determine the binary file format of this file.
+C     Update the file table to include information about
+C     our newly opened DAS file. Link the information
+C     for this file at the head of the file table list.
 C
-            CALL ZZDDHPPF ( NUMBER, 2, BFF )
+C     Set the output argument HANDLE as well.
+C
+      CALL LNKAN  ( POOL, NEW          )
+      CALL LNKILB ( NEW,  FTHEAD, POOL )
+ 
+      FTHEAD           =   NEW
+      FTHAN (FTHEAD)   =   HANDLE
+      FTACC (FTHEAD)   =   WRITE
+      FTLNK (FTHEAD)   =   1
+ 
+C
+C     Fill in the file summary. We already know how many reserved
+C     records and comment records there are. To find the number of the
+C     first free record, the last logical address of each type, and the
+C     locations of the last descriptors of each type, we must examine
+C     the directory records. We do not assume that the data records in
+C     the DAS file have been segregated.
+C
+      CALL CLEARI ( SUMSIZ, FTSUM (1,FTHEAD) )
+ 
+      FTSUM ( RRCIDX, FTHEAD )  =  LOCRRC
+      FTSUM ( RCHIDX, FTHEAD )  =  LOCRCH
+      FTSUM ( CRCIDX, FTHEAD )  =  LOCCRC
+      FTSUM ( CCHIDX, FTHEAD )  =  LOCCCH
+ 
+C
+C     We'll need the logical unit connected to the file, so
+C     we can read the file's directory records.
+C
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPW' )
+         RETURN
+      END IF
+ 
+C
+C     We'll find the values for each data type separately.
+C
+      DO TYPE = 1, 3
+C
+C        The first directory record is located right after the
+C        last comment record.
+C
+         NREC  =  LOCRRC + LOCCRC + 2
+ 
+C
+C        Keep track of the record number of the last data
+C        record of the current type.
+C
+         LDREC(TYPE)  =  0
+ 
+C
+C        Find the last directory containing a descriptor of a
+C        record cluster of the current type.
+C
+         CALL ZZDASGRI( HANDLE, NREC, DIRREC )
+ 
+         MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE )
+         NXTDIR  =  DIRREC ( FWDLOC              )
+ 
+ 
+         DO WHILE ( NXTDIR .GT. 0 )
+C
+C           Read the directory record. If this record contains
+C           descriptors for clusters we're interested in, update the
+C           directory record number.
+C
+            CALL ZZDASGRI ( HANDLE, NXTDIR, DIRREC )
  
             IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASOPW' )
+               RETURN
+            END IF
  
-               CLOSE ( NUMBER )
  
+            IF (  DIRREC(RNGBAS + 2*TYPE)  .GT.  0  ) THEN
+ 
+               MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE  )
+               NREC    =  NXTDIR
+ 
+            END IF
+ 
+            NXTDIR = DIRREC ( FWDLOC )
+ 
+         END DO
+ 
+C
+C        At this point, NREC is the record number of the directory
+C        containing the last descriptor for clusters of TYPE, if
+C        there are any such descriptors.
+C
+C        MAXADR is the maximum logical address of TYPE.
+C
+         FTSUM ( LLABAS + TYPE,  FTHEAD )  =  MAXADR
+ 
+         IF ( MAXADR .GT. 0 ) THEN
+            FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  NREC
+         ELSE
+            FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  0
+         END IF
+C
+C        We still need to set the word location of the final
+C        descriptor of TYPE, if there are any descriptors of TYPE.
+C
+         IF ( MAXADR .GT. 0 ) THEN
+C
+C           Re-read the directory record containing the last descriptor
+C           of the current type.
+C
+            CALL ZZDASGRI ( HANDLE, NREC, DIRREC )
+ 
+            IF ( FAILED() ) THEN
                CALL CHKOUT ( 'DASOPW' )
                RETURN
             END IF
  
 C
-C           Find the local binary file format.
+C           Traverse the directory record, looking for the last
+C           descriptor of TYPE. We'll keep track of the maximum logical
+C           address of TYPE for each cluster of TYPE whose descriptor
+C           we examine. When this value is the maximum logical address
+C           of TYPE, we've found the last descriptor of TYPE.
 C
-            CALL ZZPLATFM ( 'FILE_FORMAT', LOCFMT )
- 
+C           Also keep track of the end record numbers for each
+C           cluster.
 C
-C           Compare binary format to local format.  These must match.
-C
-            IF (  BFF  .NE.  ISRCHC( LOCFMT, NUMBFF, BFFLST )  )  THEN
+            LAST    =  DIRREC( RNGBAS  +  (2*TYPE - 1)  )  -  1
+            DSCTYP  =  DIRREC( BEGDSC                   )
+            PRVTYP  =  PREV  ( DSCTYP                   )
+            ENDREC  =  NREC
+            POS     =  BEGDSC
  
-               CLOSE ( NUMBER )
+            DO WHILE ( LAST .LT. MAXADR )
  
-               LNGMSG = 'File ''#'' has the non-native binary format '//
-     .                  '#. The SPICE Toolkit does not support writin'//
-     .                  'g to non-native files, such as E-kernels, '  //
-     .                  'that are based on SPICE''s DAS architecture.'//
-     .                  ' To port a DAS file between platforms having'//
-     .                  ' incompatible binary formats, for example '  //
-     .                  'big-endian (Sun) vs little-endian (PC), use' //
-     .                  ' the SPICE utility toxfr to create a '       //
-     .                  'transfer format version of the file, then '  //
-     .                  'move (ftp) the transfer file in ASCII mode. '//
-     .                  'You will need to perform line terminator '   //
-     .                  'conversion when moving files between Windows'//
-     .                  ' and Unix systems if the ASCII mode of ftp ' //
-     .                  'is unavailable; the freeware utilities '     //
-     .                  'dos2unix and unix2dos are means for doing '  //
-     .                  'this. Then transform the file to binary '    //
-     .                  'format on the target system using the SPICE '//
-     .                  'utility tobin. See the SPICE document '      //
-     .                  'convert.ug for details on using the SPICE '  //
-     .                  'utility programs.'
+               POS = POS + 1
  
-               CALL SETMSG ( LNGMSG                 )
-               CALL ERRCH  ( '#', FNAME             )
-               CALL ERRCH  ( '#', BFFLST(BFF)       )
-               CALL SIGERR ( 'SPICE(NONNATIVEFILE)' )
-               CALL CHKOUT ( 'DASOPW'               )
-               RETURN
- 
-            END IF
- 
-C
-C           Read the file record.
-C
-            READ ( NUMBER,
-     .             REC    = 1,
-     .             IOSTAT = IOSTAT)  IDWORD,
-     .                               LOCIFN,
-     .                               LOCRRC,
-     .                               LOCRCH,
-     .                               LOCCRC,
-     .                               LOCCCH
- 
- 
-            IF ( IOSTAT .NE. 0 ) THEN
- 
-               CLOSE ( NUMBER )
- 
-               CALL SETMSG ( 'Could not read file record.  File was ' //
-     .                       '''#''.  IOSTAT was #.'                   )
-               CALL ERRCH  ( '#', FNAME                                )
-               CALL ERRINT ( '#', IOSTAT                               )
-               CALL SIGERR ( 'SPICE(FILEREADFAILED)'                   )
-               CALL CHKOUT ( 'DASOPW'                                  )
-               RETURN
- 
-            END IF
-C
-C           Check the ID word to see if we have opened a DAS file. First
-C           separate the ID word into its components and verify that we
-C           are looking at a DAS file. If we're not, then this routine
-C           should not be used.
-C
-            CALL IDW2AT ( IDWORD, TARCH, TTYPE )
- 
-            IF ( TARCH .NE. 'DAS' ) THEN
- 
-               CLOSE ( NUMBER )
- 
-               CALL SETMSG ( 'File ''#'' is not a DAS file. A common' //
-     .                       ' error is attempting to open a text'    //
-     .                       ' version of the file rather than the'   //
-     .                       ' binary version of the file.'            )
-               CALL ERRCH  ( '#', FNAME                                )
-               CALL SIGERR ( 'SPICE(NOTADASFILE)'                      )
-               CALL CHKOUT ( 'DASOPW'                                  )
-               RETURN
- 
-            END IF
-C
-C           At this point, we know that we have a valid DAS file, and
-C           we're set up to read from it, so ...
-C
-C           Update the file table to include information about
-C           our newly opened DAS file.  Link the information
-C           for this file at the head of the file table list.
-C
-C           Set the output argument HANDLE as well.
-C
-            CALL LNKAN  ( POOL, NEW          )
-            CALL LNKILB ( NEW,  FTHEAD, POOL )
- 
-            FTHEAD           =   NEW
-            NXTHAN           =   NXTHAN + 1
- 
-            FTHAN (FTHEAD)   =   NXTHAN
-            FTLUN (FTHEAD)   =   NUMBER
-            FTACC (FTHEAD)   =   WRITE
-            FTLNK (FTHEAD)   =   1
- 
-C
-C           Fill in the file summary.  We already know how many
-C           reserved records and comment records there are.  To find
-C           the number of the first free record, the last logical
-C           address of each type, and the locations of the last
-C           descriptors of each type, we must examine the directory
-C           records.  Note that we do not assume that the data records
-C           in the DAS file have been segregated:  we could be
-C           restoring a DAS file whose creation was interrupted.
-C
-            CALL CLEARI ( SUMSIZ, FTSUM (1,FTHEAD) )
- 
-            FTSUM ( RRCIDX, FTHEAD )  =  LOCRRC
-            FTSUM ( RCHIDX, FTHEAD )  =  LOCRCH
-            FTSUM ( CRCIDX, FTHEAD )  =  LOCCRC
-            FTSUM ( CCHIDX, FTHEAD )  =  LOCCCH
- 
-C
-C           We'll find the values for each data type separately.
-C
-            DO TYPE = 1, 3
-C
-C              The first directory record is located right after the
-C              last comment record.  The directory may be empty.
-C
-               NREC  =  LOCRRC + LOCCRC + 2
- 
-C
-C              Keep track of the record number of the last data
-C              record of the current type.
-C
-               LDREC(TYPE)  =  0
- 
-C
-C              Find the last directory containing a descriptor of a
-C              record cluster of the current type.
-C
-               CALL DASIOI ( 'READ', NUMBER, NREC, DIRREC )
- 
-               MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE )
-               NXTDIR  =  DIRREC ( FWDLOC              )
- 
- 
-               DO WHILE ( NXTDIR .GT. 0 )
-C
-C                 Read the directory record.  If this record contains
-C                 descriptors for clusters we're interested in, update
-C                 the directory record number.
-C
-                  CALL DASIOI ( 'READ', NUMBER, NXTDIR, DIRREC )
- 
-                  IF (  DIRREC(RNGBAS + 2*TYPE)  .GT.  0  ) THEN
-                     MAXADR  =  DIRREC ( RNGBAS  +  2 * TYPE  )
-                     NREC    =  NXTDIR
-                  END IF
- 
-                  NXTDIR = DIRREC ( FWDLOC )
- 
-               END DO
- 
-C
-C              At this point, NREC is the record number of the directory
-C              containing the last descriptor for clusters of TYPE, if
-C              there are any such descriptors.
-C
-C              MAXADR is the maximum logical address of TYPE.
-C
-               FTSUM ( LLABAS + TYPE,  FTHEAD )  =  MAXADR
- 
-               IF ( MAXADR .GT. 0 ) THEN
-                  FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  NREC
+               IF ( DIRREC(POS) .GT. 0 ) THEN
+                  CURTYP = NEXT(PRVTYP)
                ELSE
-                  FTSUM ( LRCBAS + TYPE,  FTHEAD )  =  0
+                  CURTYP = PREV(PRVTYP)
                END IF
  
-C
-C              We still need to set the word location of the final
-C              descriptor of TYPE, if there are any descriptors of TYPE.
-C
-               IF ( MAXADR .GT. 0 ) THEN
-C
-C                 Re-read the directory record containing the last
-C                 descriptor of the current type.
-C
-                  CALL DASIOI ( 'READ', NUMBER, NREC, DIRREC )
-C
-C                 Traverse the directory record, looking for the last
-C                 descriptor of TYPE.  We'll keep track of the maximum
-C                 logical address of TYPE for each cluster of TYPE
-C                 whose descriptor we examine.  When this value is
-C                 the maximum logical address of TYPE, we've found
-C                 the last descriptor of TYPE.
-C
-C                 Also keep track of the end record numbers for each
-C                 cluster.
-C
-                  LAST    =  DIRREC( RNGBAS  +  (2*TYPE - 1)  )  -  1
-                  DSCTYP  =  DIRREC( BEGDSC                   )
-                  PRVTYP  =  PREV  ( DSCTYP                   )
-                  ENDREC  =  NREC
-                  POS     =  BEGDSC
- 
-                  DO WHILE ( LAST .LT. MAXADR )
- 
-                     POS = POS + 1
- 
-                     IF ( DIRREC(POS) .GT. 0 ) THEN
-                        CURTYP = NEXT(PRVTYP)
-                     ELSE
-                        CURTYP = PREV(PRVTYP)
-                     END IF
- 
-                     IF ( CURTYP .EQ. TYPE ) THEN
-                        LAST = LAST  +  NW(TYPE) * ABS( DIRREC(POS) )
-                     END IF
- 
-                     ENDREC = ENDREC + ABS( DIRREC(POS) )
-                     PRVTYP = CURTYP
- 
-                  END DO
-C
-C                 At this point, POS is the word position of the last
-C                 descriptor of TYPE, and ENDREC is the record number
-C                 of the last data record of TYPE.
-C
-                  FTSUM ( LWDBAS + TYPE, FTHEAD )  =  POS
-                  LDREC ( TYPE )                   =  ENDREC
- 
-               ELSE
-C
-C                 There's no data of TYPE in the file.
-C
-                  FTSUM ( LWDBAS + TYPE, FTHEAD )  =  0
-                  LDREC ( TYPE )                   =  0
- 
+               IF ( CURTYP .EQ. TYPE ) THEN
+                  LAST = LAST  +  NW(TYPE) * ABS( DIRREC(POS) )
                END IF
  
+               ENDREC = ENDREC + ABS( DIRREC(POS) )
+               PRVTYP = CURTYP
  
             END DO
- 
 C
-C           We're almost done; we need to find the number of the first
-C           free record.  This record follows all of the data records
-C           and all of the directory records.  It may happen that the
-C           last record in use is an empty directory.
+C           At this point, POS is the word position of the last
+C           descriptor of TYPE, and ENDREC is the record number
+C           of the last data record of TYPE.
 C
-            CALL MAXAI ( LDREC, 3, LDRMAX, LOC )
- 
-            NREC      =    LOCRRC + LOCCRC + 2
- 
-            CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
- 
-            NXTREC    =    DIRREC(FWDLOC)
+            FTSUM ( LWDBAS + TYPE, FTHEAD )  =  POS
+            LDREC ( TYPE )                   =  ENDREC
  
  
-            DO WHILE ( NXTREC .NE. 0 )
- 
-               NREC     =     NXTREC
- 
-               CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
- 
-               NXTREC   =     DIRREC(FWDLOC)
- 
-            END DO
- 
+         ELSE
 C
-C           Now NREC is the last directory record.
+C           There's no data of TYPE in the file.
 C
-            FTSUM ( FREIDX, FTHEAD)   =   MAX ( LDRMAX, NREC )  +  1
- 
-C
-C           Insert the new handle into our handle set.
-C
-            HANDLE   =   FTHAN(FTHEAD)
- 
-            CALL INSRTI ( HANDLE, FHLIST )
+            FTSUM ( LWDBAS + TYPE, FTHEAD )  =  0
+            LDREC ( TYPE )                   =  0
  
          END IF
  
-      END IF
+      END DO
+ 
+C
+C     We're almost done; we need to find the number of the first free
+C     record. This record follows all of the data records and all of
+C     the directory records. It may happen that the last record in use
+C     is an empty directory.
+C
+      CALL MAXAI ( LDREC, 3, LDRMAX, LOC )
+ 
+      NREC   = LOCRRC + LOCCRC + 2
+ 
+      CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
+ 
+      NXTREC = DIRREC(FWDLOC)
+ 
+ 
+      DO WHILE ( NXTREC .NE. 0 )
+ 
+         NREC   = NXTREC
+ 
+         CALL DASIOI ( 'READ',  NUMBER,  NREC,  DIRREC  )
+ 
+         NXTREC = DIRREC(FWDLOC)
+ 
+      END DO
+ 
+C
+C     Now NREC is the last directory record.
+C
+      FTSUM ( FREIDX, FTHEAD)  =  MAX ( LDRMAX, NREC )  +  1
+ 
+C
+C     Insert the new handle into our handle set.
+C
+      CALL INSRTI ( HANDLE, FHLIST )
+ 
  
       CALL CHKOUT ( 'DASOPW' )
       RETURN
+ 
  
  
  
@@ -2615,7 +2278,7 @@ C
 C     6) If the file type is blank, the error SPICE(BLANKFILETYPE) will
 C        be signaled.
 C
-C     7) If the file type contains nonprinitng characters, decimal
+C     7) If the file type contains nonprinting characters, decimal
 C        0-31 and 127-255, the error SPICE(ILLEGALCHARACTER) is
 C        signaled.
 C
@@ -2644,7 +2307,7 @@ C            FNAME  =  'TEST.DAS'
 C            FTYPE  =  'TEST'
 C            IFNAME =  'TEST.DAS/NAIF/NJB/11-NOV-1992-20:12:20'
 C
-C            CALL DASONW ( FNAME, FTYPE, IFNAME, HANDLE )
+C            CALL DASONW ( FNAME, FTYPE, IFNAME, 0, HANDLE )
 C
 C$ Restrictions
 C
@@ -2664,6 +2327,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 26-FEB-2015 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -2680,7 +2347,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -2731,9 +2398,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASONW' )
       END IF
+ 
+      CALL CHKIN ( 'DASONW' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -2826,153 +2493,119 @@ C
          CALL CHKOUT ( 'DASONW'                                        )
          RETURN
  
- 
-      ELSE
- 
-C
-C        To open a new file: get a free unit, open the file, write
-C        the file record, and set the number of links to one.
-C
-C        Look out for:
-C
-C           -- No free logical units.
-C
-C           -- Error opening the file.
-C
-C           -- Error writing to the file.
-C
-C        If anything goes wrong after the file has been opened, delete
-C        the file.
-C
-C
-         CALL GETLUN ( NUMBER )
- 
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'DASONW' )
-            RETURN
-         END IF
- 
-         OPEN ( UNIT      =   NUMBER,
-     .          FILE      =   FNAME( :RTRIM(FNAME) ),
-     .          ACCESS    =   'DIRECT',
-     .          RECL      =   RECL,
-     .          STATUS    =   'NEW',
-     .          IOSTAT    =   IOSTAT    )
- 
-         IF ( IOSTAT .NE. 0 ) THEN
- 
-            CLOSE ( NUMBER )
- 
-            CALL SETMSG ( 'Attempt to open file ''#'' failed. Value ' //
-     .                    'of IOSTAT was #.'                           )
-            CALL ERRCH  ( '#', FNAME                                   )
-            CALL ERRINT ( '#', IOSTAT                                  )
-            CALL SIGERR ( 'SPICE(DASOPENFAIL)'                         )
-            CALL CHKOUT ( 'DASONW'                                     )
-            RETURN
- 
-         ELSE
+      END IF
  
 C
-C           Fetch the system file format.
+C     Open a new file.
 C
-            CALL ZZPLATFM ( 'FILE_FORMAT', FORMAT )
+      CALL ZZDDHOPN ( FNAME, 'NEW', 'DAS', HANDLE )
  
 C
-C           Prepare to write the file record.  Clear out the file
-C           summary, except for the number of reserved records and
-C           the free record pointer.  The free record pointer should
-C           point to the first record AFTER the first directory.
+C     Get a logical unit for the file.
 C
-C           Use a local variable for the internal file name to ensure
-C           that IFNLEN characters are written.  The remaining
-C           elements of the file record are:
-C
-C              -- the number of reserved records
-C
-C              -- the number of characters in use in the reserved
-C                 record area
-C
-C              -- the number of comment records
-C
-C              -- the number of characters in use in the comment
-C                 area
-C
-C           Initially, all of these counts are zero, except for the
-C           comment record count, which is set by the caller.
-C
-C
-            LOCIFN = IFNAME
- 
-            CALL ZZDASNFR ( NUMBER,
-     .                      IDWORD,
-     .                      LOCIFN,
-     .                      0,
-     .                      0,
-     .                      NCOMR,
-     .                      0,
-     .                      FORMAT  )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
  
 C
-C           Check to see whether or not ZZDASNFR generated an error
-C           writing the file record to the logical unit.  In the event
-C           an error occurs, checkout and return.
+C     Fetch the system file format.
 C
-            IF ( FAILED() ) THEN
-               CALL CHKOUT ( 'DASONW' )
-               RETURN
-            END IF
+      CALL ZZPLATFM ( 'FILE_FORMAT', FORMAT )
  
 C
-C           Zero out the first directory record in the file.  If this
-C           write fails, close the file with delete status and return
-C           immediately.  The first directory record follows the
-C           comment records and reserved records.  Currently there
-C           are no reserved records, so the directory occupies record
-C           NCOMR+2.
+C     Prepare to write the file record.
 C
-            CALL CLEARI (  NWI,                     DIRREC )
-            CALL DASIOI ( 'WRITE', NUMBER, NCOMR+2, DIRREC )
- 
-            IF ( FAILED() ) THEN
-               CLOSE       ( UNIT = NUMBER, STATUS = 'DELETE' )
-               CALL CHKOUT ( 'DASONW' )
-               RETURN
-            END IF
- 
+C     Use a local variable for the internal file name to ensure
+C     that IFNLEN characters are written. The remaining
+C     elements of the file record are:
 C
-C           Update the file table to include information about
-C           our newly opened DAS file.  Link the information
-C           for this file at the head of the file table list.
+C        -- the number of reserved records
 C
-C           Set the output argument HANDLE as well.
+C        -- the number of characters in use in the reserved
+C           record area
 C
-            CALL LNKAN  ( POOL,   NEW             )
-            CALL LNKILB ( NEW,    FTHEAD,   POOL  )
+C        -- the number of comment records
+C
+C        -- the number of characters in use in the comment area
+C
+C     Initially, all of these counts are zero, except for the
+C     comment record count, which is set by the caller.
+C
+      LOCIFN = IFNAME
  
- 
-            NXTHAN                     =   NXTHAN + 1
-            FTHEAD                     =   NEW
- 
-            CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
- 
-            FTHAN (         FTHEAD )   =   NXTHAN
-            FTLUN (         FTHEAD )   =   NUMBER
-            FTACC (         FTHEAD )   =   WRITE
-            FTLNK (         FTHEAD )   =   1
-            FTSUM ( FREIDX, FTHEAD )   =   NCOMR + 3
-            FTSUM ( CRCIDX, FTHEAD )   =   NCOMR
- 
-            HANDLE                     =   FTHAN(FTHEAD)
+      CALL ZZDASNFR ( NUMBER,
+     .                IDWORD,
+     .                LOCIFN,
+     .                0,
+     .                0,
+     .                NCOMR,
+     .                0,
+     .                FORMAT  )
  
 C
-C           Insert the new handle into our handle set.
+C     Check to see whether or not ZZDASNFR generated an error
+C     writing the file record to the logical unit. In the event
+C     an error occurs, checkout and return.
 C
-            CALL INSRTI ( HANDLE, FHLIST )
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASONW' )
+         RETURN
+      END IF
  
-         END IF
+C
+C     Zero out the first directory record in the file. If this
+C     write fails, close the file with delete status and return
+C     immediately. The first directory record follows the
+C     comment records and reserved records. Currently there
+C     are no reserved records, so the directory occupies record
+C     NCOMR+2.
+C
+      CALL CLEARI ( NWI, DIRREC )
+ 
+      WRITE ( UNIT   = NUMBER,
+     .        REC    = NCOMR + 2,
+     .        IOSTAT = IOSTAT     ) DIRREC
+ 
+      IF ( IOSTAT .NE. 0 ) THEN
+C
+C        We had a write error. Ask the handle manager to
+C        close and delete the new file.
+C
+         CALL ZZDDHCLS ( HANDLE, 'DAS', .TRUE. )
+ 
+         CALL CHKOUT ( 'DASONW' )
+         RETURN
  
       END IF
+ 
+C
+C     Update the file table to include information about
+C     our newly opened DAS file. Link the information
+C     for this file at the head of the file table list.
+C
+C     Set the output argument HANDLE as well.
+C
+      CALL LNKAN  ( POOL,   NEW             )
+      CALL LNKILB ( NEW,    FTHEAD,   POOL  )
+ 
+C
+C     Clear out the file summary, except for the number of comment
+C     records and the free record pointer. The free record pointer
+C     should point to the first record AFTER the first directory.
+C
+      FTHEAD                     =   NEW
+ 
+      CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
+ 
+      FTHAN (         FTHEAD )   =   HANDLE
+      FTACC (         FTHEAD )   =   WRITE
+      FTLNK (         FTHEAD )   =   1
+      FTSUM ( FREIDX, FTHEAD )   =   NCOMR + 3
+      FTSUM ( CRCIDX, FTHEAD )   =   NCOMR
+ 
+C
+C     Insert the new handle into our handle set.
+C
+      CALL INSRTI ( HANDLE, FHLIST )
+ 
  
       CALL CHKOUT ( 'DASONW' )
       RETURN
@@ -2986,9 +2619,10 @@ C$Procedure DASOPN ( DAS, open new )
  
 C$ Abstract
 C
-C     Open a new DAS file for writing.
-C     Obsolete: This routine has been superceded by DASONW, and it is
+C     Obsolete: This routine has been superseded by DASONW, and it is
 C     supported for purposes of backward compatibility only.
+C
+C     Open a new DAS file for writing.
 C
 C$ Disclaimer
 C
@@ -3118,6 +2752,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -3134,7 +2772,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -3161,7 +2799,7 @@ C        word 'NAIF/DAS'. This is for backward compatibility only.
 C
 C        Added statements to the $ Abstract and $ Particulars sections
 C        to document that this entry is now considered to be obsolete,
-C        and that it has been superceded by the entry point DASONW.
+C        and that it has been superseded by the entry point DASONW.
 C
 C        Added a test for a blank filename before attempting to use the
 C        filename in the routine. If the filename is blank, the error
@@ -3192,9 +2830,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASOPN' )
       END IF
+ 
+      CALL CHKIN ( 'DASOPN' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -3219,6 +2857,7 @@ C
          RETURN
  
       END IF
+ 
 C
 C     The file can be opened only if there is room for another file.
 C
@@ -3233,143 +2872,120 @@ C
          RETURN
  
  
-      ELSE
- 
-C
-C        To open a new file: get a free unit, open the file, write
-C        the file record, and set the number of links to one.
-C
-C        Look out for:
-C
-C           -- No free logical units.
-C
-C           -- Error opening the file.
-C
-C           -- Error writing to the file.
-C
-C        If anything goes wrong after the file has been opened, delete
-C        the file.
-C
-C
-         CALL GETLUN ( NUMBER )
- 
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'DASOPN' )
-            RETURN
-         END IF
- 
-         OPEN ( UNIT      =   NUMBER,
-     .          FILE      =   FNAME( :RTRIM(FNAME) ),
-     .          ACCESS    =   'DIRECT',
-     .          RECL      =   RECL,
-     .          STATUS    =   'NEW',
-     .          IOSTAT    =   IOSTAT    )
- 
-         IF ( IOSTAT .NE. 0 ) THEN
- 
-            CLOSE ( NUMBER )
- 
-            CALL SETMSG ( 'Attempt to open file ''#'' failed. Value ' //
-     .                    'of IOSTAT was #.'                           )
-            CALL ERRCH  ( '#', FNAME                                   )
-            CALL ERRINT ( '#', IOSTAT                                  )
-            CALL SIGERR ( 'SPICE(DASOPENFAIL)'                         )
-            CALL CHKOUT ( 'DASOPN'                                     )
-            RETURN
- 
-         ELSE
- 
-C
-C           Fetch the system file format.
-C
-            CALL ZZPLATFM ( 'FILE_FORMAT', FORMAT )
- 
-C
-C           Prepare to write the file record.  Clear out the file
-C           summary, except for the number of reserved records and
-C           the free record pointer.  The free record pointer should
-C           point to the first record AFTER the first directory.
-C
-C           Use a local variable for the internal file name to ensure
-C           that IFNLEN characters are written.  The remaining
-C           elements of the file record are:
-C
-C              -- the number of reserved records
-C
-C              -- the number of characters in use in the reserved
-C                 record area
-C
-C              -- the number of comment records
-C
-C              -- the number of characters in use in the comment
-C                 area
-C
-C           Initially, all of these counts are zero.
-C
-C
-            LOCIFN = IFNAME
-            IDWORD = 'NAIF/DAS'
- 
-            CALL ZZDASNFR ( NUMBER,
-     .                      IDWORD,
-     .                      LOCIFN,
-     .                      0,
-     .                      0,
-     .                      0,
-     .                      0,
-     .                      FORMAT  )
- 
-            IF ( FAILED() ) THEN
-               CALL CHKOUT ( 'DASOPN' )
-               RETURN
-            END IF
- 
-C
-C           Zero out the first directory record (record #2) in the
-C           file.  If this write fails, close the file with delete
-C           status and return immediately.
-C
-            CALL CLEARI (  NWI,               DIRREC )
-            CALL DASIOI ( 'WRITE', NUMBER, 2, DIRREC )
- 
-            IF ( FAILED() ) THEN
-               CLOSE       ( UNIT = NUMBER,  STATUS = 'DELETE' )
-               CALL CHKOUT ( 'DASOPN' )
-               RETURN
-            END IF
- 
-C
-C           Update the file table to include information about
-C           our newly opened DAS file.  Link the information
-C           for this file at the head of the file table list.
-C
-C           Set the output argument HANDLE as well.
-C
-            CALL LNKAN  ( POOL,   NEW             )
-            CALL LNKILB ( NEW,    FTHEAD,   POOL  )
- 
- 
-            NXTHAN                     =   NXTHAN + 1
-            FTHEAD                     =   NEW
- 
-            CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
- 
-            FTHAN (         FTHEAD )   =   NXTHAN
-            FTLUN (         FTHEAD )   =   NUMBER
-            FTACC (         FTHEAD )   =   WRITE
-            FTLNK (         FTHEAD )   =   1
-            FTSUM ( FREIDX, FTHEAD )   =   3
- 
-            HANDLE                     =   FTHAN(FTHEAD)
- 
-C
-C           Insert the new handle into our handle set.
-C
-            CALL INSRTI ( HANDLE, FHLIST )
- 
-         END IF
- 
       END IF
+ 
+C
+C     To open a new file: get a free unit, open the file, write
+C     the file record, and set the number of links to one.
+C
+C     Look out for:
+C
+C        -- No free logical units.
+C
+C        -- Error opening the file.
+C
+C        -- Error writing to the file.
+C
+C     If anything goes wrong after the file has been opened, delete
+C     the file.
+C
+C
+      CALL ZZDDHOPN ( FNAME, 'NEW', 'DAS', HANDLE )
+ 
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPN' )
+         RETURN
+      END IF
+ 
+C
+C     Fetch the system file format.
+C
+      CALL ZZPLATFM ( 'FILE_FORMAT', FORMAT )
+ 
+C
+C     Prepare to write the file record.
+C
+C     Use a local variable for the internal file name to ensure that
+C     IFNLEN characters are written. The remaining elements of the file
+C     record are:
+C
+C        -- the number of reserved records
+C
+C        -- the number of characters in use in the reserved
+C           record area
+C
+C        -- the number of comment records
+C
+C        -- the number of characters in use in the comment area
+C
+C     Initially, all of these counts are zero.
+C
+C
+      LOCIFN = IFNAME
+      IDWORD = 'NAIF/DAS'
+ 
+      CALL ZZDASNFR ( NUMBER,
+     .                IDWORD,
+     .                LOCIFN,
+     .                0,
+     .                0,
+     .                0,
+     .                0,
+     .                FORMAT  )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPN' )
+         RETURN
+      END IF
+ 
+C
+C     Zero out the first directory record (record #2) in the file. If
+C     this write fails, close the file with delete status and return
+C     immediately.
+C
+ 
+C
+C     NOTE: re-write this using ZZDDHCLS.
+C
+      CALL CLEARI (  NWI,               DIRREC )
+      CALL DASIOI ( 'WRITE', NUMBER, 2, DIRREC )
+ 
+      IF ( FAILED() ) THEN
+         CLOSE       ( UNIT = NUMBER,  STATUS = 'DELETE' )
+         CALL CHKOUT ( 'DASOPN' )
+         RETURN
+      END IF
+ 
+C
+C     Update the file table to include information about
+C     our newly opened DAS file. Link the information
+C     for this file at the head of the file table list.
+C
+C     Set the output argument HANDLE as well.
+C
+      CALL LNKAN  ( POOL,   NEW             )
+      CALL LNKILB ( NEW,    FTHEAD,   POOL  )
+ 
+C
+C     Clear out the file summary, except for the free record pointer.
+C     The free record pointer should point to the first record AFTER
+C     the first directory.
+C
+      FTHEAD                     =   NEW
+ 
+      CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
+ 
+      FTHAN (         FTHEAD )   =   HANDLE
+      FTACC (         FTHEAD )   =   WRITE
+      FTLNK (         FTHEAD )   =   1
+      FTSUM ( FREIDX, FTHEAD )   =   3
+ 
+C
+C     Insert the new handle into our handle set.
+C
+      CALL INSRTI ( HANDLE, FHLIST )
  
       CALL CHKOUT ( 'DASOPN' )
       RETURN
@@ -3503,6 +3119,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 07-APR-2016 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -3510,7 +3130,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -3567,7 +3187,7 @@ C
 C        DAS scratch files use the type 'SCR ', so the ID word for a DAS
 C        scratch file would be: 'DAS/SCR '
 C
-C        Changed the internal fielname from blank to the string:
+C        Changed the internal filename from blank to the string:
 C
 C           'DAS SCRATCH FILE'
 C
@@ -3602,9 +3222,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASOPS' )
       END IF
+ 
+      CALL CHKIN ( 'DASOPS' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -3636,112 +3256,107 @@ C
          CALL CHKOUT ( 'DASOPS'                                        )
          RETURN
  
-      ELSE
- 
-C
-C        To open a new file: get a free unit, open the file, write
-C        the file record, and set the number of links to one.
-C
-C        Look out for:
-C
-C           -- No free logical units.
-C
-C           -- Error opening the file.
-C
-C           -- Error writing to the file.
-C
-C        If anything goes wrong after the file has been opened, delete
-C        the file.
-C
-C
-         CALL GETLUN ( NUMBER )
- 
-         IF ( FAILED() ) THEN
-            CALL CHKOUT ( 'DASOPS' )
-            RETURN
-         END IF
- 
-         OPEN ( UNIT      =   NUMBER,
-     .          ACCESS    =   'DIRECT',
-     .          RECL      =   RECL,
-     .          STATUS    =   'SCRATCH',
-     .          IOSTAT    =   IOSTAT    )
- 
-         IF ( IOSTAT .NE. 0 ) THEN
- 
-            CLOSE ( NUMBER )
- 
-            CALL SETMSG ( 'Attempt to open scratch file failed.  '    //
-     .                    'IOSTAT was #.'                              )
-            CALL ERRINT ( '#', IOSTAT                                  )
-            CALL SIGERR ( 'SPICE(DASOPENFAIL)'                         )
-            CALL CHKOUT ( 'DASOPS'                                     )
-            RETURN
- 
-         ELSE
- 
-C
-C           Prepare to write the file record.  Clear out the file
-C           summary, the free record pointer.  The free record pointer
-C           should point to the first record AFTER the first directory.
-C
-            LOCIFN = 'DAS SCRATCH FILE'
-            IDWORD = 'DAS/SCR '
- 
-            WRITE ( NUMBER,
-     .              REC       =   1,
-     .              IOSTAT    =   IOSTAT ) IDWORD, LOCIFN, 0, 0, 0, 0
- 
-            IF ( IOSTAT .NE. 0 ) THEN
- 
-               CLOSE ( UNIT   =  NUMBER,
-     .                 STATUS = 'DELETE' )
- 
-               CALL SETMSG ( 'Attempt to write scratch file failed. ' //
-     .                       'Value of IOSTAT was #.'                  )
-               CALL ERRINT ( '#', IOSTAT                               )
-               CALL SIGERR ( 'SPICE(DASWRITEFAIL)'                     )
-               CALL CHKOUT ( 'DASOPS'                                  )
-               RETURN
- 
-            ELSE
-C
-C              Update the file table to include information about
-C              our newly opened DAS file.  Link the information
-C              for this file at the head of the file table list.
-C
-C              Set the output argument HANDLE as well.
-C
-               CALL LNKAN  ( POOL,   NEW             )
-               CALL LNKILB ( NEW,    FTHEAD,   POOL  )
- 
-               NXTHAN                     =   NXTHAN + 1
-               FTHEAD                     =   NEW
- 
-               CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
- 
-               FTHAN (         FTHEAD )   =   NXTHAN
-               FTLUN (         FTHEAD )   =   NUMBER
-               FTACC (         FTHEAD )   =   WRITE
-               FTLNK (         FTHEAD )   =   1
-               FTSUM ( FREIDX, FTHEAD )   =   3
- 
-               HANDLE                     =   FTHAN( FTHEAD )
- 
-C
-C              Insert the new handle into our handle set.
-C
-               CALL INSRTI ( HANDLE, FHLIST )
- 
- 
-            END IF
- 
-         END IF
- 
       END IF
+ 
+C
+C     Assign a name to the scratch file. This name is required
+C     by the DDH subsystem.
+C
+      LOCDAS = 'DAS SCRATCH FILE'
+ 
+C
+C     Open a DAS file for scratch access.
+C
+      CALL ZZDDHOPN ( LOCDAS, 'SCRATCH', 'DAS', HANDLE )
+ 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPS' )
+         RETURN
+      END IF
+ 
+C
+C     Get a logical unit for the file.
+C
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
+ 
+C
+C     Fetch the system file format.
+C
+      CALL ZZPLATFM ( 'FILE_FORMAT', FORMAT )
+ 
+C
+C     Prepare to write the file record.
+C
+C     Use a local variable for the internal file name to ensure
+C     that IFNLEN characters are written. The remaining
+C     elements of the file record are:
+C
+C        -- the number of reserved records
+C
+C        -- the number of characters in use in the reserved
+C           record area
+C
+C        -- the number of comment records
+C
+C        -- the number of characters in use in the comment area
+C
+C     Initially, all of these counts are zero, except for the
+C     comment record count, which is set by the caller.
+C
+      LOCIFN = LOCDAS(:IFNLEN)
+ 
+      CALL ZZDASNFR ( NUMBER,
+     .                IDWORD,
+     .                LOCIFN,
+     .                0,
+     .                0,
+     .                0,
+     .                0,
+     .                FORMAT  )
+ 
+C
+C     Check to see whether or not ZZDASNFR generated an error
+C     writing the file record to the logical unit. In the event
+C     an error occurs, checkout and return.
+C
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASOPS' )
+         RETURN
+      END IF
+ 
+C
+C     Update the file table to include information about
+C     our newly opened DAS file. Link the information
+C     for this file at the head of the file table list.
+C
+C     Set the output argument HANDLE as well.
+C
+      CALL LNKAN  ( POOL,   NEW             )
+      CALL LNKILB ( NEW,    FTHEAD,   POOL  )
+ 
+      FTHEAD                     =   NEW
+ 
+C
+C     Clear out the file summary, except for the free record pointer.
+C     The free record pointer should point to the first record AFTER
+C     the first directory.
+C
+      CALL CLEARI ( SUMSIZ, FTSUM(1,FTHEAD) )
+ 
+      FTHAN (         FTHEAD )   =   HANDLE
+      FTACC (         FTHEAD )   =   WRITE
+      FTLNK (         FTHEAD )   =   1
+      FTSUM ( FREIDX, FTHEAD )   =   3
+ 
+C
+C     Insert the new handle into our handle set.
+C
+      CALL INSRTI ( HANDLE, FHLIST )
+ 
  
       CALL CHKOUT ( 'DASOPS' )
       RETURN
+ 
  
  
 C$Procedure DASLLC ( DAS, low-level close )
@@ -3890,6 +3505,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 6.0.3 10-APR-2014 (NJB)
 C
 C        Corrected header comments: routine that flushes
@@ -3908,7 +3527,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -3964,9 +3583,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASLLC' )
       END IF
+ 
+      CALL CHKIN ( 'DASLLC' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -4014,7 +3633,12 @@ C           If this was the head node of the list, the head node
 C           becomes the successor of this node (which may be NIL).
 C           Delete the handle from our handle set.
 C
-            CLOSE ( FTLUN(FINDEX) )
+            CALL ZZDDHCLS ( HANDLE, 'DAS', .FALSE. )
+ 
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASLLC' )
+               RETURN
+            END IF
  
             IF ( FINDEX .EQ. FTHEAD ) THEN
                FTHEAD = LNKNXT ( FINDEX, POOL )
@@ -4255,7 +3879,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -4576,6 +4200,14 @@ C     F.S. Turner     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.1.0, 07-OCT-2015 (NJB)
+C
+C        Corrected call to ZZDDHCLS.
+C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 6.1.0, 26-SEP-2005 (NJB)
 C
 C        Bug fix:  file name is now correctly inserted into long
@@ -4599,7 +4231,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -4663,23 +4295,21 @@ C-&
  
  
 C
-C     We use discovery check-ins in this routine.
+C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
       END IF
+ 
+      CALL CHKIN ( 'DASUFS' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
 C
       IF ( PASS1 ) THEN
  
-         CALL CHKIN  ( 'DASUFS'       )
- 
          CALL LNKINI ( FTSIZE, POOL   )
          CALL SSIZEI ( FTSIZE, FHLIST )
- 
-         CALL CHKOUT ( 'DASUFS'       )
  
          PASS1 = .FALSE.
  
@@ -4694,7 +4324,7 @@ C
       DO WHILE (  ( .NOT. FOUND )  .AND.  ( FINDEX .GT. 0 )  )
  
          IF ( FTHAN(FINDEX) .EQ. HANDLE ) THEN
-            FOUND = .TRUE.
+            FOUND  = .TRUE.
          ELSE
             FINDEX = LNKNXT ( FINDEX, POOL )
          END IF
@@ -4702,6 +4332,15 @@ C
       END DO
  
       IF ( FOUND ) THEN
+C
+C        Obtain a logical unit for this file.
+C
+         CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
+ 
+         IF ( FAILED() ) THEN
+            CALL CHKOUT ( 'DASUFS' )
+            RETURN
+         END IF
  
 C
 C        Now check to see that HANDLE is open for write, as one has
@@ -4710,11 +4349,10 @@ C        open for read access only.
 C
          IF ( FTACC(FINDEX) .NE. WRITE ) THEN
  
-            CALL CHKIN  ( 'DASUFS'                                     )
             CALL SETMSG ( 'DAS file not open for writing. Handle = #,'
      .      //            ' file = ''#''.'                             )
             CALL ERRINT ( '#', HANDLE                                  )
-            CALL ERRFNM ( '#', FTLUN(FINDEX)                           )
+            CALL ERRFNM ( '#', NUMBER                                  )
             CALL SIGERR ( 'SPICE(DASINVALIDACCESS)'                    )
             CALL CHKOUT ( 'DASUFS'                                     )
             RETURN
@@ -4734,7 +4372,7 @@ C
 C
 C           Read the file record.
 C
-            READ ( FTLUN(FINDEX),
+            READ ( NUMBER,
      .             REC    = 1,
      .             IOSTAT = IOSTAT )  IDWORD,
      .                                LOCIFN,
@@ -4747,11 +4385,10 @@ C
  
             IF ( IOSTAT .NE. 0 ) THEN
  
-               CALL CHKIN  ( 'DASUFS'                               )
                CALL SETMSG ( 'Attempt to read file record failed. '
      .         //            'File was ''#''.  Value of IOSTAT was'
      .         //            ' ''#''.'                              )
-               CALL ERRFNM ( '#', FTLUN(FINDEX)                     )
+               CALL ERRFNM ( '#', NUMBER                            )
                CALL ERRINT ( '#', IOSTAT                            )
                CALL SIGERR ( 'SPICE(DASREADFAIL)'                   )
                CALL CHKOUT ( 'DASUFS'                               )
@@ -4759,7 +4396,7 @@ C
  
             END IF
  
-            WRITE ( FTLUN(FINDEX),
+            WRITE ( NUMBER,
      .              REC     =  1,
      .              IOSTAT  =  IOSTAT )  IDWORD,
      .                                   LOCIFN,
@@ -4771,15 +4408,24 @@ C
      .                                   TAIL
  
             IF ( IOSTAT .NE. 0 ) THEN
+C
+C              Try to obtain the DAS file's name.
+C
+               INQUIRE ( UNIT   = NUMBER,
+     .                   NAME   = LOCDAS,
+     .                   IOSTAT = INQSTA )
  
-               CALL CHKIN ( 'DASUFS' )
+               CALL ZZDDHCLS ( HANDLE, 'DAS', .FALSE. )
  
-               CLOSE (  FTLUN(FINDEX)  )
+               IF ( FAILED() ) THEN
+                  CALL CHKOUT ( 'DASUFS' )
+                  RETURN
+               END IF
  
-               CALL SETMSG ( 'Attempt to update file record failed. ' //
-     .                       'File was ''#''.  Value of IOSTAT was'   //
-     .                       ' ''#''.'                                 )
-               CALL ERRFNM ( '#', FTLUN(FINDEX)                        )
+               CALL SETMSG ( 'Attempt to update file record failed. '
+     .         //            'File was ''#''.  Value of IOSTAT was'
+     .         //             ' ''#''.'                                )
+               CALL ERRCH  ( '#', LOCDAS                               )
                CALL ERRINT ( '#', IOSTAT                               )
                CALL SIGERR ( 'SPICE(DASWRITEFAIL)'                     )
                CALL CHKOUT ( 'DASUFS'                                  )
@@ -4806,14 +4452,15 @@ C
  
       ELSE
  
-         CALL CHKIN  ( 'DASUFS'                                )
          CALL SETMSG ( 'There is no file open with handle = #' )
          CALL ERRINT ( '#', HANDLE                             )
          CALL SIGERR ( 'SPICE(DASNOSUCHHANDLE)'                )
          CALL CHKOUT ( 'DASUFS'                                )
+         RETURN
  
       END IF
  
+      CALL CHKOUT ( 'DASUFS' )
       RETURN
  
  
@@ -4824,7 +4471,9 @@ C$Procedure DASHLU ( DAS, handle to logical unit )
  
 C$ Abstract
 C
-C     Return the logical unit associated with a handle.
+C     Return the logical unit associated with a handle. The unit
+C     is "locked" to the handle by the DAF/DAS handle manager
+C     subsystem.
 C
 C$ Disclaimer
 C
@@ -4911,7 +4560,21 @@ C            CALL DASHLU ( HANDLE, UNIT )
 C
 C$ Restrictions
 C
-C     None.
+C     1) Successfully invoking this module has the side effect of
+C        locking UNIT to HANDLE.  This 'lock' guarantees until
+C        HANDLE is closed (or unlocked) that the file associated
+C        with HANDLE is always open and attached to logical unit
+C        UNIT.  To unlock a handle without closing the file, use
+C        ZZDDHUNL, an entry point in the handle manager umbrella,
+C        ZZDDHMAN.
+C
+C        The system can lock at most UTSIZE-SCRUNT-RSVUNT
+C        simultaneously (see the include file 'zzddhman.inc' for
+C        specific values of these parameters), but unnecessarily
+C        locking handles to their logical units may cause performance
+C        degradation.  The handle manager will have fewer logical
+C        units to utilize when disconnecting and reconnecting
+C        loaded files.
 C
 C$ Literature_References
 C
@@ -4921,9 +4584,15 @@ C$ Author_and_Institution
 C
 C     N.J. Bachman    (JPL)
 C     W.L. Taber      (JPL)
+C     F.S. Turner     (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 7.0.0, 04-FEB-2015 (NJB) (FST)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C        Note that this routine is now considered obsolete.
 C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
@@ -4932,7 +4601,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -5023,8 +4692,11 @@ C
  
  
       IF ( FOUND ) THEN
- 
-         UNIT = FTLUN(FINDEX)
+C
+C        For backward compatibility, the logical unit must be
+C        locked to the file.
+C
+         CALL ZZDDHHLU ( HANDLE, 'DAS', .TRUE., UNIT )
  
       ELSE
  
@@ -5152,6 +4824,11 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C        Note that this routine is now considered obsolete.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -5159,7 +4836,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -5214,9 +4891,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASLUH' )
       END IF
+ 
+      CALL CHKIN ( 'DASLUH' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -5231,26 +4908,11 @@ C
       END IF
  
 C
-C     Find the file table entries for this file.
+C     Try to locate the handle associated with this unit.
 C
-      FINDEX  =  FTHEAD
-      FOUND   = .FALSE.
+      CALL ZZDDHLUH ( UNIT, HANDLE, FOUND )
  
-      DO WHILE (  ( .NOT. FOUND )  .AND.  ( FINDEX .GT. 0 )  )
- 
-         IF ( FTLUN(FINDEX) .EQ. UNIT ) THEN
-            FOUND = .TRUE.
-         ELSE
-            FINDEX = LNKNXT ( FINDEX, POOL )
-         END IF
- 
-      END DO
- 
-      IF ( FOUND ) THEN
- 
-         HANDLE = FTHAN(FINDEX)
- 
-      ELSE
+      IF ( .NOT. FOUND ) THEN
  
          CALL SETMSG ( 'There is no DAS file open with unit = #' )
          CALL ERRINT ( '#', UNIT                                 )
@@ -5260,6 +4922,7 @@ C
  
       CALL CHKOUT ( 'DASLUH' )
       RETURN
+ 
  
  
 C$Procedure DASHFN ( DAS, handle to file name )
@@ -5389,6 +5052,11 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C        Note that this routine is now considered obsolete.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -5396,7 +5064,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -5486,8 +5154,10 @@ C
  
       IF ( FOUND ) THEN
  
-         INQUIRE ( UNIT = FTLUN(FINDEX),
-     .             NAME = FNAME          )
+         CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
+ 
+         INQUIRE ( UNIT = NUMBER,
+     .             NAME = FNAME  )
  
       ELSE
  
@@ -5613,6 +5283,11 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 7.0.0, 30-JUL-2014 (NJB)
+C
+C        Now uses DAF/DAS handle manager subsystem.
+C        Note that this routine is now considered obsolete.
+C
 C-    SPICELIB Version 6.0.1, 17-JUL-2002 (BVS)
 C
 C        Added MAC-OSX environments.
@@ -5620,7 +5295,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -5676,9 +5351,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASFNH' )
       END IF
+ 
+      CALL CHKIN ( 'DASFNH' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -5692,31 +5367,9 @@ C
  
       END IF
  
-      INQUIRE ( FILE   = FNAME( :RTRIM(FNAME) ),
-     .          OPENED = OPENED,
-     .          NUMBER = NUMBER  )
+      CALL ZZDDHFNH ( FNAME, HANDLE, FOUND )
  
-C
-C     Find the file table entries for this file.
-C
-      FINDEX  =  FTHEAD
-      FOUND   = .FALSE.
- 
-      DO WHILE (  ( .NOT. FOUND )  .AND.  ( FINDEX .GT. 0 )  )
- 
-         IF ( FTLUN(FINDEX) .EQ. NUMBER ) THEN
-            FOUND  = .TRUE.
-         ELSE
-            FINDEX = LNKNXT ( FINDEX, POOL )
-         END IF
- 
-      END DO
- 
-      IF ( FOUND ) THEN
- 
-         HANDLE = FTHAN(FINDEX)
- 
-      ELSE
+      IF ( .NOT. FOUND ) THEN
  
          CALL SETMSG ( 'There is no DAS file in the table with file ' //
      .                 'name = ''#'''                                  )
@@ -5868,7 +5521,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -6097,7 +5750,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -6160,9 +5813,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASSIH' )
       END IF
+ 
+      CALL CHKIN ( 'DASSIH' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.
@@ -6235,12 +5888,12 @@ C
 C           If the access type is 'WRITE', the DAS file must be open
 C           for writing.
 C
-            INQUIRE ( UNIT = FTLUN(FINDEX),  NAME = DASFIL )
+            CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., NUMBER )
  
             CALL SETMSG ( 'DAS file not open for writing. Handle = #,'//
      .                    ' file = ''#''.'                             )
             CALL ERRINT ( '#', HANDLE                                  )
-            CALL ERRCH  ( '#', DASFIL                                  )
+            CALL ERRFNM ( '#', NUMBER                                  )
             CALL SIGERR ( 'SPICE(DASINVALIDACCESS)'                    )
             CALL CHKOUT ( 'DASSIH'                                     )
             RETURN
@@ -6387,7 +6040,7 @@ C
 C-    SPICELIB Version 5.0.4, 08-OCT-1999 (WLT)
 C
 C        The environment lines were expanded so that the supported
-C        environments are now explicitely given.  New
+C        environments are now explicitly given.  New
 C        environments are WIN-NT
 C
 C-    SPICELIB Version 5.0.3, 16-SEP-1999 (NJB)
@@ -6443,9 +6096,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASHAM' )
       END IF
+ 
+      CALL CHKIN ( 'DASHAM' )
  
 C
 C     Initialize the file table pool and handle list, if necessary.

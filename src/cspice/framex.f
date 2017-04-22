@@ -181,6 +181,10 @@ C     W.L. Taber      (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 5.2.1, 02-FEB-2017 (BVS) 
+C
+C        Shortened one of permutted index entries in CCIFRM.
+C
 C-    SPICELIB Version 5.2.0, 08-AUG-2012 (BVS) 
 C
 C        The routine was updated to be more efficient by using hashes
@@ -2783,6 +2787,10 @@ C     B.V. Semenov    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.1, 02-FEB-2017 (BVS) 
+C
+C        Shortened one of permutted index entries.
+C
 C-    SPICELIB Version 1.1.0, 08-AUG-2012 (BVS) 
 C
 C        The routine was updated to be more efficient by using hashes
@@ -2801,7 +2809,7 @@ C$ Index_Entries
 C
 C     Find info associated with a frame class and class id
 C     Map frame class and class ID to frame info
-C     Map frame class and class ID to frame name, id, and center
+C     Map frame class and class ID to frame name, id, center
 C
 C-&
 

@@ -4,7 +4,7 @@ C$Procedure      CYLLAT ( Cylindrical to latitudinal )
  
 C$ Abstract
 C
-C  Convert from cylindrical to latitudinal coordinates.
+C     Convert from cylindrical to latitudinal coordinates.
 C
 C$ Disclaimer
 C
@@ -37,7 +37,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION,  COORDINATES
+C     CONVERSION,  COORDINATES
 C
 C$ Declarations
  
@@ -50,53 +50,61 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  --------------------------------------------------
-C      R          I   Distance of point from Z axis.
-C      LONGC      I   Cylindrical angle of point from XZ plane(radians).
-C      Z          I   Height of point above XY plane.
-C      RADIUS     O   Distance of point from origin.
-C      LONG       O   Longitude of point (radians).
-C      LAT        O   Latitude of point (radians).
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  --------------------------------------------------
+C     R          I   Distance of point from Z axis.
+C     LONGC      I   Cylindrical angle of point from XZ plane(radians).
+C     Z          I   Height of point above XY plane.
+C     RADIUS     O   Distance of point from origin.
+C     LONG       O   Longitude of point (radians).
+C     LAT        O   Latitude of point (radians).
 C
 C$ Detailed_Input
 C
-C      R          Distance of the input point from Z axis.
+C     R          Distance of the input point from Z axis.
 C
-C      LONGC      Cylindrical angle of the point from XZ plane(radians).
+C     LONGC      Cylindrical angle of the point from XZ plane (radians).
 C
-C      Z          Height of the point above XY plane.
+C     Z          Height of the point above XY plane.
 C
 C$ Detailed_Output
 C
-C      RADIUS     Distance of the input point from origin.
+C     RADIUS     Distance of the input point from origin.
 C
-C      LONG       Longitude (i.e. angle from the XZ plane) of the input
-C                 point.
+C     LONG       Longitude (i.e. angle from the XZ plane) of the input
+C                point (radians). LONG is set equal to LONGC.
 C
-C      LAT        Latitude (i.e. angle above the XY plane) of the input
-C                 point (radians).
+C     LAT        Latitude (i.e. angle above the XY plane) of the input
+C                point (radians). The range of LAT is [-pi, pi].
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This routine converts coordinates given in cylindrical
-C      coordinates to coordinates in latitudinal coordinates.
+C     This routine converts coordinates given in cylindrical
+C     coordinates to coordinates in latitudinal coordinates.
 C
-C      Latitudinal coordinates are the same coordinates as use for
-C      the earth.  Latitude refers to angle above the equator, longitude
-C      to angle east from a meridian, and radius to the distance from
-C      an origin.
+C     Latitudinal coordinates are the same coordinates as use for
+C     the earth.  Latitude refers to angle above the equator, longitude
+C     to angle east from a meridian, and radius to the distance from
+C     an origin.
 C
 C$ Examples
 C
-C      Below are two tables:  The first is a set of input values
-C      the second is the result of the following sequence of
-C      calls to Spicelib routines.  Note all input and output angular
-C      quantities are in degrees.
+C     Below are two tables:  The first is a set of input values
+C     the second is the result of the following sequence of
+C     calls to Spicelib routines.  Note all input and output angular
+C     quantities are in degrees.
 C
 C         CALL CONVRT ( LONGC, 'DEGREES', 'RADIANS', LONGC     )
 C
@@ -107,38 +115,34 @@ C         CALL CONVRT ( LAT,   'RADIANS', 'DEGREES', LAT       )
 C
 C
 C
-C      Inputs:                         Results:
+C     Inputs:                         Results:
 C
-C      R        LONGC    Z             RADIUS   LONG     LAT
-C      ------   ------   ------        ------   ------   ------
-C      1.0000     0       0            1.0000     0        0
-C      1.0000    90.00    0            1.0000    90.00     0
-C      1.0000   180.00    1.000        1.4142   180.00    45.00
-C      1.0000   180.00   -1.000        1.4142   180.00   -45.00
-C      0.0000   180.00    1.000        1.0000   180.00    90.00
-C      0.0000    33.00    0            0.0000    33.00     0.00
+C     R        LONGC    Z             RADIUS   LONG     LAT
+C     ------   ------   ------        ------   ------   ------
+C     1.0000     0       0            1.0000     0        0
+C     1.0000    90.00    0            1.0000    90.00     0
+C     1.0000   180.00    1.000        1.4142   180.00    45.00
+C     1.0000   180.00   -1.000        1.4142   180.00   -45.00
+C     0.0000   180.00    1.000        1.0000   180.00    90.00
+C     0.0000    33.00    0            0.0000    33.00     0.00
 C
 C$ Restrictions
 C
-C      None.
-C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
-C
-C      None.
-C
-C$ Author_and_Institution
-C
-C      W.L. Taber      (JPL)
+C     None.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
+C
+C$ Author_and_Institution
+C
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.3, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.2, 22-AUG-2001 (EDW)
 C
@@ -162,9 +166,9 @@ C-&
  
 C$ Revisions
 C
-C-     Beta Version 1.0.1, 1-Feb-1989 (WLT)
+C-    Beta Version 1.0.1, 1-Feb-1989 (WLT)
 C
-C      Example section of header upgraded.
+C        Example section of header upgraded.
 C
 C-&
  
@@ -201,7 +205,7 @@ C
          LATTUD = DATAN2 (Z,R)
       END IF
 C
-C  Move results to output variables
+C     Move results to output variables
 C
       LONG   = LONGC
       RADIUS = RHO

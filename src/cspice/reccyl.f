@@ -4,7 +4,7 @@ C$Procedure      RECCYL ( Rectangular to cylindrical coordinates )
  
 C$ Abstract
 C
-C      Convert from rectangular to cylindrical coordinates.
+C     Convert from rectangular to cylindrical coordinates.
 C
 C
 C$ Disclaimer
@@ -38,7 +38,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION, COORDINATES
+C     CONVERSION, COORDINATES
 C
 C$ Declarations
  
@@ -49,34 +49,42 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  -------------------------------------------------
-C      RECTAN     I   Rectangular coordinates of a point.
-C      R          O   Distance of the point from Z axis.
-C      LONG       O   Angle (radians) of the point from XZ plane
-C      Z          O   Height of the point above XY plane.
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  -------------------------------------------------
+C     RECTAN     I   Rectangular coordinates of a point.
+C     R          O   Distance of the point from Z axis.
+C     LONG       O   Angle (radians) of the point from XZ plane
+C     Z          O   Height of the point above XY plane.
 C
 C$ Detailed_Input
 C
-C      RECTAN     Rectangular coordinates of the point of interest.
+C     RECTAN     Rectangular coordinates of the point of interest.
 C
 C$ Detailed_Output
 C
-C      R          Distance of the point of interest from Z axis.
+C     R          Distance of the point of interest from Z axis.
 C
-C      LONG       Cylindrical angle (in radians) of the point of
-C                 interest from XZ plane.
+C     LONG       Cylindrical angle (in radians) of the point of
+C                interest from XZ plane. The LONG range is [0, 2pi].
 C
-C      Z          Height of the point above XY plane.
+C     Z          Height of the point above XY plane.
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This routine transforms the coordinates of a point from
-C      rectangular to cylindrical coordinates.
+C     This routine transforms the coordinates of a point from
+C     rectangular to cylindrical coordinates.
 C
 C$ Examples
 C
@@ -116,25 +124,21 @@ C       1.0000     1.0000   1.0000      1.4142   45.0000   1.0000
 C
 C$ Restrictions
 C
-C      None.
-C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
-C
-C      None.
-C
-C$ Author_and_Institution
-C
-C      W.L. Taber      (JPL)
+C     None.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
+C
+C$ Author_and_Institution
+C
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.3, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.2, 22-AUG-2001 (EDW)
 C

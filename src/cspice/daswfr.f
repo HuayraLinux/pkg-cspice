@@ -49,6 +49,8 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
       INTEGER               HANDLE
       CHARACTER*(*)         IDWORD
       CHARACTER*(*)         IFNAME
@@ -166,7 +168,8 @@ C
 C
 C$ Restrictions
 C
-C     None.
+C     1) The DAS file must have a binary file format native to the host
+C        system.
 C
 C$ Literature_References
 C
@@ -181,9 +184,14 @@ C     F.S. Turner    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 3.1.0, 05-FEB-2015 (NJB)  
+C
+C        Updated to support integration with the handle 
+C        manager subsystem.
+C
 C-    SPICELIB Version 3.0.0, 11-DEC-2001 (FST)
 C
-C        This routine was modified to accomodate the preservation
+C        This routine was modified to accommodate the preservation
 C        of the FTP validation and binary file format strings that
 C        are not part of the DAS file record.
 C
@@ -294,7 +302,7 @@ C          ---------
 C          84 bytes - (All file records utilize this space.)
 C
 C     So the size of the remaining portion (or tail) of the DAS
-C     file record for computing enviroments as described above
+C     file record for computing environments as described above
 C     would be:
 C
 C        1024 bytes - DAS record size
@@ -315,8 +323,8 @@ C     Local variables
 C
       CHARACTER*(FMTLEN)    FORMAT
       CHARACTER*(IDWLEN)    LOCIDW
-      CHARACTER*(IFNLEN)    IFN
       CHARACTER*(IFNLEN)    LOCIFN
+      CHARACTER*(IFNLEN)    IFN
       CHARACTER*(TAILEN)    TAIL
  
       INTEGER               FREE
@@ -324,10 +332,10 @@ C
       INTEGER               LASTLA ( 3 )
       INTEGER               LASTRC ( 3 )
       INTEGER               LASTWD ( 3 )
-      INTEGER               LOCNVR
-      INTEGER               LOCNVC
-      INTEGER               LOCNCR
       INTEGER               LOCNCC
+      INTEGER               LOCNCR
+      INTEGER               LOCNVC
+      INTEGER               LOCNVR
       INTEGER               OLDRRC
       INTEGER               OLDRCH
       INTEGER               OLDCRC
@@ -339,9 +347,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASWFR' )
       END IF
+
+      CALL CHKIN ( 'DASWFR' )
  
 C
 C     Check to be sure that HANDLE is attached to a file that is open
@@ -352,7 +360,7 @@ C
 C
 C     Get the logical unit for this DAS file.
 C
-      CALL DASHLU ( HANDLE, UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
  
       IF ( FAILED () ) THEN
          CALL CHKOUT ( 'DASWFR' )

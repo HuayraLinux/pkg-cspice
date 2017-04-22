@@ -169,6 +169,14 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB version 1.1.0 08-MAR-2017 (NJB) 
+C
+C        Bug fixes: added FAILED checks in entry points ZZGFILIN,
+C        ZZGFILDC, and ZZGFILGQ.
+C
+C        Removed unused declaration of parameter SUN.
+C
+C
 C-    SPICELIB Version 1.0.0 23-MAY-2012 (NJB) (EDW)
 C
 C-&
@@ -199,9 +207,6 @@ C
 
       INTEGER               MTHLEN
       PARAMETER           ( MTHLEN = 200 )
-
-      INTEGER               SUN
-      PARAMETER           ( SUN    = 10 )
 
 C
 C     Indices of illumination angles in the ANGLES
@@ -465,6 +470,11 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB version 1.1.0 08-MAR-2017 (NJB) 
+C
+C        Bug fixes: now checks FAILED after each BODS2C call
+C        and after the BODVRD call.
+C
 C-    SPICELIB Version 1.0.0 23-MAY-2012 (NJB) (EDW)
 C
 C-&
@@ -486,6 +496,11 @@ C     Find NAIF IDs for TARGET, OBSRVR, and ILLUM.
 C
       CALL BODS2C ( TARGET, SVTARG, FOUND )
 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILIN' )
+         RETURN
+      END IF
+
       IF ( .NOT. FOUND ) THEN
  
          CALL SETMSG ( 'The target object, '
@@ -503,6 +518,11 @@ C
 
       CALL BODS2C ( OBSRVR, SVOBS, FOUND )
 
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILIN' )
+         RETURN
+      END IF
+
       IF ( .NOT. FOUND ) THEN
  
          CALL SETMSG ( 'The observer, '
@@ -519,6 +539,11 @@ C
 
 
       CALL BODS2C ( ILLUM, SVILUM, FOUND )
+
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILIN' )
+         RETURN
+      END IF
 
       IF ( .NOT. FOUND ) THEN
  
@@ -611,6 +636,11 @@ C
 C     Look up the radii for the target body.
 C
       CALL BODVRD ( TARGET, 'RADII', 3, N, RADII )
+
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILIN' )
+         RETURN
+      END IF
 
 C
 C     Find the surface normal at the surface point. Create a
@@ -852,6 +882,10 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB version 1.1.0 08-MAR-2017 (NJB) 
+C
+C        Bug fix: now checks FAILED after ZZILUSTA call.
+C
 C-    SPICELIB Version 1.0.0 23-MAY-2012 (NJB) (EDW)
 C
 C-&
@@ -878,6 +912,11 @@ C
       CALL ZZILUSTA ( SVMETH, SVTNAM, SVINAM, ET,  
      .                SVREF,  SVCORR, SVONAM, SVSSPT,
      .                SVNRML, PHSSTA, INCSTA, EMISTA  )
+
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILDC' )
+         RETURN
+      END IF
 
       IF ( SVAIDX .EQ. PHSIDX ) THEN
 
@@ -1027,6 +1066,10 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB version 1.1.0 08-MAR-2017 (NJB) 
+C
+C        Bug fix: now checks FAILED after ILLUMG call.
+C
 C-    SPICELIB version 1.0.0 23-MAY-2012 (NJB) (EDW)
 C    
 C-&
@@ -1047,6 +1090,10 @@ C-&
      .              SVCORR, SVONAM,    SVSSPT,    ETTARG,  
      .              SRFVEC, ANGLES(1), ANGLES(2), ANGLES(3)       )
  
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'ZZGFILGQ' )
+         RETURN
+      END IF
 
       ANGLE = ANGLES( SVAIDX ) 
 

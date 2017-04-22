@@ -121,18 +121,18 @@
    VARIABLE  I/O  DESCRIPTION 
    --------  ---  -------------------------------------------------- 
    r          I   Distance of point from z axis. 
-   lonc       I   Cylindrical angle of point from XZ plane(radians). 
+   lonc       I   Cylindrical angle of point from XZ plane (radians). 
    z          I   Height of point above XY plane. 
    radius     O   Distance of point from origin. 
    lon        O   Longitude of point (radians). 
    lat        O   Latitude of point (radians). 
- </PRE>
+</PRE>
 <h4><a name="Detailed_Input">Detailed_Input</a></h4>
 <PRE>
  
    r          Distance of the input point from z axis. 
  
-   lonc       Cylindrical angle of the point from XZ plane(radians). 
+   lonc       Cylindrical angle of the point from XZ plane (radians). 
  
    z          Height of the point above XY plane. 
  </PRE>
@@ -142,10 +142,10 @@
    radius     Distance of the input point from origin. 
  
    lon        Longitude (i.e. angle from the XZ plane) of the input 
-              point. 
+              point (radians). `lon' is set equal to `lonc'.
  
    lat        Latitude (i.e. angle above the XY plane) of the input 
-              point (radians). 
+              point (radians). The range of `lat' is [-pi, pi].
  </PRE>
 <h4><a name="Parameters">Parameters</a></h4>
 <PRE>
@@ -218,6 +218,10 @@
  </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.1.1, 26-JUL-2016 (BVS)
+
+      Minor headers edits.
+
    -CSPICE Version 1.1.0, 23-JUL-2001 (NJB)
      
       Removed tab characters from source file.
@@ -240,7 +244,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:28 2014</pre>
+   <pre>Wed Apr  5 17:54:30 2017</pre>
 
 </body>
 </html>

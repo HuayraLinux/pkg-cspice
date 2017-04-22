@@ -72,21 +72,17 @@ C$ Parameters
 C
 C     None.
 C
-C$ Files
-C
-C     See arguments XFRLUN, BINFIL.
-C
 C$ Exceptions
 C
 C     1)   If the DAS transfer file cannot be read, the error
-C          SPICE(FILEREADFAILED) will be signalled.
+C          SPICE(FILEREADFAILED) will be signaled.
 C
 C     2)   If the specified file is not a DAS file, as indicated by the
-C          file's ID word, the error SPICE(NOTADASFILE) is signalled.
+C          file's ID word, the error SPICE(NOTADASFILE) is signaled.
 C
 C     3)   If an error occurs while attempting to decode data in the
 C          DAS transfer file, the error SPICE(BADDASTRANSFERFILE) will
-C          be signalled.
+C          be signaled.
 C
 C     4)   If the DAS file cannot be written, a DAS file access routine
 C          will signal an error with an appropriate error message.
@@ -96,6 +92,10 @@ C          GUARANTEED to be closed upon successful completion of the
 C          text to binary conversion process. In the event of an error,
 C          the caller of this routine is required to close the binary
 C          DAS file BINFIL.
+C
+C$ Files
+C
+C     See arguments XFRLUN, BINFIL.
 C
 C$ Particulars
 C
@@ -152,6 +152,14 @@ C
 C     K.R. Gehringer  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 3.2.0, 05-FEB-2015 (NJB)  
+C
+C        Updated to support integration with the handle 
+C        manager subsystem.
+C
+C        Corrected typo in a long error message and several
+C        typos in comments. Re-ordered header sections.
 C
 C-    SPICELIB Version 3.1.0, 06-DEC-1995 (KRG)
 C
@@ -499,11 +507,11 @@ C        <EOF>
 C
 C     This routine will check the SPICELIB function FAILED() after
 C     each call, or consecutive sequence of calls, to data encoding
-C     routines, and if an error was signalled it will simply check out
+C     routines, and if an error was signaled it will simply check out
 C     and return to the caller.
 C
 C     This routine will check the SPICELIB function FAILED() after
-C     each DAS file access call, and if an error was signalled it will
+C     each DAS file access call, and if an error was signaled it will
 C     simply check out and return to the caller.
 C
 C     We begin by reading the DAS file ID word from the DAS transfer
@@ -691,7 +699,7 @@ C        The binary DAS file that we are creating is already open,
 C        so just add the comments. But first, convert the DAS file
 C        handle into its equivalent logical unit.
 C
-         CALL DASHLU ( HANDLE, DASLUN )
+         CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., DASLUN )
  
          IF ( FAILED() ) THEN
 C
@@ -1170,7 +1178,7 @@ C              message, then check out and return.
 C
                CALL DASCLS ( HANDLE                              )
                CALL SETMSG ( 'Error reading from the DAS'       //
-     .                       ' transferfile #. IOSTAT = #.'      )
+     .                       ' transfer file #. IOSTAT = #.'     )
                CALL ERRFNM ( '#', XFRLUN                         )
                CALL ERRINT ( '#', IOSTAT                         )
                CALL SIGERR ( 'SPICE(FILEREADFAILED)'             )
@@ -1450,7 +1458,7 @@ C              return.
 C
                CALL DASCLS ( HANDLE                                    )
                CALL SETMSG ( 'Unknown keyword ''#'' encountered'      //
-     .                       ' while processing the DAS trtansfer'    //
+     .                       ' while processing the DAS transfer'     //
      .                       ' file #.'                                )
                CALL ERRCH  ( '#', WORD                                 )
                CALL ERRFNM ( '#', XFRLUN                               )

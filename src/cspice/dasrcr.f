@@ -141,7 +141,8 @@ C
 C
 C$ Restrictions
 C
-C     None.
+C     1) The DAS file must have a binary file format native to the host
+C        system.
 C
 C$ Literature_References
 C
@@ -153,6 +154,14 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 05-FEB-2015 (NJB)  
+C
+C        Updated to support integration with the handle 
+C        manager subsystem.
+C
+C        Cleaned up use of unnecessary variables and unneeded
+C        declarations.
 C
 C-    SPICELIB Version 1.0.0, 15-NOV-1992 (NJB) (WLT)
 C
@@ -197,36 +206,17 @@ C
       INTEGER               DP
       PARAMETER           ( DP     =   2  )
  
-      INTEGER               INT
-      PARAMETER           ( INT    =   3  )
- 
 C
-C     Directory pointer locations (backward and forward):
+C     Directory pointer location (forward):
 C
-      INTEGER               BWDLOC
-      PARAMETER           ( BWDLOC =   1  )
- 
       INTEGER               FWDLOC
-      PARAMETER           ( FWDLOC =   2  )
- 
-C
-C     Directory address range locations
-C
-      INTEGER               CHRRNG
-      PARAMETER           ( CHRRNG =          3 )
- 
-      INTEGER               DPRNG
-      PARAMETER           ( DPRNG  = CHRRNG + 2 )
- 
-      INTEGER               INTRNG
-      PARAMETER           ( INTRNG = DPRNG  + 2 )
+      PARAMETER           ( FWDLOC =   1  )
  
 C
 C     Location of first type descriptor
 C
       INTEGER               BEGDSC
       PARAMETER           ( BEGDSC = 9 )
- 
  
  
 C
@@ -246,7 +236,6 @@ C
       INTEGER               LOC
       INTEGER               LREC
       INTEGER               LINDEX
-      INTEGER               LTYPE
       INTEGER               LWORD
       INTEGER               NCOMC
       INTEGER               NCOMR
@@ -287,9 +276,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASRCR' )
       END IF
+
+      CALL CHKIN ( 'DASRCR' )
  
 C
 C     Make sure this DAS file is open for writing.  Signal an error if
@@ -300,7 +289,7 @@ C
 C
 C     Get the logical unit for this DAS file.
 C
-      CALL DASHLU ( HANDLE, UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASRCR' )
@@ -354,8 +343,7 @@ C
  
 C
 C     Find the record and word positions LREC and LWORD of the last
-C     descriptor in the file, and also find the type of the descriptor
-C     LTYPE.
+C     descriptor in the file.
 C
       CALL MAXAI  ( LASTRC,  3,  LREC,  LOC )
       LWORD  =  0
@@ -366,19 +354,17 @@ C
      .        .AND. ( LASTWD(I) .GT. LWORD )  ) THEN
  
             LWORD = LASTWD(I)
-            LTYPE = I
  
          END IF
  
       END DO
  
 C
-C     LREC, LWORD, and LTYPE are now the record, word, and data type
-C     of the last descriptor in the file.  If LREC is zero, there are
-C     no directories in the file yet.   However, even DAS files that
-C     don't contain any data have their first directory records
-C     zeroed out, and this should remain true after the removal of
-C     the comment records.
+C     LREC and LWORD are now the record and word index of the last
+C     descriptor in the file. If LREC is zero, there are no directories
+C     in the file yet. However, even DAS files that don't contain any
+C     data have their first directory records zeroed out, and this
+C     should remain true after the removal of the comment records.
 C
       IF ( LREC .EQ. 0 ) THEN
 C

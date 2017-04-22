@@ -124,16 +124,17 @@ C
 C     As you can see from the samples above, the format picture
 C     specifies that every time string created should begin with a
 C     three-letter abbreviation for the month, followed by a space and
-C     the day of the month. The day of month is followed immediately
-C     by a comma and the year. The year component is followed by two
+C     the day of the month. The day of month is followed immediately by
+C     a comma and the year. The year component is followed by two
 C     spaces. The next outputs are hours represented as a two digit
 C     integer, a colon, minutes represented as a two digit integer,
-C     another colon, and seconds rounded to 4 decimal places and
-C     having a two digit integer part. This is followed by a space and
-C     the string (TDB). The special marker `::TDB' in the time picture
-C     is an ``invisible'' marker. It is used to specify the time
-C     system that should be used in creating the time string (in this
-C     case Barycentric Dynamical Time).
+C     another colon, and seconds truncated to 4 decimal places and
+C     having a two digit integer part (rounding can be commanded; see
+C     the discussion of truncation and rounding below). This is
+C     followed by a space and the string (TDB). The special marker
+C     `::TDB' in the time picture is an ``invisible'' marker. It is
+C     used to specify the time system that should be used in creating
+C     the time string (in this case Barycentric Dynamical Time).
 C
 C     TIMOUT does not recognize all of the parts of the time format
 C     picture in the example above. The list of recognized parts and
@@ -499,6 +500,11 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 3.3.1, 31-Jan-2017 (NJB)
+C
+C        Updated header comments to draw attention to the fact that
+C        rounding can be commanded.
 C
 C-    SPICELIB Version 3.3.0, 23-OCT-2005 (NJB)
 C

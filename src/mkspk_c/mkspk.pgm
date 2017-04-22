@@ -198,6 +198,27 @@ C     27) If the segment ID string specified SEGMENT_ID keyword is
 C        longer than 40 characters, then the error
 C        'SPICE(SEGIDTOOLONG)' will be signaled.
 C
+C     28) If the setup file does not exist, then an error will be
+C        signaled by a routine in a call tree of this routine.
+C
+C     29) If the setup file does not follow the text kernel syntax,
+C        then an error will be signaled by a routine in a call tree of
+C        this routine
+C
+C     30) If the degree of Hermit polynomial specified in the setup 
+C        keyword is an even number, then the error 
+C        'SPICE(EVENHERMITDEGREE)' will be signaled.
+C
+C     31) If no segments were written to the output SPK due to 
+C        insufficient input data or improperly terminated input data
+C        file lines, then the error 'SPICE(INSUFFICIENTDATA)' will be
+C        signaled.
+C
+C     32) If no complete records were extracted from the input file due 
+C        to insufficient input data or improperly terminated input data
+C        file lines, then the error 'SPICE(INSUFFICIENTDATA2)' will be
+C        signaled.
+C
 C$ Files
 C
 C     The program requires:
@@ -340,10 +361,41 @@ C
 C$ Author_and_Institution
 C
 C     N.G. Khavenson  (IKI RAS, Russia)
+C     J. Diaz del Rio (ODC Space)
 C     B.V. Semenov    (NAIF, JPL)
 C     E.D. Wright     (NAIF, JPL)
 C
 C$ Version
+C
+C-    Version 6.1.0, 08-NOV-2016 (BVS)
+C
+C        BUG FIX: in the main program: added exception for cases
+C        when the input file contains insufficient data retrieve 
+C        even one complete data record.
+C
+C        BUG FIX: in the main program: changed logic in adding
+C        contents of the comment and setup files to the comment 
+C        area to prevent dropping every 500th line.
+C
+C        BUG FIX: in SETUP entry SETUPI: corrected input record line
+C        count value substitution in the SPICE(BADLINEPERRECCOUNT)
+C        error.
+C
+C        BUG FIX: in CHCKDO: added substitution of the data order
+C        keyword into the output error message prior to checks for
+C        dM/dt, dNOD/dt, and dPER/dt being present in the data order
+C        setup keyword value for the output type 17.
+C
+C        Changed the order of exception checks for the input 
+C        polynomial degree for types 12 and 13 to do the check 
+C        for the 1-to-MAXDEG range first and the check for evenness 
+C        second.
+C
+C        Updated to count segments that were written to the output SPK
+C        file and to signal an error at the end of the run if none were
+C        added.
+C
+C        Documented exceptions 28), 29), 30), 31).
 C
 C-    Version 6.0.0, 06-JAN-2014 (BVS)
 C
@@ -358,7 +410,7 @@ C        left-padded with zeros to five digits. (This change is in
 C        TLE2SPK.)
 C
 C        BUG FIX: fixed to adjust longitude of the ascending node and
-C        argument of periapse for the time of the nearest periapsis for
+C        argument of periapsis for the time of the nearest periapsis for
 C        elliptic orbit cases for type 15 inputs that are not at the
 C        time of periapsis.
 C
@@ -539,7 +591,7 @@ C
 C     Program version.
 C
       CHARACTER*(*)         VER
-      PARAMETER           ( VER = '6.0.0, January 6, 2014' )
+      PARAMETER           ( VER = '6.1.0, November 8, 2016' )
 
 C
 C     Dimension of a single state vector.
@@ -791,6 +843,7 @@ C
       INTEGER               PTR
       INTEGER               PADSTS
       INTEGER               RECIDX
+      INTEGER               SEGCNT
 
       CHARACTER*( SHRTLN )  ASTRLN
       CHARACTER*( SHRTLN )  TSTAMP
@@ -922,6 +975,11 @@ C     coefficients: KM and RADIANS.
 C 
       ANGCOF = 1.D0
       DSTCOF = 1.D0
+
+C
+C     We haven't yet written any segments to the output SPK.
+C
+      SEGCNT = 0
       
 C
 C     Comment area separator line.
@@ -1484,17 +1542,11 @@ C
             END IF
                                                 
 C
-C           We also need polynomial degree which must be an odd number.
+C           We also need polynomial degree, which must be an odd number
+C           between 1 and MAXDEG.
 C                                               
             CALL SETUPI ( 'POLYNOMIAL DEGREE',   PLDGVL, FOUND )
-            IF ( .NOT. ODD( PLDGVL ) ) THEN
-               CALL SETMSG ( 'The degree of Hermit polynomial '      //
-     .                       'specified in the setup keyword ''#'' ' //
-     .                       'must be an odd number. It was #. '     )
-               CALL ERRCH  ( '#', KPLDEG                             )
-               CALL ERRINT ( '#', PLDGVL                             )
-               CALL SIGERR ( 'SPICE(EVENHEMITDEGREE)'                )
-            END IF
+
             IF ( PLDGVL .LE. 0 .OR. PLDGVL .GT. MAXDEG ) THEN
                CALL SETMSG ( 'The degree of Hermit polynomial '      //
      .                       'specified in the setup keyword ''#'' ' //
@@ -1504,6 +1556,15 @@ C
                CALL ERRINT ( '#', MAXDEG + 1                         )
                CALL ERRINT ( '#', PLDGVL                             )
                CALL SIGERR ( 'SPICE(BADHERMITDEGREE)'                )
+            END IF
+
+            IF ( .NOT. ODD( PLDGVL ) ) THEN
+               CALL SETMSG ( 'The degree of Hermit polynomial '      //
+     .                       'specified in the setup keyword ''#'' ' //
+     .                       'must be an odd number. It was #. '     )
+               CALL ERRCH  ( '#', KPLDEG                             )
+               CALL ERRINT ( '#', PLDGVL                             )
+               CALL SIGERR ( 'SPICE(EVENHERMITDEGREE)'               )
             END IF
 
 C
@@ -1540,17 +1601,11 @@ C
             END IF
                                                 
 C
-C           We also need polynomial degree which must be an odd number.
+C           We also need polynomial degree, which must be an odd number
+C           between 1 and MAXDEG.
 C                                               
             CALL SETUPI ( 'POLYNOMIAL DEGREE',   PLDGVL, FOUND )
-            IF ( .NOT. ODD( PLDGVL ) ) THEN
-               CALL SETMSG ( 'The degree of Hermit polynomial '      //
-     .                       'specified in the setup keyword ''#'' ' //
-     .                       'must be an odd number. It was #. '     )
-               CALL ERRCH  ( '#', KPLDEG                             )
-               CALL ERRINT ( '#', PLDGVL                             )
-               CALL SIGERR ( 'SPICE(EVENHEMITDEGREE)'                )
-            END IF
+
             IF ( PLDGVL .LE. 0 .OR. PLDGVL .GT. MAXDEG ) THEN
                CALL SETMSG ( 'The degree of Hermit polynomial '      //
      .                       'specified in the setup keyword ''#'' ' //
@@ -1560,6 +1615,15 @@ C
                CALL ERRINT ( '#', MAXDEG + 1                         )
                CALL ERRINT ( '#', PLDGVL                             )
               CALL SIGERR ( 'SPICE(BADHERMITDEGREE)'                 )
+            END IF
+
+            IF ( .NOT. ODD( PLDGVL ) ) THEN
+               CALL SETMSG ( 'The degree of Hermit polynomial '      //
+     .                       'specified in the setup keyword ''#'' ' //
+     .                       'must be an odd number. It was #. '     )
+               CALL ERRCH  ( '#', KPLDEG                             )
+               CALL ERRINT ( '#', PLDGVL                             )
+               CALL SIGERR ( 'SPICE(EVENHERMITDEGREE)'               )
             END IF
 
 C
@@ -1875,12 +1939,14 @@ C
 C
 C                 Buffer is full. Set the cardinality of the comment
 C                 buffer and write it to SPK comment area. Reset
-C                 counter.
+C                 counter and store the last line that we have obtained
+C                 in the first line of the buffer.
 C
                   CALL SCARDC ( L, CMNBUF )
-                  CALL SPCACB ( HANDLE, CMNBUF )
-   
-                  L = 0
+                  CALL SPCACC ( HANDLE, CMNBUF )
+
+                  L = 1
+                  CMNBUF ( L ) = LINE (: RTRIM ( LINE ) )
 
                END IF 
                   
@@ -1900,7 +1966,7 @@ C     Dump the rest of the buffer into the comment area.
 C  
       IF ( L .NE. 0 ) THEN
          CALL SCARDC ( L, CMNBUF )
-         CALL SPCACB ( HANDLE, CMNBUF )
+         CALL SPCACC ( HANDLE, CMNBUF )
          L = 0
       END IF
       
@@ -1977,9 +2043,10 @@ C              and store the last line that we have obtained in the
 C              first line of the buffer.
 C
                CALL SCARDC ( L, CMNBUF )
-               CALL SPCACB ( HANDLE, CMNBUF )
+               CALL SPCACC ( HANDLE, CMNBUF )
    
-               L = 0
+               L = 1
+               CMNBUF ( L ) = LINE (: RTRIM ( LINE ) )
 
             END IF  
             
@@ -2005,7 +2072,7 @@ C        Dump current contents of the comment buffer, first. After
 C        that stick separator at the top of the buffer.
 C
          CALL SCARDC ( L, CMNBUF )
-         CALL SPCACB ( HANDLE, CMNBUF )
+         CALL SPCACC ( HANDLE, CMNBUF )
       
          CMNBUF ( 1 ) = ' ' 
          CMNBUF ( 2 ) = ASTRLN 
@@ -2019,7 +2086,7 @@ C
       IF ( L .GT. 0 ) THEN
 
          CALL SCARDC ( L, CMNBUF )
-         CALL SPCACB ( HANDLE, CMNBUF )
+         CALL SPCACC ( HANDLE, CMNBUF )
 
       END IF
 
@@ -2036,6 +2103,12 @@ C        Process two-line element data and make output SPK of type 10.
 C
          CALL TLE2SPK ( INPFN,  TLIDVL, CNIDVL, FRNMVL, SGIDVL, HANDLE,
      .                  COVVAL, COVTYP)
+
+C
+C        If TLE2SPK did not fail and stop the program, it must have
+C        written at least one segment.
+C
+         SEGCNT = SEGCNT + 1
 
       ELSE  
 
@@ -2481,7 +2554,7 @@ C
 C                 Now we do additional processing depending on the 
 C                 output SPK type. There are two cases here: SPK 
 C                 type 15 for which we may need to compute the elements 
-C                 for the time of periapsis amd SPK 8 and 12 for which 
+C                 for the time of periapsis and SPK 8 and 12 for which 
 C                 we need to verify equal spacing between data points.
 C              
                   IF ( OUTTVL .EQ. 15 ) THEN
@@ -2499,7 +2572,7 @@ C
 C                          Case of elliptical orbit.
 C
 C                          Start with determining the time of the
-C                          nearest periapse.
+C                          nearest periapsis.
 C                                                   
                            WRKEL = ( 1.D0 - ELTS (2) ) / ELTS (1)
                            MEANM = DSQRT ( ELTS (8) * WRKEL ) * WRKEL
@@ -2536,7 +2609,7 @@ C                          Apply node and apsides delta angles to the
 C                          elements as directed by the precession flag.
 C                          If the flag is 3, do no adjustments. If the
 C                          flag is not 1, adjust the argument of
-C                          periapse. If the flag is not 2, adjust the
+C                          periapsis. If the flag is not 2, adjust the
 C                          longitude of the ascending node.
 C
                            IF ( J2FLG .NE. 3.D0 ) THEN
@@ -3084,7 +3157,8 @@ C                    buffered state.
 
 C
 C                    We will call corresponding SPKWxx depending on 
-C                    our output SPK type.
+C                    our output SPK type. We will count segments 
+C                    that we wrote to output file.
 C
                      IF ( OUTTVL .EQ. 5 ) THEN 
                      
@@ -3092,6 +3166,8 @@ C
      .                                ETFST, ETLST, SGIDVL, CNGMVL,
      .                                JLEPOC,
      .                                STATE(1,1), EPOCH(1)           )
+
+                        SEGCNT = SEGCNT + 1
 
                      ELSE IF ( OUTTVL .EQ. 8 ) THEN
 
@@ -3108,12 +3184,16 @@ C
      .                                JLEPOC,
      .                                STATE(1,1), EPOCH(1), TIMSTP   )
      
+                        SEGCNT = SEGCNT + 1
+
                      ELSE IF ( OUTTVL .EQ. 9 ) THEN 
          
                         CALL SPKW09 ( HANDLE, OBIDVL, CNIDVL, FRNMVL,
      .                                ETFST, ETLST, SGIDVL, PLDGVL,
      .                                JLEPOC,
      .                                STATE(1,1), EPOCH(1)           )
+
+                        SEGCNT = SEGCNT + 1
 
                      ELSE IF ( OUTTVL .EQ. 12 ) THEN
 
@@ -3130,12 +3210,16 @@ C
      .                                JLEPOC,
      .                                STATE(1,1), EPOCH(1), TIMSTP   )
      
+                        SEGCNT = SEGCNT + 1
+
                      ELSE IF ( OUTTVL .EQ. 13 ) THEN 
          
                         CALL SPKW13 ( HANDLE, OBIDVL, CNIDVL, FRNMVL,
      .                                ETFST, ETLST, SGIDVL, PLDGVL,
      .                                JLEPOC,
      .                                STATE(1,1), EPOCH(1)           )
+
+                        SEGCNT = SEGCNT + 1
 
                      ELSE IF ( OUTTVL .EQ. 15 ) THEN  
       
@@ -3144,12 +3228,16 @@ C
      .                                TP, PA, P, E, J2FLG, PV,
      .                                CNGMVL, CNJ2VL, REQUAT         )
                            
+                        SEGCNT = SEGCNT + 1
+
                      ELSE IF ( OUTTVL .EQ. 17 ) THEN  
 
                         CALL SPKW17 ( HANDLE, OBIDVL, CNIDVL, FRNMVL,
      .                                ETBEG, ETEND, SGIDVL, EPOCH (1),
      .                                EQEL, RAPOL, DEPOL             )
                   
+                        SEGCNT = SEGCNT + 1
+
                      END IF
 
 C
@@ -3257,6 +3345,28 @@ C
          END DO 
 
 C
+C        Before moving on let's check if we have parsed enough data
+C        for at least one complete data record. It not, let the user
+C        know that we didn't have sufficient input data.
+C
+         IF ( RECIDX .EQ. 0 ) THEN
+
+            CALL DAFCLS ( HANDLE )
+            CALL DELFIL ( OUTFN )
+            CALL SETMSG ( 'Data provided in the input file ''#'' '   //
+     .                    'was not sufficient to for even one '      //
+     .                    'complete input data record. Check that '  //
+     .                    'the input file contains enough data '     //
+     .                    'items and that all lines in the input '   //
+     .                    'file, including the last line, are '      //
+     .                    'terminated with the line terminator '     //
+     .                    'native to this computer platform.'        )
+            CALL ERRCH  ( '#',  INPFN                                )
+            CALL SIGERR ( 'SPICE(INSUFFICIENTDATA2)'                 )
+
+         END IF
+
+C
 C        Check if we still have some data in the data buffer and should
 C        write the last segment.
 C
@@ -3349,7 +3459,8 @@ C
 
 C
 C           We will call corresponding SPKWxx depending on our output
-C           SPK type.
+C           SPK type. We will count segments that we wrote to output
+C           file.
 C
             IF ( OUTTVL .EQ. 5 ) THEN 
 
@@ -3357,6 +3468,8 @@ C
      .                       ETFST, ETLST, SGIDVL, CNGMVL,
      .                       JLEPOC,
      .                       STATE(1,1), EPOCH(1)           )
+
+               SEGCNT = SEGCNT + 1
 
             ELSE IF ( OUTTVL .EQ. 8 ) THEN
  
@@ -3373,6 +3486,8 @@ C
      .                       JLEPOC,
      .                       STATE(1,1), EPOCH(1), TIMSTP   )
      
+               SEGCNT = SEGCNT + 1
+
             ELSE IF ( OUTTVL .EQ. 9 ) THEN 
          
                CALL SPKW09 ( HANDLE, OBIDVL, CNIDVL, FRNMVL,
@@ -3380,6 +3495,8 @@ C
      .                       JLEPOC,
      .                       STATE(1,1), EPOCH(1)           )
                   
+               SEGCNT = SEGCNT + 1
+
             ELSE IF ( OUTTVL .EQ. 12 ) THEN
  
 C
@@ -3395,6 +3512,8 @@ C
      .                       JLEPOC,
      .                       STATE(1,1), EPOCH(1), TIMSTP   )
      
+               SEGCNT = SEGCNT + 1
+
             ELSE IF ( OUTTVL .EQ. 13 ) THEN 
          
                CALL SPKW13 ( HANDLE, OBIDVL, CNIDVL, FRNMVL,
@@ -3402,6 +3521,8 @@ C
      .                       JLEPOC,
      .                       STATE(1,1), EPOCH (1)          )
                   
+               SEGCNT = SEGCNT + 1
+
             END IF
          
          END IF
@@ -3410,6 +3531,28 @@ C
 C        Close the input data file.
 C      
          CLOSE ( INPUNT ) 
+
+      END IF
+
+C
+C     Before attempting to close the output SPK file let's check if we
+C     wrote any segments. It not, let the user know that we didn't have
+C     sufficient input data.
+C
+      IF ( SEGCNT .EQ. 0 ) THEN
+
+         CALL DAFCLS ( HANDLE )
+         CALL DELFIL ( OUTFN )
+         CALL SETMSG ( 'Data provided in the input file ''#'' '   //
+     .                 'was not sufficient to generate even one ' //
+     .                 'SPK segment. Check that the input file '  //
+     .                 'contains enough data items and that '     //
+     .                 'all lines in the input file, including '  //
+     .                 'the last line, are terminated with the '  //
+     .                 'line terminator native to this computer ' //
+     .                 'platform.'                                )
+         CALL ERRCH  ( '#',  INPFN                                )
+         CALL SIGERR ( 'SPICE(INSUFFICIENTDATA)'                  )
 
       END IF
 

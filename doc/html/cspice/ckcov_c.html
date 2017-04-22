@@ -436,7 +436,7 @@
                 ./
                 printf ( &quot;%s\n&quot;, &quot;========================================&quot; );
 
-                printf ( &quot;Coverage for object %ld\n&quot;, obj );
+                printf ( &quot;Coverage for object %d\n&quot;, (int)obj );
 
                 /.
                 Convert the coverage interval start and stop times to TDB
@@ -459,9 +459,9 @@
                               timstr                                    );
 
                    printf ( &quot;\n&quot;
-                            &quot;Interval:  %ld\n&quot;
+                            &quot;Interval:  %d\n&quot;
                             &quot;Start:     %s\n&quot;,
-                            j,
+                            (int)j,
                             timstr            );
 
                    <a href="timout_c.html">timout_c</a> ( e, 
@@ -567,7 +567,7 @@
              /.
              Display a simple banner.
              ./
-             printf ( &quot;\nCoverage for object %ld\n&quot;, idcode );
+             printf ( &quot;\nCoverage for object %d\n&quot;, (int)idcode );
 
              /.
              Convert the coverage interval start and stop times to TDB
@@ -590,9 +590,9 @@
                            timstr                                  );
 
                 printf ( &quot;\n&quot;
-                         &quot;Interval:  %ld\n&quot;
+                         &quot;Interval:  %d\n&quot;
                          &quot;Start:     %s\n&quot;,
-                         i,
+                         (int)i,
                          timstr            );
 
                 <a href="timout_c.html">timout_c</a> ( e, 
@@ -625,6 +625,10 @@
  </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.3, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
  
    -CSPICE Version 1.0.2, 01-JUL-2014 (NJB)
 
@@ -655,7 +659,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:27 2014</pre>
+   <pre>Wed Apr  5 17:54:29 2017</pre>
 
 </body>
 </html>

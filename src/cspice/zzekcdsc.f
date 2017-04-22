@@ -90,7 +90,7 @@ C
 C$ Exceptions
 C
 C     1)  If the input column name does not match any column in the
-C         designated segment, the error SPICE(BUG) is signalled.  It
+C         designated segment, the error SPICE(BUG) is signaled.  It
 C         is the caller's responsibility to call this routine with
 C         valid input arguments.
 C
@@ -121,6 +121,11 @@ C     N.J. Bachman       (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error message.
+C
 C-    Beta Version 1.0.0, 27-SEP-1995 (NJB)
 C
 C-&
@@ -141,7 +146,6 @@ C
       INTEGER               MBASE
       INTEGER               NAMBAS
       INTEGER               NCOLS
-      INTEGER               UNIT
  
       LOGICAL               FOUND
  
@@ -194,13 +198,12 @@ C
  
       IF ( .NOT. FOUND ) THEN
  
-         CALL DASHLU ( HANDLE,   UNIT                             )
          CALL CHKIN  ( 'ZZEKCDSC'                                 )
          CALL SETMSG ( 'Descriptor for column # was not found. ' //
-     .                 'Segment base = #; file = #.'            )
+     .                 'Segment base = #; file = #.'              )
          CALL ERRCH  ( '#',  COLUMN                               )
          CALL ERRINT ( '#',  MBASE                                )
-         CALL ERRFNM ( '#',  UNIT                                 )
+         CALL ERRHAN ( '#',  HANDLE                               )
          CALL SIGERR ( 'SPICE(BUG)'                               )
          CALL CHKOUT ( 'ZZEKCDSC'                                 )
          RETURN

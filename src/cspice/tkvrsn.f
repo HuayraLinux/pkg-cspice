@@ -118,6 +118,10 @@ C     H.A. Neilan        (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 3.14.0, 05-APR-2017 (WLT)
+C
+C        Version update, N0066
+C
 C-    SPICELIB Version 3.13.0, 15-JUL-2014 (WLT)
 C
 C        Version update, N0065
@@ -269,7 +273,7 @@ C     At the current time only the TOOLKIT version number is
 C     defined.
 C
       IF ( EQSTR( ITEM, 'TOOLKIT' ) ) THEN
-         VERSTR = 'N0065'
+         VERSTR = 'N0066'
       ELSE
          VERSTR = 'No version found.'
       END IF

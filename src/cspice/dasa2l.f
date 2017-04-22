@@ -274,6 +274,10 @@ C     W.L. Taber     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 3.0.0 FEB-09-2015 (NJB)
+C
+C        Updated to use DAF/DAS handle manager subsystem.
+C
 C-    SPICELIB Version 2.0.0 APR-15-2014 (NJB)
 C     
 C        Previous update was 25-FEB-2014 
@@ -497,7 +501,6 @@ C
       INTEGER               TBMXAD ( 3, MAXFIL )
       INTEGER               TBSIZE ( 3, MAXFIL )
       INTEGER               UB
-      INTEGER               UNIT
       LOGICAL               FAST
       LOGICAL               KNOWN
       LOGICAL               PRVOK
@@ -729,11 +732,10 @@ C     Make sure the data type is valid.
 C
       IF (  ( TYPE .LT. CHAR ) .OR. ( TYPE .GT. INT )  ) THEN
  
-         CALL CHKIN  ( 'DASA2L'                           )
-         CALL DASHLU (  HANDLE, UNIT                      )
+         CALL CHKIN    ( 'DASA2L'                         )
          CALL SETMSG ( 'Invalid data type: #. File was #' )
          CALL ERRINT ( '#',  TYPE                         )
-         CALL ERRFNM ( '#',  UNIT                         )
+         CALL ERRHAN ( '#',  HANDLE                       )
          CALL SIGERR ( 'SPICE(DASINVALIDTYPE)'            )
          CALL CHKOUT ( 'DASA2L'                           )
          RETURN
@@ -996,15 +998,14 @@ C        subsequent search.
 C              
          TBHAN(FIDX) = 0
 
-         CALL CHKIN  ( 'DASA2L'                                   )
-         CALL DASHLU (  HANDLE, UNIT                              )
+         CALL CHKIN    ( 'DASA2L'                                 )
          CALL SETMSG ( 'ADDRSS was #; valid range for type # is '  
      .   //            '# to #.  File was #'                      )
          CALL ERRINT ( '#',  ADDRSS                               )
          CALL ERRINT ( '#',  TYPE                                 )
          CALL ERRINT ( '#',  1                                    )
          CALL ERRINT ( '#',  MXADDR                               )
-         CALL ERRFNM ( '#',  UNIT                                 )
+         CALL ERRHAN ( '#',  HANDLE                               )
          CALL SIGERR ( 'SPICE(DASNOSUCHADDRESS)'                  )
          CALL CHKOUT ( 'DASA2L'                                   )
          RETURN

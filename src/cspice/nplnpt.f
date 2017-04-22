@@ -89,7 +89,7 @@ C
 C$ Exceptions
 C
 C     1)  If the line direction vector LINDIR is the zero vector, the
-C         error SPICE(ZEROVECTOR) is signalled.
+C         error SPICE(ZEROVECTOR) is signaled.
 C
 C$ Files
 C
@@ -143,6 +143,10 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 17-SEP-2014 (NJB)
+C
+C        Now uses discovery check-in.
+C
 C-    SPICELIB Version 1.1.0, 09-SEP-2005 (NJB)
 C
 C        Updated to remove non-standard use of duplicate arguments
@@ -191,19 +195,18 @@ C
  
  
 C
-C     Standard SPICE error handling.
+C     Use discovery check-in.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'NPLNPT' )
       END IF
- 
+
 C
 C     We need a real direction vector to work with.
 C
       IF (  VZERO (LINDIR)  )  THEN
  
+         CALL CHKIN  ( 'NPLNPT'                             )
          CALL SETMSG ( 'Direction vector must be non-zero.' )
          CALL SIGERR ( 'SPICE(ZEROVECTOR)'                  )
          CALL CHKOUT ( 'NPLNPT'                             )
@@ -222,6 +225,5 @@ C
  
       DIST = VDIST ( PNEAR,  POINT )
  
-      CALL CHKOUT ( 'NPLNPT' )
       RETURN
       END

@@ -66,7 +66,7 @@ C     None.
 C
 C$ Exceptions
 C
-C      Error free.
+C     Error free.
 C
 C$ Files
 C
@@ -95,12 +95,12 @@ C                 DOUBLE PRECISION    W
 C                 DOUBLE PRECISION    TIPM ( 3,3 )
 C
 C           C
-C     SPICELIB functions
+C           C     SPICELIB functions
 C           C
-C                 DOUBLE PRECISION      HALFPI
+C                 DOUBLE PRECISION    HALFPI
 C
 C           C
-C           C     The transformation is defined by the compund
+C           C     The transformation is defined by the compound
 C           C     rotation
 C           C
 C           C        [W] [pi/2 - Dec] [RA + pi/2]
@@ -123,10 +123,15 @@ C     None.
 C
 C$ Author_and_Institution
 C
+C     J. Diaz del Rio (ODC Space)
 C     W.L. Taber      (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-     SPICELIB Version 1.0.2, 08-APR-2015 (JDR)
+C
+C         Minor edit to example comments eliminating typos.
 C
 C-     SPICELIB Version 1.0.1, 10-MAR-1992 (WLT)
 C

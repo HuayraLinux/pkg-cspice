@@ -170,9 +170,11 @@ C                 break even value for NMODL.
 C
 C$ Exceptions
 C
-C     Error free.
+C     1) No checks are made on the reasonableness of the inputs.
 C
-C     1)  No checks are made on the reasonableness of the inputs.
+C     2) SPICE(ITERATIONEXCEEDED) signals if the EST calculation loop
+C        exceds the MXLOOP value. This error should signal only for
+C        bad (nonphysical) TLEs.
 C
 C$ Files
 C
@@ -205,6 +207,11 @@ C      W.L. Taber      (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 15-SEP-2014 (EDW)
+C
+C        Added error check to prevent infinite loop in
+C        calculation of EST.
+C
 C-    SPICELIB Version 1.0.3, 02-JAN-2008 (EDW)
 C
 C        Corrected error in the calculation of the C4 term
@@ -232,7 +239,6 @@ C
 C        Corrected error in header describing the GEOPHS array.
 C
 C-    SPICELIB Version 1.0.0, 14-JAN-1994 (WLT)
-C
 C
 C-&
  
@@ -583,7 +589,8 @@ C
  
       DATA                  DOINIT / .TRUE. /
  
- 
+      CALL CHKIN ( 'EV2LIN' )
+
 C
 C     Rather than always making function calls we store the
 C     values of the PI dependent constants the first time
@@ -710,6 +717,7 @@ C
       N     =  HEAD
  
       DO WHILE (  N .NE. NIL .AND. UNREC )
+
 C
 C        The actual order of the elements is such that we can
 C        usually tell that a stored model is different from
@@ -1318,11 +1326,29 @@ C
       EPW   = CAPU
       EST   = 1.0D0
  
+      COUNT = 0
+  
       DO WHILE ( EST .GT. 0.125D0 )
+      
+         COUNT = COUNT + 1
+
+         IF ( COUNT .GT. MXLOOP ) THEN
+            CALL SETMSG ( 'EST iteration count of #1 exceeded at '
+     .      //            'time ET #2. This error may indicate a '
+     .      //            'bad TLE set.'                       )
+            CALL ERRINT ( '#1', MXLOOP                         )
+            CALL ERRDP  ( '#2', ET                             )
+            CALL SIGERR ( 'SPICE(ITERATIONEXCEEDED)'           )
+            CALL CHKOUT ( 'EV2LIN'                             )
+            RETURN
+         END IF
+
          EPWNXT = CAPU - AXN*SIN(EPW) + AYN*COS(EPW)
          EST    = MOV1M * DABS ( EPWNXT - EPW )
          EPW    = EPWNXT
+
       END DO
+
 C
 C     We need to be able to add something to EPW and not
 C     get EPW (but not too much).
@@ -1436,7 +1462,6 @@ C
       COUNT = 0
  
       DO WHILE ( UPPER .GT. LOWER .AND. COUNT .LT. MXLOOP )
- 
          COUNT = COUNT + 1
          EPW   = BRCKTD( 0.5D0 * ( UPPER + LOWER ), LOWER, UPPER )
 C
@@ -1571,5 +1596,7 @@ C
       STATE(5) = TOKMPS  * ( RDOTK * UY     +   RFDOTK * VY )
       STATE(6) = TOKMPS  * ( RDOTK * UZ     +   RFDOTK * VZ )
  
+      CALL CHKOUT ( 'EV2LIN' )
+
       RETURN
       END

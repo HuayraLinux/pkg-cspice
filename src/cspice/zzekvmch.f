@@ -223,11 +223,11 @@ C         as described in this header section, no attempt is made to
 C         handle these errors.
 C
 C     4)  If the data type code in an input column descriptor is not
-C         recognized, the error SPICE(INVALIDDATATYPE) is signalled.
+C         recognized, the error SPICE(INVALIDDATATYPE) is signaled.
 C         The function value is .FALSE. in this case.
 C
 C     5)  If a relational operator code is not recognized, the
-C         error SPICE(UNNATURALRELATION) is signalled.
+C         error SPICE(UNNATURALRELATION) is signaled.
 C         The function value is .FALSE. in this case.
 C
 C$ Files
@@ -247,7 +247,7 @@ C
 C$ Restrictions
 C
 C     1)  This routine must execute quickly.  Therefore, it checks in
-C         only if it detects an error.  If an error is signalled by a
+C         only if it detects an error.  If an error is signaled by a
 C         routine called by this routine, this routine will not appear
 C         in the SPICELIB traceback display.  Also, in the interest
 C         of speed, this routine does not test the value of the SPICELIB
@@ -269,6 +269,10 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.2.0, 05-FEB-2015 (NJB)
+C
+C        Updated to use ERRHAN.
 C
 C-    SPICELIB Version 1.1.0, 01-JUN-2010 (NJB)
 C
@@ -306,7 +310,6 @@ C
       INTEGER               REL
       INTEGER               ROWS   ( 2 )
       INTEGER               SGDSCS ( SDSCSZ, 2 )
-      INTEGER               UNIT
  
       LOGICAL               FOUND
       LOGICAL               NULL   ( 2 )
@@ -321,7 +324,7 @@ C
       ZZEKVMCH  =  .TRUE.
       N         =   1
  
-      DO WHILE  (  ( N .LE. NCNSTR ) .AND. ( ZZEKVMCH )  )
+      DO WHILE  (  ( N .LE. NCNSTR ) .AND.  ZZEKVMCH  )
  
  
          IF ( ACTIVE(N) ) THEN
@@ -408,14 +411,12 @@ C
  
  
                   IF ( .NOT. FOUND ) THEN
- 
-                     CALL DASHLU ( HANS(I), UNIT )
- 
+  
                      CALL CHKIN  ( 'ZZEKVMCH'                       )
                      CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ' //
      .                             'ELTIDX  = #.  Column entry  '  //
      .                             'element was not found.' )
-                     CALL ERRFNM ( '#',  UNIT                       )
+                     CALL ERRHAN ( '#',  HANS(I)                    )
                      CALL ERRINT ( '#',  CLDSCS(ORDIDX,I)           )
                      CALL ERRINT ( '#',  ROWS(I)                    )
                      CALL ERRINT ( '#',  ELTS(I)                    )
@@ -460,13 +461,11 @@ C
  
                   IF ( .NOT. FOUND ) THEN
  
-                     CALL DASHLU ( HANS(I), UNIT )
- 
                      CALL CHKIN  ( 'ZZEKVMCH'                       )
                      CALL SETMSG ( 'EK = #; COLIDX = #; ROW = #; ' //
      .                             'ELTIDX  = #.  Column entry  '  //
      .                             'element was not found.' )
-                     CALL ERRFNM ( '#',  UNIT                       )
+                     CALL ERRHAN ( '#',  HANS(I)                    )
                      CALL ERRINT ( '#',  CLDSCS(ORDIDX,I)           )
                      CALL ERRINT ( '#',  ROWS(I)                    )
                      CALL ERRINT ( '#',  ELTS(I)                    )

@@ -2,7 +2,7 @@
 Double Precision Array Files (DAF)
 ===========================================================================
  
-   Last revised on 2013 MAY 30 by E. D. Wright.
+   Last revised on 2017 MAR 22 by B. V. Semenov.
  
  
 Abstract
@@ -70,13 +70,14 @@ References
             This document describes how labels, descriptive text and other
             comments may be added to or removed from a DAF.
  
-       5.   SPY User's Guide (spy.ug)
+       5.   SPY User's Guide
  
             This document describes the use of the "spy" utility to check
             DAF-based SPK integrity, dump SPK data, dump SPK records, dump
             the contents of the SPK comment area. Standard Toolkit
-            distributions do not include "spy," download the executable at
-            the URL http://naif.jpl.nasa.gov/naif/utilities.html.
+            distributions do not include "spy," download the executable and
+            User's Guide at the URL
+            http://naif.jpl.nasa.gov/naif/utilities.html.
  
  
 Introduction
@@ -177,7 +178,7 @@ The DAF Format Concept
    integer numbers are used to keep track of the location of the array
    within the file.
  
-   Each array in a DAF is is further described by NC characters of
+   Each array in a DAF is further described by NC characters of
    alphanumeric information. Examples of this alphanumeric information are
    producer names, archive codes, historical information, or anything else
    that is not easily encoded as double precision or integer numbers.
@@ -355,8 +356,8 @@ Structure
             records in a particular array file is a function of the number
             of arrays stored in the file.
  
-       4.   Some number of `name records'. These contain array names. An
-            DAF contains one name record for each summary record.
+       4.   Some number of `name records'. These contain array names. A DAF
+            contains one name record for each summary record.
  
        5.   An arbitrary number of `element records'. These contain
             elements of the arrays stored in the DAF.
@@ -783,7 +784,9 @@ DAF Run-Time Binary File Format Translation
    (adding information to the comment area, or appending additional
    ephemeris data, for example) require prior conversion of the file to the
    native binary file format. See the Convert User's Guide (convert.ug) or
-   the BINGO users Guide (bingo.ug) for details.
+   the BINGO User's Guide for details (standard Toolkit distributions do
+   not include "bingo," download the executable and User's Guide at the URL
+   http://naif.jpl.nasa.gov/naif/utilities.html.)
  
  
 DAF Subsystem Subroutines
@@ -942,7 +945,7 @@ Adding Arrays
    from the file; however, it will be overwritten by the elements of the
    next array added to the file.
  
-   One way to abort the addition of an array to a file is to call DAFBNA
+   One way to abort the addition of an array to a file is to call DAFBNA to
    start a new array in the same file, without first ending the current
    array.
  
@@ -950,7 +953,7 @@ Adding Arrays
 Adding Arrays to Multiple Array Files
 --------------------------------------------------------
  
-   It is possible add data to arrays in multiple files in an interleaved
+   It is possible to add data to arrays in multiple files in an interleaved
    fashion: addition of data to an array in one file can be interrupted in
    order to add data to an array in another file. To accomplish this, it is
    necessary to tell DAFADA and DAFENA which file to act upon. This file is
@@ -1353,6 +1356,13 @@ Updating Summaries and Names
    If the index, K, of the updated array is known, then the new average for
    the array (zero) is stored by the following code fragment.
  
+   In the code fragment below, we also update each array name by appending
+   the string
+ 
+      (new)
+ 
+   to the existing name.
+ 
       CALL DAFBFS ( HANDLE )                 { Begin forward search }
  
       DO I = 1, K
@@ -1366,6 +1376,10 @@ Updating Summaries and Names
  
       CALL DAFPS ( ND, NI, DC, IC, SUM )     { Pack summary }
       CALL DAFRS ( SUM )                     { Replace summary }
+ 
+      CALL DAFGN  ( NAME )                   { Get name }
+      CALL SUFFIX ( '(new)', 1, NAME )
+      CALL DAFRN  ( NAME )                   { Replace name }
  
  
 Buffering
@@ -1718,10 +1732,12 @@ Appendix A --- Summary of DAF Routines
    in alphabetical order for each SPICE supported language.
  
  
-SPICELIB (Fortran) A few of the routines listed are entry points of another
-routine. If a routine is an entry point, the parent routine's name will be
-listed inside brackets preceding the mnemonic translation.
+SPICELIB (Fortran)
 --------------------------------------------------------
+ 
+   A few of the routines listed are entry points of another routine. If a
+   routine is an entry point, the parent routine's name will be listed
+   inside brackets preceding the mnemonic translation.
  
    Many of the subroutines listed here are not normally used except to
    support other subroutines. For example, because the subroutines that
@@ -1873,6 +1889,20 @@ Mice (MATLAB)
  
 Appendix B --- Revision History
 ===========================================================================
+ 
+ 
+2017 MAR 22 by E. D. Wright, N. J. Bachman, and B. V. Semenov
+ 
+   Corrected small typo in fake Tex code that caused incorrect appearence
+   of Appendix A in HTML format.
+ 
+   Updated code example to show calls to DAFGN and DAFRN.
+ 
+   Corrected miscellaneous typos throughout text. Corrected CSPICE cell
+   function names.
+ 
+   Updated to point to SPY and BINGO User's Guides available from the NAIF
+   server "Utilities" page.
  
  
 2013 MAY 30 by E. D. Wright.

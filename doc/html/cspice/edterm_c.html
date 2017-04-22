@@ -656,11 +656,11 @@
                    <a href="reclat_c.html">reclat_c</a> ( trmpts[i], &amp;radius, &amp;lon, &amp;lat );
 
                    printf ( &quot;\n&quot;
-                            &quot;   Terminator point %ld:\n&quot;
+                            &quot;   Terminator point %d:\n&quot;
                             &quot;     Radius                     (km):  %18.9f\n&quot;
                             &quot;     Planetocentric longitude   (deg): %18.9f\n&quot;
                             &quot;     Planetocentric latitude    (deg): %18.9f\n&quot;,
-                            (long)i,
+                            (int)i,
                             radius,
                             lon * <a href="dpr_c.html">dpr_c</a>(),
                             lat * <a href="dpr_c.html">dpr_c</a>()                            );
@@ -770,6 +770,11 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.1, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.0, 13-JUN-2012 (NJB) (EDW)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -785,7 +790,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:31 2014</pre>
+   <pre>Wed Apr  5 17:54:33 2017</pre>
 
 </body>
 </html>

@@ -94,7 +94,7 @@ C$ Exceptions
 C
 C     If the set of input parameters does not contain some of the 
 C     required tokens, then the error 'SPICE(MISSINGDATAORDERTK)'
-C     will be signalled.
+C     will be signaled.
 C
 C$ Files
 C
@@ -118,10 +118,18 @@ C     None.
 C
 C$ Author_and_Institution
 C
-C     N.G. Khavenson (IKI RAS, Russia)
-C     B.V. Semenov   (NAIF, JPL)
+C     N.G. Khavenson  (IKI RAS, Russia)
+C     J. Diaz del Rio (ODC Space)
+C     B.V. Semenov    (NAIF, JPL)
 C
 C$ Version
+C
+C-    Version 1.1.0, 20-JAN-2016 (JDR,BVS).
+C
+C        BUG FIX: added substitution of the data order keyword into the
+C        output error message prior to checks for dM/dt, dNOD/dt, and
+C        dPER/dt being present in the data order setup keyword value
+C        for the output type 17.
 C
 C-    Version 1.0.3, 29-MAR-1999 (NGK).
 C
@@ -306,6 +314,8 @@ C
      .            '17 is(are) missing in the value of the setup ' //
      .            'file keyword ''#'':'
        
+         CALL REPMC ( ERRLIN, '#', KDATOR, ERRLIN )
+
          DO L = 27, 29
                          
             IF ( ISRCHI ( L , NPARAM, PARAM ) .EQ. 0  ) THEN 

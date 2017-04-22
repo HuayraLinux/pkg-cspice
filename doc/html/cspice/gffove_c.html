@@ -1403,9 +1403,9 @@
 
             printf ( &quot;\n&quot;
                      &quot;Instrument:            %s\n&quot;
-                     &quot;Star's catalog number: %ld\n&quot;, 
+                     &quot;Star's catalog number: %d\n&quot;, 
                      inst,
-                     catno                        );
+                     (int)catno                        );
 
             /.
             Perform the search.
@@ -1504,6 +1504,11 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.1, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.0, 15-APR-2009 (NJB) (EDW)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -1518,7 +1523,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:34 2014</pre>
+   <pre>Wed Apr  5 17:54:35 2017</pre>
 
 </body>
 </html>

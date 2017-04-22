@@ -4,7 +4,9 @@ C$Procedure      DASIOI ( DAS, Fortran I/O, integer )
  
 C$ Abstract
 C
-C     Perform Fortran reads and writes of integer records.
+C     Perform Fortran reads and writes of DAS integer records.
+C     This routine operates on DAS files having native binary
+C     format.
 C
 C$ Disclaimer
 C
@@ -76,7 +78,7 @@ C
 C     UNIT           is the Fortran unit number connected to the DAS
 C                    file that is to be read or written.  Given the
 C                    handle of the DAS file, the unit number can be
-C                    obtained using DASHLU.
+C                    obtained using ZZDDHHLU.
 C
 C     RECNO          is the Fortran record number of the record to be
 C                    read or written.
@@ -97,13 +99,13 @@ C
 C$ Exceptions
 C
 C     1)  If the value of ACTION is not recognized, the error
-C         SPICE(UNRECOGNIZEDACTION) is signalled.
+C         SPICE(UNRECOGNIZEDACTION) is signaled.
 C
 C     2)  If a Fortran read error occurs, the error
-C         SPICE(DASFILEREADFAILED) is signalled.
+C         SPICE(DASFILEREADFAILED) is signaled.
 C
 C     3)  If a Fortran write error occurs, the error
-C         SPICE(DASFILEWRITEFAILED) is signalled.
+C         SPICE(DASFILEWRITEFAILED) is signaled.
 C
 C$ Files
 C
@@ -111,20 +113,23 @@ C     See the description of the argument UNIT in $Detailed_Input.
 C
 C$ Particulars
 C
+C     This routine may be used to write to and read from DAS files
+C     having the native binary file format of the host system. The
+C     routine ZZDASGDI should be used to read integer records from DAS
+C     files that may have either native or non-native format.
+C
 C     Normally, routines outside of SPICELIB will not need to call this
-C     routine directly.  Writes to DAS files should be performed using
+C     routine directly. Writes to DAS files should be performed using
 C     the DASADx and DASUDx routines; reads should be performed using
 C     the DASRDx routines.
 C
-C     This routines centralizes I/O and the concommitant error handling
-C     for DAS character records.
+C     This routine centralizes I/O and the concomitant error handling
+C     for DAS integer records.
 C
-C     Although most DAS routines use file handles to indentify DAS
+C     Although most DAS routines use file handles to identify DAS
 C     files, this routine uses Fortran logical units for this purpose.
 C     Using unit numbers allows the DASIOx routines to be called from
-C     any DAS routine, including entry points of DASFM.  (DASFM
-C     contains as entry points the routines DASHLU and DASLUH, which
-C     map between handles and unit numbers.)
+C     any DAS routine, including entry points of DASFM. 
 C
 C$ Examples
 C
@@ -136,8 +141,8 @@ C                           .
 C                           .
 C                           .
 C
-C            CALL DASHLU ( HANDLE, UNIT )
-C            CALL DASHFN ( HANDLE, NAME )
+C            CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
+C            CALL DASHFN   ( HANDLE, NAME )
 C
 C            DO I = 1, 20
 C
@@ -166,13 +171,14 @@ C                           .
 C                           .
 C                           .
 C
-C            CALL DASHLU (  HANDLE,  UNIT               )
-C            CALL DASIOI ( 'WRITE',  UNIT,  10,  RECORD )
+C            CALL ZZDDHHLU ( HANDLE,  'DAS', .FALSE., UNIT   )
+C            CALL DASIOI   ( 'WRITE', UNIT,  10,      RECORD )
 C
 C
 C$ Restrictions
 C
-C     None.
+C     1) This routine may be used only on DAS files having
+C        the native binary file format of the host system.
 C
 C$ Literature_References
 C
@@ -184,6 +190,11 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.1, 05-FEB-2015 (NJB) 
+C
+C        Header was updated to refer to ZZDDHHLU. Restrictions section
+C        was updated.
 C
 C-    SPICELIB Version 1.0.0, 30-JUN-1992 (NJB) (WLT)
 C

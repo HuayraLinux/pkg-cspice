@@ -50,91 +50,95 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  --------------------------------------------------
-C      A          I   Length of the ellisoid semi-axis along the x-axis.
-C      B          I   Length of the ellisoid semi-axis along the y-axis.
-C      C          I   Length of the ellisoid semi-axis along the z-axis.
-C      POINT      I   Body-fixed coordinates of a point on the ellipsoid
-C      NORMAL     O   Outward pointing unit normal to ellipsoid at POINT
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  --------------------------------------------------
+C     A          I   Length of the ellipsoid semi-axis along the x-axis.
+C     B          I   Length of the ellipsoid semi-axis along the y-axis.
+C     C          I   Length of the ellipsoid semi-axis along the z-axis.
+C     POINT      I   Body-fixed coordinates of a point on the ellipsoid.
+C     NORMAL     O   Outward pointing unit normal to ellipsoid at POINT.
 C
 C$ Detailed_Input
 C
-C      A          This is the length of the semi-axis of the ellipsoid
-C                 that is parallel to the x-axis of the body-fixed
-C                 coordinate system.
+C     A          This is the length of the semi-axis of the ellipsoid
+C                that is parallel to the x-axis of the body-fixed
+C                coordinate system.
 C
-C      B          This is the length of the semi-axis of the ellipsoid
-C                 that is parallel to the y-axis of the body-fixed
-C                 coordinate system.
+C     B          This is the length of the semi-axis of the ellipsoid
+C                that is parallel to the y-axis of the body-fixed
+C                coordinate system.
 C
-C      C          This is the length of the semi-axis of the ellipsoid
-C                 that is parallel to the z-axis of the body-fixed
-C                 coordinate system.
+C     C          This is the length of the semi-axis of the ellipsoid
+C                that is parallel to the z-axis of the body-fixed
+C                coordinate system.
 C
-C      POINT      This is a 3-vector giving the bodyfixed coordinates
-C                 of a point on the ellipsoid. In bodyfixed coordinates,
-C                 the semi-axes of the ellipsoid are aligned with the
-C                 x, y, and z-axes of the coordinate system.
+C     POINT      This is a 3-vector giving the bodyfixed coordinates
+C                of a point on the ellipsoid. In bodyfixed coordinates,
+C                the semi-axes of the ellipsoid are aligned with the
+C                x, y, and z-axes of the coordinate system.
 C
 C$ Detailed_Output
 C
-C      NORMAL    A unit vector pointing away from the ellipsoid and
+C     NORMAL     A unit vector pointing away from the ellipsoid and
 C                normal to the ellipsoid at POINT.
 C
 C$ Parameters
 C
-C      None.
+C     None.
 C
 C$ Exceptions
 C
 C     1) If any of the axes are non-positive, the error
-C        'SPICE(BADAXISLENGTH)' will be signalled.
+C        SPICE(BADAXISLENGTH) will be signaled.
 C
 C$ Files
 C
-C      None.
+C     None.
 C
 C$ Particulars
 C
-C      This routine computes the outward pointing unit normal vector to
-C      the ellipsoid having semi-axes of length A, B, and C from the
-C      point POINT.
+C     This routine computes the outward pointing unit normal vector to
+C     the ellipsoid having semi-axes of length A, B, and C from the
+C     point POINT.
 C
 C$ Examples
 C
-C      A typical use of SURFNM would be to find the angle of incidence
-C      of the light from the sun at a point on the surface of an
-C      ellipsoid.
+C     A typical use of SURFNM would be to find the angle of incidence
+C     of the light from the sun at a point on the surface of an
+C     ellipsoid.
 C
-C      Let Q be a 3-vector representing the rectangular body-fixed
-C      coordinates of a point on the ellipsoid (we are assuming that
-C      the axes of the ellipsoid are aligned with the axes of the
-C      body fixed frame.)  Let V be the vector from Q to the sun in
-C      bodyfixed coordinates.  Then the following code fragment could
-C      be used to compute angle of incidence of sunlight at Q.
+C     Let Q be a 3-vector representing the rectangular body-fixed
+C     coordinates of a point on the ellipsoid (we are assuming that
+C     the axes of the ellipsoid are aligned with the axes of the
+C     body fixed frame.)  Let V be the vector from Q to the sun in
+C     bodyfixed coordinates.  Then the following code fragment could
+C     be used to compute angle of incidence of sunlight at Q.
 C
-C            CALL SURFNM   ( A, B, C, Q, NRML )
+C        CALL SURFNM   ( A, B, C, Q, NRML )
 C
-C            INCIDN = VSEP ( V,          NRML )
+C        INCIDN = VSEP ( V,          NRML )
 C
 C
 C$ Restrictions
 C
-C      It is assumed that the input POINT is indeed on the ellipsoid.
-C      No checking for this is done.
-C
+C     It is assumed that the input POINT is indeed on the ellipsoid.
+C     No checking for this is done.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
 C
 C$ Author_and_Institution
 C
-C      N.J. Bachman    (JPL)
-C      W.L. Taber      (JPL)
+C     N.J. Bachman    (JPL)
+C     B.V. Semenov    (JPL)
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.3.2, 23-FEB-2016 (NJB)
+C
+C        Corrected some typos in the header.
 C
 C-    SPICELIB Version 1.3.1, 18-MAY-2010 (BVS)
 C
@@ -190,7 +194,7 @@ C
 C-&
  
 C
-C     Spicelib Functions
+C     SPICELIB Functions
 C
       LOGICAL               RETURN
  
@@ -270,7 +274,7 @@ C
  
 C
 C     M can be divided by A,B or C without fear of an overflow
-C     occuring.
+C     occurring.
 C
       A1        = M/A
       B1        = M/B

@@ -2,7 +2,7 @@
 Reference Frames
 ===========================================================================
  
-   Last revised on 2014 JUL 14 by N. J. Bachman.
+   Last revised on 2017 FEB 01 by B. V. Semenov.
  
  
 Abstract
@@ -537,9 +537,9 @@ Connecting an Object to its Body-fixed Frame
    object's name or ID code. For example, we have already mentioned that
    there are two ``built in'' reference frames that describe the
    orientation of the Earth: 'IAU_EARTH' and 'ITRF93'. For other objects,
-   such as the asteroid Ceres, there is no ``built in'' frame associated
-   with the object. The body-fixed frame of Ceres must be defined through a
-   text kernel. In both cases, the connection between the object and its
+   such as the asteroid Simbad, there is no ``built in'' frame associated
+   with the object. The body-fixed frame of Simbad must be defined through
+   a text kernel. In both cases, the connection between the object and its
    body-fixed frame needs to be supplied via a kernel pool variable. There
    are two ways to do this.
  
@@ -2626,6 +2626,7 @@ Appendix. ``Built in'' PCK-Based IAU Body-Fixed Reference Frames
       IAU_ARIEL
       IAU_ATLAS
       IAU_BELINDA
+      IAU_BENNU
       IAU_BIANCA
       IAU_BORRELLY
       IAU_CALLIRRHOE

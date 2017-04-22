@@ -45,6 +45,8 @@ C     PRIVATE
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
       INCLUDE 'ekbool.inc'
       INCLUDE 'ekcoldsc.inc'
       INCLUDE 'ekjrs.inc'
@@ -179,7 +181,7 @@ C
 C$ Exceptions
 C
 C     1)  If the number of order-by columns NORDER is non-positive,
-C         the error SPICE(INVALIDCOUNT) is signalled.
+C         the error SPICE(INVALIDCOUNT) is signaled.
 C
 C     2)  If an I/O error occurs while attempting to create an order
 C         vector for the specified row set, the error will be diagnosed
@@ -187,7 +189,7 @@ C         by routines called by this routine.
 C
 C     3)  If the first order-by column descriptor in the list has
 C         an invalid data type code, the error SPICE(INVALIDTYPE)
-C         is signalled.
+C         is signaled.
 C$ Files
 C
 C     The input join row set is presumed to refer to EK files currently
@@ -220,9 +222,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.2.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    SPICELIB Version 2.1.0, 07-AUG-2006 (NJB)
 C
-C        Bug fix:  added intialization of variable PRVBAS to support
+C        Bug fix:  added initialization of variable PRVBAS to support
 C                  operation under the Macintosh Intel Fortran
 C                  compiler. Note that this bug did not affect
 C                  operation of this routine on other platforms.
@@ -245,7 +252,7 @@ C$ Revisions
 C
 C-    SPICELIB Version 2.1.0, 07-AUG-2006 (NJB)
 C
-C        Bug fix:  added intialization of variable PRVBAS to support
+C        Bug fix:  added initialization of variable PRVBAS to support
 C                  operation under the Macintosh Intel Fortran
 C                  compiler. Note that this bug did not affect
 C                  operation of this routine on other platforms. The
@@ -257,7 +264,7 @@ C
 C        In the previous version of the code, PRVBAS is uninitialized
 C        when the loop counter I is 1.  PRVBAS *is* initialized when I
 C        is greater than 1, so the logical value of the IF expression
-C        is not affected by the lack of proper intialization.
+C        is not affected by the lack of proper initialization.
 C
 C        However, the Intel Fortran compiler for the Mac flags a runtime
 C        error when the above code is exercised.  So PRVBAS is now 
@@ -347,7 +354,6 @@ C
       INTEGER               SVSIZE
       INTEGER               TABLOC
       INTEGER               TPRIME
-      INTEGER               UNIT
  
       LOGICAL               BRUTE
       LOGICAL               FOUND
@@ -608,12 +614,10 @@ C
  
                IF ( .NOT. FOUND ) THEN
  
-                  CALL DASHLU (  HANDLE, UNIT )
- 
                   CALL SETMSG ( 'EK = #; SEG = #; ROW = #; COLIDX ' //
      .                          '= #; ELT = #; column entry elt '   //
      .                          'was not found.'                    )
-                  CALL ERRFNM ( '#',  UNIT                          )
+                  CALL ERRHAN ( '#',  HANDLE                        )
                   CALL ERRINT ( '#',  SEG                           )
                   CALL ERRINT ( '#',  ROW                           )
                   CALL ERRINT ( '#',  DTDSCS(ORDIDX,COLPTR)         )
@@ -641,12 +645,10 @@ C
  
                IF ( .NOT. FOUND ) THEN
  
-                  CALL DASHLU (  HANDLE, UNIT )
- 
                   CALL SETMSG ( 'EK = #; SEG = #; ROW = #; COLIDX ' //
      .                          '= #; ELT = #; column entry elt '   //
      .                          'was not found.'                    )
-                  CALL ERRFNM ( '#',  UNIT                          )
+                  CALL ERRHAN ( '#',  HANDLE                        )
                   CALL ERRINT ( '#',  SEG                           )
                   CALL ERRINT ( '#',  ROW                           )
                   CALL ERRINT ( '#',  DTDSCS(ORDIDX,COLPTR)         )
@@ -672,13 +674,11 @@ C
  
  
                IF ( .NOT. FOUND ) THEN
- 
-                  CALL DASHLU (  HANDLE, UNIT )
- 
+  
                   CALL SETMSG ( 'EK = #; SEG = #; ROW = #; COLIDX ' //
      .                          '= #; ELT = #; column entry elt '   //
      .                          'was not found.'                    )
-                  CALL ERRFNM ( '#',  UNIT                          )
+                  CALL ERRHAN ( '#',  HANDLE                        )
                   CALL ERRINT ( '#',  SEG                           )
                   CALL ERRINT ( '#',  ROW                           )
                   CALL ERRINT ( '#',  DTDSCS(ORDIDX,COLPTR)         )
@@ -1002,7 +1002,7 @@ C
  
                   ELSE
 C
-C                    Swap the order vectors's Jth and JGth elements.
+C                    Swap the order vector's Jth and JGth elements.
 C
                      ADDRJ  =  ORDBAS+J
                      ADDRJG =  ORDBAS+JG

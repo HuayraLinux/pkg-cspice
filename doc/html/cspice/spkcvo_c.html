@@ -449,7 +449,13 @@
    7)  If the aberration correction `abcorr' is not recognized,  
        the error will be diagnosed by a routine in the call tree of 
        this routine. 
- </PRE>
+  
+   8)  If any input string pointer is null, or if the output state
+       pointer is null, the error SPICE(NULLPOINTER) will be signaled.
+ 
+   9)  If any input string has length zero, the error SPICE(EMPTYSTRING)
+       will be signaled.
+</PRE>
 <h4><a name="Files">Files</a></h4>
 <PRE>
  
@@ -1436,6 +1442,12 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.1, 09-SEP-2015 (NJB)
+
+       The Exceptions section of the header was updated
+       to mention exceptions involving null pointers and 
+       empty input strings.
+
    -CSPICE Version 1.0.0, 27-MAR-2012 (NJB) (SCK) (BVS)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -1453,7 +1465,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:43 2014</pre>
+   <pre>Wed Apr  5 17:54:43 2017</pre>
 
 </body>
 </html>

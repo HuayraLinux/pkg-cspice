@@ -236,10 +236,10 @@ C
 C     Then, the first update file is unloaded, the second update file
 C     is loaded, and the same search is performed, as above.
 C
-C     Throughout the two searches, a ficticious non-SPICELIB routine
+C     Throughout the two searches, a fictitious non-SPICELIB routine
 C     named WRTABL writes an entry into a table that contains
 C     the pointing of the camera and the file from which the pointing
-C     came, if such pointing was found.  WRERR, another ficticious,
+C     came, if such pointing was found.  WRERR, another fictitious,
 C     non-SPICELIB routine writes an error message if no such pointing
 C     was found.
 C
@@ -408,6 +408,10 @@ C     I.M. Underwood (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 5.0.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 5.0.0, 17-MAR-2014 (NJB)
 C
 C        Updated segment pool initialization condition in entry
@@ -485,7 +489,7 @@ C           6) In CKSNS, DAF calls are followed by tests of FAILED()
 C              in order to ensure that the main state loop terminates.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -538,7 +542,7 @@ C        following the header.
 C
 C-    SPICELIB Version 1.1.0, 01-NOV-1990 (JML)
 C
-C        An intial value was assigned to the variable STATUS so
+C        An initial value was assigned to the variable STATUS so
 C        that an error will be signaled if CKSNS is called
 C        without CKBSS ever having been called to initiate the
 C        search.
@@ -613,7 +617,7 @@ C           6) In CKSNS, DAF calls are followed by tests of FAILED()
 C              in order to ensure that the main state loop terminates.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.  For each instrument, the associated 
 C        re-use interval marks the time interval containing the previous
 C        request time for which the previously returned segment provides
@@ -661,7 +665,7 @@ C        indentifiers ( STIDNT ) was changed from 56 to 40.
 C
 C-    SPICELIB Version 1.1.0, 01-NOV-1990 (JML)
 C
-C        An intial value was assigned to the variable STATUS so
+C        An initial value was assigned to the variable STATUS so
 C        that an error will be signaled if CKSNS is called
 C        without CKBSS ever having been called to initiate the
 C        search.
@@ -676,7 +680,7 @@ C           1) The variable SCLK  was changed to SCLKDP.
 C           2) The variable IDENT was changed to SEGID.
 C           3) The parameterized values for FTSIZE and ITSIZE were
 C               increased from 5 to 20.
-C           4) The paramterized value for STSIZE was increased from 100
+C           4) The parameterized value for STSIZE was increased from 100
 C              to 1000.
 C           5) The local variables INTDES and DPDES were changed to
 C              ICD and DCD.
@@ -1076,7 +1080,7 @@ C        by the parameter FTSIZE in DAFAH, an error is signaled by a
 C        routine in the call tree of this routine.
 C
 C     2) If an attempt is made to load more files than is specified
-C        by the local paramater FTSIZE, and if the DAF system has 
+C        by the local parameter FTSIZE, and if the DAF system has 
 C        room to load another file, the error SPICE(CKTOOMANYFILES)
 C        signaled.  The current setting of FTSIZE does not allow this
 C        situation to arise:  the DAF system will trap the error 
@@ -1129,6 +1133,10 @@ C     R.E. Thurman   (JPL)
 C     I.M. Underwood (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 5.0.0, 17-MAR-2014 (NJB)
 C
@@ -1487,7 +1495,7 @@ C
 C
 C              The highest file searched for instrument I is not in the
 C              file table.  This occurs when the highest file searched 
-C              has been unloaded.  Note that this assigment makes all 
+C              has been unloaded.  Note that this assignment makes all 
 C              files appear to be "new" when a lookup for instrument 
 C              I is performed.
 C
@@ -1654,6 +1662,10 @@ C     R.E. Thurman   (JPL)
 C     I.M. Underwood (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 4.3.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 4.3.0, 24-FEB-2011 (NJB)
 C
@@ -2068,6 +2080,10 @@ C     I.M. Underwood (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 4.1.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 4.1.0, 20-NOV-2001 (NJB)
 C
 C        Updated to support new doubly-linked list implementation:
@@ -2372,6 +2388,10 @@ C     I.M. Underwood (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 4.5.1, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 4.5.0, 24-FEB-2011 (NJB)
 C
 C        Bug fix: in the 'MAKE ROOM' state, when the suspended activity
@@ -2390,7 +2410,7 @@ C        Bug fixes:
 C          
 C           1) When a segment list is freed because the entire list 
 C              is contributed by a single CK file, and the list is
-C              too large to be buffered, the corresponding intrument
+C              too large to be buffered, the corresponding instrument
 C              table pointer is now set to null.  
 C
 C           2) An algorithm change has eliminated a bug caused by not 
@@ -2404,7 +2424,7 @@ C           3) DAF calls are now followed by tests of FAILED()
 C              in order to ensure that the main state loop terminates.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -2490,7 +2510,7 @@ C           3) DAF calls are now followed by tests of FAILED()
 C              in order to ensure that the main state loop terminates.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -3086,7 +3106,7 @@ C           1) We can have a NEW INSTRUMENT.
 C
 C           2) We have checked the current list (CHECK LIST) for
 C              this instrument, didn't find an applicable segment and
-C              have some files left that have not been seached.
+C              have some files left that have not been searched.
  
             FINDEX = NFT
  
@@ -3382,7 +3402,7 @@ C
 
             IF ( CHEAP .EQ. 0 ) THEN
 C
-C              If there are no deleteable segments, the Thing To
+C              If there are no deletable segments, the Thing To
 C              Do depends on the task that was suspended before
 C              entering MAKE ROOM.
 C
@@ -4194,6 +4214,10 @@ C
 C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 4.0.3, 30-JAN-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 4.0.2, 28-FEB-2008 (BVS) 
 C

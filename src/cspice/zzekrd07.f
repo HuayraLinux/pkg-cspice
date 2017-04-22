@@ -101,7 +101,7 @@ C     1)  If HANDLE is invalid, the error will be diagnosed by routines
 C         called by this routine.
 C
 C     2)  If the ordinal position of the column specified by COLDSC
-C         is out of range, the error SPICE(INVALIDINDEX) is signalled.
+C         is out of range, the error SPICE(INVALIDINDEX) is signaled.
 C
 C     3)  If an I/O error occurs while reading the indicated file,
 C         the error will be diagnosed by routines called by this
@@ -134,6 +134,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Bug fix: changed max column index in long error
+C        message from NREC to NCOLS.
+C
 C-    Beta Version 1.0.0, 09-NOV-1995 (NJB)
 C
 C-&
@@ -156,12 +164,10 @@ C
       INTEGER               METLOC
       INTEGER               NCOLS
       INTEGER               NFLBAS
-      INTEGER               NREC
       INTEGER               OFFSET
       INTEGER               Q
       INTEGER               R
       INTEGER               RECNO
-      INTEGER               UNIT
  
       LOGICAL               NULLOK
  
@@ -180,16 +186,15 @@ C
       IF (  ( COLIDX .LT. 1 ) .OR. ( COLIDX .GT. NCOLS )  ) THEN
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
  
          CALL CHKIN  ( 'ZZEKRD07'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' //
      .                 'SEGNO = #; RECNO = #; EK = #'          )
          CALL ERRINT ( '#',  COLIDX                            )
-         CALL ERRINT ( '#',  NREC                              )
+         CALL ERRINT ( '#',  NCOLS                             )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                    )
          CALL ERRINT ( '#',  RECNO                             )
-         CALL ERRFNM ( '#',  UNIT                              )
+         CALL ERRHAN ( '#',  HANDLE                            )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKRD07'                              )
          RETURN

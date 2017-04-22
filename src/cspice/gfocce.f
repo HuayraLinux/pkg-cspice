@@ -59,6 +59,7 @@ C$ Declarations
       IMPLICIT NONE
 
       INCLUDE 'gf.inc'
+      INCLUDE 'zzdsk.inc'
 
       INTEGER               LBCELL
       PARAMETER           ( LBCELL = -5 )
@@ -174,32 +175,66 @@ C                Case and leading or trailing blanks are not
 C                significant in the string FRONT.
 C
 C
-C     FSHAPE     is a string indicating the geometric model used
-C                to represent the shape of the front body. The
+C     FSHAPE     is a string indicating the geometric model used to
+C                represent the shape of the front target body. The
 C                supported options are:
 C
-C                   'ELLIPSOID'     Use a triaxial ellipsoid model,
-C                                   with radius values provided via the
-C                                   kernel pool. A kernel variable 
-C                                   having a name of the form
+C                   'ELLIPSOID'    
 C
-C                                      'BODYnnn_RADII' 
+C                       Use a triaxial ellipsoid model with radius
+C                       values provided via the kernel pool. A kernel
+C                       variable having a name of the form
 C
-C                                   where nnn represents the NAIF
-C                                   integer code associated with the
-C                                   body, must be present in the kernel
-C                                   pool. This variable must be
-C                                   associated with three numeric
-C                                   values giving the lengths of the
-C                                   ellipsoid's X, Y, and Z semi-axes.
+C                          'BODYnnn_RADII'
 C
-C                   'POINT'         Treat the body as a single point.
-C                                   When a point target is specified,
-C                                   the occultation type must be
-C                                   set to 'ANY'.
-C                                   
-C                At least one of the target bodies FRONT and BACK must
-C                be modeled as an ellipsoid.
+C                       where nnn represents the NAIF integer code
+C                       associated with the body, must be present in
+C                       the kernel pool. This variable must be
+C                       associated with three numeric values giving the
+C                       lengths of the ellipsoid's X, Y, and Z
+C                       semi-axes.
+C
+C                   'POINT'       
+C
+C                       Treat the body as a single point. When a point
+C                       target is specified, the occultation type must
+C                       be set to 'ANY'.
+C
+C                   'DSK/UNPRIORITIZED[/SURFACES = <surface list>]'
+C
+C                       Use topographic data provided by DSK files to
+C                       model the body's shape. These data must be
+C                       provided by loaded DSK files.
+C
+C                       The surface list specification is optional. The
+C                       syntax of the list is
+C
+C                          <surface 1> [, <surface 2>...]
+C
+C                       If present, it indicates that data only for the
+C                       listed surfaces are to be used; however, data
+C                       need not be available for all surfaces in the
+C                       list. If absent, loaded DSK data for any surface
+C                       associated with the target body are used.
+C
+C                       The surface list may contain surface names or
+C                       surface ID codes. Names containing blanks must
+C                       be delimited by double quotes, for example
+C
+C                          SURFACES = "Mars MEGDR 128 PIXEL/DEG"
+C                                         
+C                       If multiple surfaces are specified, their names
+C                       or IDs must be separated by commas.
+C
+C                       See the Particulars section below for details
+C                       concerning use of DSK data.
+C
+C                The combinations of the shapes of the target bodies
+C                FRONT and BACK must be one of:
+C
+C                   One ELLIPSOID, one POINT
+C                   Two ELLIPSOIDs
+C                   One DSK, one POINT
 C
 C                Case and leading or trailing blanks are not
 C                significant in the string FSHAPE.
@@ -212,7 +247,7 @@ C                'ITRF93' (for the Earth).
 C
 C                If the front target body is modeled as a point, FFRAME
 C                should be left blank.
-
+C
 C                Case and leading or trailing blanks are not
 C                significant in the string FFRAME.
 C
@@ -618,20 +653,31 @@ C
 C     17) If the convergence tolerance size is non-positive, the error
 C         SPICE(INVALIDTOLERANCE) will be signaled.
 C
+C     18) If either FSHAPE or BSHAPE specifies that the target surface
+C         is represented by DSK data, and no DSK files are loaded for
+C         the specified target, the error is signaled by a routine in
+C         the call tree of this routine.
+C
+C     19) If either FSHAPE or BSHAPE specifies that the target surface
+C         is represented by DSK data, but the shape specification is
+C         invalid, the error is signaled by a routine in the call tree
+C         of this routine.
 C
 C$ Files
 C
-C     Appropriate kernels must be loaded by the calling program before
-C     this routine is called.
+C
+C     Appropriate SPICE kernels must be loaded by the calling program
+C     before this routine is called.
 C
 C     The following data are required:
 C
 C        - SPK data: the calling application must load ephemeris data
 C          for the target, source and observer that cover the time
 C          period specified by the window CNFINE. If aberration
-C          corrections are used, the states of target and observer
-C          relative to the solar system barycenter must be calculable
-C          from the available ephemeris data. Typically ephemeris data
+C          corrections are used, the states of the target bodies and of
+C          the observer relative to the solar system barycenter must be
+C          calculable from the available ephemeris data. Typically
+C          ephemeris data
 C          are made available by loading one or more SPK files via
 C          FURNSH.
 C
@@ -642,7 +688,42 @@ C          PCK file via FURNSH.
 C
 C        - FK data: if either of the reference frames designated by
 C          BFRAME or FFRAME are not built in to the SPICE system,
-C          one or more FKs specifying these frames must be loaded. 
+C          one or more FKs specifying these frames must be loaded.
+C
+C     The following data may be required:
+C
+C        - DSK data: if either FSHAPE or BSHAPE indicates that DSK
+C          data are to be used, DSK files containing topographic data
+C          for the target body must be loaded. If a surface list is
+C          specified, data for at least one of the listed surfaces must
+C          be loaded.
+C
+C        - Surface name-ID associations: if surface names are specified
+C          in FSHAPE or BSHAPE, the association of these names with
+C          their corresponding surface ID codes must be established by
+C          assignments of the kernel variables
+C
+C             NAIF_SURFACE_NAME
+C             NAIF_SURFACE_CODE
+C             NAIF_SURFACE_BODY
+C
+C          Normally these associations are made by loading a text
+C          kernel containing the necessary assignments. An example
+C          of such a set of assignments is
+C
+C             NAIF_SURFACE_NAME += 'Mars MEGDR 128 PIXEL/DEG'
+C             NAIF_SURFACE_CODE += 1
+C             NAIF_SURFACE_BODY += 499
+C
+C        - CK data: either of the body-fixed frames to which FFRAME or
+C          BFRAME refer might be a CK frame. If so, at least one CK
+C          file will be needed to permit transformation of vectors
+C          between that frame and the J2000 frame.
+C
+C        - SCLK data: if a CK file is needed, an associated SCLK
+C          kernel is required to enable conversion between encoded SCLK
+C          (used to time-tag CK data) and barycentric dynamical time
+C          (TDB).
 C
 C     Kernel data are normally loaded once per program run, NOT every
 C     time this routine is called.
@@ -739,6 +820,128 @@ C     to reduce the size of the time period over which a relatively
 C     slow search of interest must be performed. For an example, see
 C     the program CASCADE in the GF Example Programs chapter of the GF
 C     Required Reading, gf.req.
+C
+C
+C     Using DSK data
+C     ==============
+C
+C        DSK loading and unloading
+C        -------------------------
+C
+C        DSK files providing data used by this routine are loaded by
+C        calling FURNSH and can be unloaded by calling UNLOAD or
+C        KCLEAR. See the documentation of FURNSH for limits on numbers
+C        of loaded DSK files.
+C
+C        For run-time efficiency, it's desirable to avoid frequent
+C        loading and unloading of DSK files. When there is a reason to
+C        use multiple versions of data for a given target body---for
+C        example, if topographic data at varying resolutions are to be
+C        used---the surface list can be used to select DSK data to be
+C        used for a given computation. It is not necessary to unload
+C        the data that are not to be used. This recommendation presumes
+C        that DSKs containing different versions of surface data for a
+C        given body have different surface ID codes.
+C
+C
+C        DSK data priority
+C        -----------------
+C
+C        A DSK coverage overlap occurs when two segments in loaded DSK
+C        files cover part or all of the same domain---for example, a
+C        given longitude-latitude rectangle---and when the time
+C        intervals of the segments overlap as well.
+C
+C        When DSK data selection is prioritized, in case of a coverage
+C        overlap, if the two competing segments are in different DSK
+C        files, the segment in the DSK file loaded last takes
+C        precedence. If the two segments are in the same file, the
+C        segment located closer to the end of the file takes
+C        precedence.
+C
+C        When DSK data selection is unprioritized, data from competing
+C        segments are combined. For example, if two competing segments
+C        both represent a surface as sets of triangular plates, the
+C        union of those sets of plates is considered to represent the
+C        surface. 
+C
+C        Currently only unprioritized data selection is supported.
+C        Because prioritized data selection may be the default behavior
+C        in a later version of the routine, the UNPRIORITIZED keyword is
+C        required in the FSHAPE and BSHAPE arguments.
+C
+C        
+C        Syntax of the shape input arguments for the DSK case
+C        ----------------------------------------------------
+C
+C        The keywords and surface list in the target shape arguments
+C        FSHAPE and BSHAPE, when DSK shape models are specified, are
+C        called "clauses." The clauses may appear in any order, for
+C        example
+C
+C           DSK/<surface list>/UNPRIORITIZED
+C           DSK/UNPRIORITIZED/<surface list>
+C           UNPRIORITIZED/<surface list>/DSK
+C
+C        The simplest form of a target argument specifying use of
+C        DSK data is one that lacks a surface list, for example:
+C
+C           'DSK/UNPRIORITIZED'
+C
+C        For applications in which all loaded DSK data for the target
+C        body are for a single surface, and there are no competing
+C        segments, the above string suffices. This is expected to be
+C        the usual case.
+C
+C        When, for the specified target body, there are loaded DSK
+C        files providing data for multiple surfaces for that body, the
+C        surfaces to be used by this routine for a given call must be
+C        specified in a surface list, unless data from all of the
+C        surfaces are to be used together.
+C
+C        The surface list consists of the string
+C
+C           SURFACES =
+C
+C        followed by a comma-separated list of one or more surface
+C        identifiers. The identifiers may be names or integer codes in
+C        string format. For example, suppose we have the surface
+C        names and corresponding ID codes shown below:
+C
+C           Surface Name                              ID code
+C           ------------                              -------
+C           'Mars MEGDR 128 PIXEL/DEG'                1
+C           'Mars MEGDR 64 PIXEL/DEG'                 2
+C           'Mars_MRO_HIRISE'                         3
+C
+C        If data for all of the above surfaces are loaded, then
+C        data for surface 1 can be specified by either
+C
+C           'SURFACES = 1'
+C
+C        or
+C
+C           'SURFACES = "Mars MEGDR 128 PIXEL/DEG"'
+C
+C        Double quotes are used to delimit the surface name because
+C        it contains blank characters. 
+C           
+C        To use data for surfaces 2 and 3 together, any
+C        of the following surface lists could be used:
+C
+C           'SURFACES = 2, 3'
+C
+C           'SURFACES = "Mars MEGDR  64 PIXEL/DEG", 3'
+C
+C           'SURFACES = 2, Mars_MRO_HIRISE'
+C
+C           'SURFACES = "Mars MEGDR 64 PIXEL/DEG", Mars_MRO_HIRISE'
+C                  
+C        An example of a shape argument that could be constructed
+C        using one of the surface lists above is
+C
+C              'DSK/UNPRIORITIZED/SURFACES = '
+C           // '"Mars MEGDR 64 PIXEL/DEG", 499003'
 C
 C
 C$ Examples
@@ -957,6 +1160,13 @@ C     E.D. Wright    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0 24-FEB-2016 (NJB) 
+C
+C        Now supports DSK target shapes.
+C
+C        Updated lengths of saved shape variables to accommodate
+C        DSK "method" specifications.
+C
 C-    SPICELIB Version 1.0.0 15-APR-2009 (NJB) (LSE) (WLT) (IMU) (EDW) 
 C
 C-&
@@ -1004,8 +1214,8 @@ C
 C
 C     Local variables
 C
-      CHARACTER*(SHPLEN)    LBSHAP
-      CHARACTER*(SHPLEN)    LFSHAP
+      CHARACTER*(MTHLEN)    LBSHAP
+      CHARACTER*(MTHLEN)    LFSHAP
   
       DOUBLE PRECISION      FINISH      
       DOUBLE PRECISION      START

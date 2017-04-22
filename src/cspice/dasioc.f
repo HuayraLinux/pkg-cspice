@@ -4,7 +4,7 @@ C$Procedure      DASIOC ( DAS, Fortran I/O, character )
  
 C$ Abstract
 C
-C     Perform Fortran reads and writes of character records.
+C     Perform Fortran reads and writes of DAS character records.
 C
 C$ Disclaimer
 C
@@ -76,7 +76,7 @@ C
 C     UNIT           is the Fortran unit number connected to the DAS
 C                    file that is to be read or written.  Given the
 C                    handle of the DAS file, the unit number can be
-C                    obtained using DASHLU.
+C                    obtained using ZZDDHHLU.
 C
 C     RECNO          is the Fortran record number of the record to be
 C                    read or written.
@@ -98,13 +98,13 @@ C
 C$ Exceptions
 C
 C     1)  If the value of ACTION is not recognized, the error
-C         SPICE(UNRECOGNIZEDACTION) is signalled.
+C         SPICE(UNRECOGNIZEDACTION) is signaled.
 C
 C     2)  If a Fortran read error occurs, the error
-C         SPICE(DASFILEREADFAILED) is signalled.
+C         SPICE(DASFILEREADFAILED) is signaled.
 C
 C     3)  If a Fortran write error occurs, the error
-C         SPICE(DASFILEWRITEFAILED) is signalled.
+C         SPICE(DASFILEWRITEFAILED) is signaled.
 C
 C$ Files
 C
@@ -117,10 +117,10 @@ C     routine directly.  Writes to DAS files should be performed using
 C     the DASADx and DASUDx routines; reads should be performed using
 C     the DASRDx routines.
 C
-C     This routines centralizes I/O and the concommitant error handling
+C     This routines centralizes I/O and the concomitant error handling
 C     for DAS character records.
 C
-C     Although most DAS routines use file handles to indentify DAS
+C     Although most DAS routines use file handles to identify DAS
 C     files, this routine uses Fortran logical units for this purpose.
 C     Using unit numbers allows the DASIOx routines to be called from
 C     any DAS routine, including entry points of DASFM.  (DASFM
@@ -138,8 +138,8 @@ C                           .
 C                           .
 C                           .
 C
-C            CALL DASHLU ( HANDLE, UNIT )
-C            CALL DASHFN ( HANDLE, NAME )
+C            CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
+C            CALL DASHFN   ( HANDLE, NAME )
 C
 C            DO I = 1, 20
 C
@@ -168,8 +168,8 @@ C                           .
 C                           .
 C                           .
 C
-C            CALL DASHLU (  HANDLE,  UNIT               )
-C            CALL DASIOC ( 'WRITE',  UNIT,  10,  RECORD )
+C            CALL ZZDDHHLU ( HANDLE,  'DAS', .FALSE., UNIT   )
+C            CALL DASIOC   ( 'WRITE', UNIT,  10,      RECORD )
 C
 C
 C$ Restrictions
@@ -186,6 +186,10 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.1, 05-FEB-2015 (NJB) 
+C
+C        Header was updated to refer to ZZDDHHLU.
 C
 C-    SPICELIB Version 1.0.0, 30-JUN-1992 (NJB) (WLT)
 C

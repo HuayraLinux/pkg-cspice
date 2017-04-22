@@ -202,6 +202,13 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    Version 2.1.0, 29-SEP-2016 (BVS).
+C
+C        Added initialization to blank of the first kernel name and
+C        type for cases when the sole command line argument is a file
+C        name. This change prevents rather bogus looking errors being
+C        signaled later by LDKLST.
+C
 C-    Version 2.0.0, 29-MAR-2012 (BVS).
 C
 C        Changed calling sequence to include additional SIGDIG output.
@@ -673,6 +680,11 @@ C
                ARCTYP(1) = ' '
 
             END IF
+
+         ELSE
+
+            KERNAM(1) = ' '
+            ARCTYP(1) = ' '
 
          END IF
 
@@ -2119,7 +2131,7 @@ C
      .                       'because the frame class ID ''#'' '     //
      .                       'from the last segment of the '         //
      .                       HARTYP(5:)                              //
-     .                       'file ''#'' cannot be mapped to a '     //
+     .                       ' file ''#'' cannot be mapped to a '    //
      .                       'frame name.'                           )
                CALL ERRINT ( '#', IC(1)                              )
                CALL ERRCH  ( '#', HKRNAM                             )

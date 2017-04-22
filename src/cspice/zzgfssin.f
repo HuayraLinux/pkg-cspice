@@ -339,6 +339,10 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0 08-MAR-2017 (NJB)
+C
+C        Bug fix: now returns after SINCPT call if FOUND is .FALSE.
+C
 C-    SPICELIB Version 2.0.0 12-MAY-2009 (NJB)
 C
 C        Upgraded to support targets and observers having 
@@ -739,6 +743,15 @@ C        actually centered on the target body.
 C
          CALL SINCPT ( METHOD, SVTARG, ET,     FIXREF, ABCORR, SVOBS,  
      .                 DREF,   DVEC,   SPOINT, TRGEPC, SRFVEC, FOUND )
+C
+C        It's not an error for SINCPT to be unable to compute an
+C        intercept point; return now if the intercept was not found.
+C
+         IF ( .NOT. FOUND ) THEN
+            CALL CHKOUT ( 'ZZGFSSIN' )
+            RETURN
+         END IF
+
 C
 C        Get J2000-relative states of observer and target with respect
 C        to the solar system barycenter at their respective epochs of

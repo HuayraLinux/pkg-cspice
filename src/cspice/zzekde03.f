@@ -92,7 +92,7 @@ C     1)  If HANDLE is invalid, the error will be diagnosed by routines
 C         called by this routine.  The file will not be modified.
 C
 C     2)  If RECNO is out of range, the error SPICE(INVALIDINDEX)
-C         will be signalled.  The file will not be modified.
+C         will be signaled.  The file will not be modified.
 C
 C     3)  If an I/O error occurs while reading or writing the indicated
 C         file, the error will be diagnosed by routines called by this
@@ -140,6 +140,13 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error message.
+C
+C        Deleted unneeded declarations and code.
+C
 C-    Beta Version 1.0.0, 28-SEP-1995 (NJB)
 C
 C-&
@@ -163,23 +170,21 @@ C
       INTEGER               DATPTR
       INTEGER               IDXTYP
       INTEGER               NCHARS
-      INTEGER               NCOLS
       INTEGER               NEXT
       INTEGER               NLINKS
       INTEGER               NSEEN
       INTEGER               P
       INTEGER               PTRLOC
       INTEGER               RECNO
-      INTEGER               UNIT
  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKDE03' )
       END IF
+
+      CALL CHKIN ( 'ZZEKDE03' )
  
 C
 C     Before trying to actually modify the file, do every error
@@ -194,13 +199,6 @@ C
          CALL CHKOUT ( 'ZZEKDE03' )
          RETURN
       END IF
- 
-C
-C     We'll need to know how many columns the segment has in order to
-C     compute the size of the record pointer.  The record pointer
-C     contains DPTBAS items plus two elements for each column.
-C
-      NCOLS  =  SEGDSC ( NCIDX )
  
 C
 C     Compute the data pointer location.  If the data pointer is
@@ -338,14 +336,13 @@ C        UNINIT was the last valid possibility.  The data pointer is
 C        corrupted.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL SETMSG ( 'Data pointer is corrupted. SEGNO = #; '  //
      .                 'COLIDX =  #; RECNO = #; EK = #'          )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                      )
          CALL ERRINT ( '#',  COLDSC(ORDIDX)                      )
          CALL ERRINT ( '#',  RECNO                               )
-         CALL ERRFNM ( '#',  UNIT                                )
+         CALL ERRHAN ( '#',  HANDLE                              )
          CALL SIGERR ( 'SPICE(BUG)'                              )
          CALL CHKOUT ( 'ZZEKDE03'                                )
          RETURN

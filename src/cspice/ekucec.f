@@ -1,4 +1,4 @@
-C$Procedure     EKUCEC ( EK, update d.p. column entry )
+C$Procedure     EKUCEC ( EK, update character column entry )
  
       SUBROUTINE EKUCEC (  HANDLE,  SEGNO,  RECNO,  COLUMN,
      .                     NVALS,   CVALS,  ISNULL          )
@@ -44,6 +44,8 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
       INCLUDE 'ekcoldsc.inc'
       INCLUDE 'eksegdsc.inc'
       INCLUDE 'ektype.inc'
@@ -88,7 +90,7 @@ C     NVALS,
 C     CVALS          are, respectively, the number of values to add to
 C                    the specified column and the set of values
 C                    themselves.  The data values are written in to the
-C                    specifed column and record.
+C                    specified column and record.
 C
 C                    If the  column has fixed-size entries, then NVALS
 C                    must equal the entry size for the specified column.
@@ -134,7 +136,7 @@ C         will be diagnosed by routines called by this routine.
 C
 C     4)  If COLUMN specifies a column of whose data type is not
 C         CHARACTER, the error SPICE(WRONGDATATYPE) will
-C         be signalled.
+C         be signaled.
 C
 C     5)  If RECNO is out of range, the error will diagnosed by routines
 C         called by this routine.
@@ -153,7 +155,7 @@ C         called by this routine.
 C
 C     9)  If COLUMN specifies a column of whose class is not
 C         a character class known to this routine, the error
-C         SPICE(NOCLASS) will be signalled.
+C         SPICE(NOCLASS) will be signaled.
 C
 C     10) If an I/O error occurs while reading or writing the indicated
 C         file, the error will be diagnosed by routines called by this
@@ -172,10 +174,6 @@ C     column.  Data may be added to a segment in random order; it is not
 C     necessary to fill in columns or rows sequentially. Data may only
 C     be added one logical element at a time.  Partial assignments of
 C     logical elements are not supported.
-C
-C     Since columns of data type TIME are implemented using double
-C     precision column classes, this routine may be used to update
-C     columns of type TIME.
 C
 C$ Examples
 C
@@ -212,6 +210,14 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 06-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
+C        Corrected some header comment errors (cut-and-paste
+C        errors referring to double precision or time data).
+C
 C-    SPICELIB Version 1.1.0, 20-JUN-1999 (WLT)
 C
 C        Removed unbalanced call to CHKOUT.
@@ -240,7 +246,6 @@ C
       INTEGER               DTYPE
       INTEGER               RECPTR
       INTEGER               SEGDSC ( SDSCSZ )
-      INTEGER               UNIT
  
       LOGICAL               ISSHAD
  
@@ -265,7 +270,6 @@ C
       IF ( DTYPE .NE. CHR ) THEN
  
          CALL CHKIN  ( 'EKUCEC'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Column # is of type #; EKUCEC only works '    //
      .                 'with character columns.  RECNO = #; '      //
      .                 'SEGNO = #; EK = #.'                            )
@@ -273,7 +277,7 @@ C
          CALL ERRINT ( '#',  DTYPE                                     )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(WRONGDATATYPE)'                          )
          CALL CHKOUT ( 'EKUCEC'                                        )
          RETURN
@@ -326,7 +330,6 @@ C
          SEGNO  =  SEGDSC ( SNOIDX )
  
          CALL CHKIN  ( 'EKUCEC'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Class # from input column descriptor is not ' //
      .                 'a supported character class.  COLUMN = #; '   //
      .                 'RECNO = #; SEGNO = #; EK = #.'                 )
@@ -334,7 +337,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(NOCLASS)'                                )
          CALL CHKOUT ( 'EKUCEC'                                        )
          RETURN

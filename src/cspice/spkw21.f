@@ -215,8 +215,12 @@ C        the error SPICE(DIFFLINETOOLARGE) will be signaled. If
 C        DLSIZE is less than 71, the error SPICE(DIFFLINETOOSMALL)
 C        will be signaled.
 C
-C     9) If any value in the step size array of any difference
-C        line is zero, the error SPICE(ZEROSTEP) will be signaled.
+C     9) Let KQMAX1 be the maximum integration order for a given
+C        difference line. If any value at index KQMAX1-1 or greater
+C        in the step size array of that difference line is zero, the 
+C        error SPICE(ZEROSTEP) will be signaled. The checked portion
+C        of the step size vector lies in the index range 2:KQMAX-1
+C        of the difference line containing the vector.
 C
 C$ Files
 C
@@ -265,6 +269,11 @@ C
 C     N.J. Bachman   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.0, 21-AUG-2015 (NJB) 
+C
+C        Relaxed step size error check to allow zero
+C        values in elements indexed greater than KQMAX1-2.
 C
 C-    SPICELIB Version 1.0.0, 03-FEB-2014 (NJB) 
 C
@@ -327,6 +336,8 @@ C
       INTEGER               CHRCOD
       INTEGER               I
       INTEGER               J
+      INTEGER               KQMAX1
+      INTEGER               KQMLOC
       INTEGER               MAXDIM
       INTEGER               MAXDSZ
       INTEGER               REFCOD
@@ -499,10 +510,17 @@ C
 C     Check the step size vectors in the difference lines.
 C
       MAXDIM = ( DLSIZE - 11 ) / 4
+      KQMLOC = ( 4 * MAXDIM  ) + 8
+
 
       DO I = 1, N
+C
+C        Check only the first KQMAX1-2 elements of the step size
+C        vector. The higher-indexed elements are allowed to be zero.
+C
+         KQMAX1 = NINT( DLINES(KQMLOC,I) )
 
-         DO J = 2, MAXDIM+1
+         DO J = 2, KQMAX1-1
 
             IF ( DLINES(J,I) .EQ. 0.D0 ) THEN
 

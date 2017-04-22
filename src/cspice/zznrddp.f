@@ -224,6 +224,15 @@ C     W.L. Taber       (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0, 03-JUL-2016 (EDW)
+C
+C        The "Revisiting Spacetrack Report #3" by Vallado et. al.
+C        indicates the negative inclination modification as a mistake.
+C        That code was removed.
+C 
+C        Eliminated bug in ZZDPINIT that allowed NaN contaimination 
+C        for zero inclination orbits.
+C
 C-    SPICELIB Version 2.0.0, 20-JAN-2012 (EDW)
 C
 C        Eliminated use of the DOPERT boolean in ZZDPINIT.
@@ -736,6 +745,12 @@ C     W.L. Taber       (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0, 27-JUN-2016 (EDW)
+C 
+C        Eliminated bug that allowed NaN contaimination for zero 
+C        inclination orbits. New code avoids calculating 1/SINIQ for
+C        SINIQ = 0.
+C
 C-    SPICELIB Version 2.0.0, 02-MAR-2011 (EDW)
 C
 C        Eliminated use of the DOPERT boolean. This algorithm used
@@ -940,7 +955,6 @@ C
       ZE     = ZES
       XNOI   = ONE/XNQ
 
-
 C
 C     Initialize solar and lunar terms.  The procedure will
 C     first initialize just the solar, then the lunar, then
@@ -1007,10 +1021,20 @@ C
          SGH = S4 * ZN * ( Z31 + Z33 - 6.D0 )
          SH  =-ZN * S2 * ( Z21 + Z23 )
 
-         IF ( XQNCL .LT. 5.2359877D-2 ) THEN
+C
+C        Check for, and adust SH, at inclinations near 0 and 180 degs. 
+C
+         IF ( (XQNCL .LT. 5.2359877D-2)        .OR. 
+     .        (XQNCL .GT. PI()-5.2359877D-2) ) THEN
             SH = ZERO
          END IF
 
+C
+C        Secondary check, J.I.C.
+C
+         IF ( SINIQ .EQ. 0.D0 ) THEN
+            SH = ZERO
+         END IF
 
          EE2  =  2.D0 * S1 * S6
          E3   =  2.D0 * S1 * S7
@@ -1025,14 +1049,19 @@ C
          XH2  = -2.D0 * S2 * Z22
          XH3  = -2.D0 * S2 *(Z23-Z21)
 
-
-         IF ( I .EQ. LUNAR ) THEN
+         IF ( I .EQ. LUNAR ) THEN 
 
 C
 C           Do lunar terms after solar terms, but only once.
 C
             SSX(1)   = SL
-            SSX(3)   = SH/SINIQ
+
+C
+C            Prevent evaluation of 1/SINIQ for SH = 0.
+C
+            IF ( SH .EQ. 0.D0 ) SSX(3) = 0.D0
+            IF ( SH .NE. 0.D0 ) SSX(3) = SH/SINIQ
+
             SSX(2)   = SGH  -  COSIQ * SSX(3)
             SSX(4)   = SE
             SSX(5)   = SI
@@ -1069,8 +1098,16 @@ C
 
 
       SSX(1) = SSX(1) + SL
-      SSX(2) = SSX(2) + SGH - COSIQ/SINIQ * SH
-      SSX(3) = SSX(3) + SH/SINIQ
+
+C
+C      Prevent evaluation of 1/SINIQ for SH = 0.
+C
+      IF ( SH .EQ. 0.D0 ) SSX(2) = SSX(2) + SGH
+      IF ( SH .NE. 0.D0 ) SSX(2) = SSX(2) + SGH - COSIQ/SINIQ * SH
+
+      IF ( SH .EQ. 0.D0 ) SSX(3) = SSX(3)
+      IF ( SH .NE. 0.D0 ) SSX(3) = SSX(3) + SH/SINIQ
+
       SSX(4) = SSX(4) + SE
       SSX(5) = SSX(5) + SI
 
@@ -1242,8 +1279,6 @@ C
 
       END IF
 
-
-
       XFACT = BFACT - XNQ
 
 C
@@ -1401,12 +1436,22 @@ C     Hoots, Felix R., Ronald L. Roehrich (31 December 1988). "Models
 C     for Propagation of NORAD Element Sets". United States Department
 C     of Defense Spacetrack Report (3).
 C
+C     Vallado, David A., Paul Crawford, Richard Hujsak, and
+C     Kelso, T. S., "Revisiting Spacetrack Report #3," AIAA/AAS
+C     Astrodynamics Specialist Conference, Keystone, CO, Aug 2006.
+C
 C$ Author_and_Institution
 C
 C     E.D. Wright      (JPL)
 C     W.L. Taber       (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.6.0, 27-JUN-2016 (EDW)
+C
+C        The "Revisiting Spacetrack Report #3" by Vallado et. al.
+C        indicates the negative inclination modification as a mistake.
+C        That code was removed.
 C
 C-    SPICELIB Version 1.5.1, 19-SEP-2006 (EDW)
 C
@@ -1434,7 +1479,6 @@ C        deep space two line element routines.
 C
 C-    SPICELIB Version 1.0.0, MAY-2-1997 (EDW)
 C
-C
 C-&
 
 C$ Index_Entries
@@ -1456,34 +1500,11 @@ C-&
 
 
 C
-C     Check for a positive inclination and the state of the
-C     resonance flag.
+C     Check for the state of the resonance flag.
 C
-      IF ( XINC .GE. 0. ) THEN
-
-C
-C        If the resonance flag is not set return.
-C
-         IF( IRESFL .EQ. 0) THEN
-            RETURN
-         END IF
-
-      ELSE
-
-C
-C        A negative inclination.  Fix that and reset XNODES and
-C        OMGASM then check the resonance flag.
-C
-         XINC   = -XINC
-         XNODES = XNODES + PIX1
-         OMGASM = OMGASM - PIX1
-
-         IF( IRESFL .EQ. 0) THEN
-            RETURN
-         END IF
-
+      IF( IRESFL .EQ. 0) THEN
+         RETURN
       END IF
-
 
 
 C
@@ -1914,7 +1935,6 @@ C
          OMGASM = XLS  -  XLL  -  XNODES * DCOS( XINC )
 
       END IF
-
 
       RETURN
       END

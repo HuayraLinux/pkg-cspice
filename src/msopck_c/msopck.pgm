@@ -341,6 +341,13 @@ C     B.V.Semenov, NAIF/JPL
 C
 C$ Version
 C 
+C-    Version 6.3.0, 2017-02-09 (BVS)
+C
+C        BUG FIX: fixed the long error message for the 
+C        SPICE(IDENTICALTIMES2) exception to show correct ET time; 
+C        previously it was showing the next time after the duplicate 
+C        time which triggered the error.
+C
 C-    Version 6.2.0, 2013-07-01 (BVS)
 C
 C        BUG FIX: changed the algorithm that determines the clock rate
@@ -498,7 +505,7 @@ C     Parameters.
 C 
 
       CHARACTER*(*)         VERSN
-      PARAMETER           ( VERSN = 'Version 6.2.0, 2013-07-01' )
+      PARAMETER           ( VERSN = 'Version 6.3.0, 2017-02-09' )
       
       INTEGER               WORDLN
       PARAMETER           ( WORDLN = 40 )
@@ -3187,7 +3194,7 @@ C
      .                                   '(# ET) were provided in '   //
      .                                   'the input file. Angular '   //
      .                                   'rates cannot be made up.'   )
-                           CALL ERRDP  ( '#', STARTT(I+1)             )
+                           CALL ERRDP  ( '#', STARTT(I)               )
                            CALL SIGERR ( 'SPICE(IDENTICALTIMES2)'     )
                            
                         END IF

@@ -37,7 +37,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION,  COORDINATES
+C     CONVERSION,  COORDINATES
 C
 C$ Declarations
  
@@ -50,56 +50,66 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  --------------------------------------------------
-C      RADIUS     I   Distance of a point from the origin.
-C      LONG       I   Angle of the point from the XZ plane in radians.
-C      LAT        I   Angle of the point from the XY plane in radians.
-C      RHO        O   Distance of the point from the origin.
-C      COLAT      O   Angle of the point from positive Z axis (radians).
-C      LONGS      O   Angle of the point from the XZ plane (radians).
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  --------------------------------------------------
+C     RADIUS     I   Distance of a point from the origin.
+C     LONG       I   Angle of the point from the XZ plane in radians.
+C     LAT        I   Angle of the point from the XY plane in radians.
+C     RHO        O   Distance of the point from the origin.
+C     COLAT      O   Angle of the point from positive Z axis (radians).
+C     LONGS      O   Angle of the point from the XZ plane (radians).
 C
 C$ Detailed_Input
 C
-C      RADIUS     Distance of a point from the origin.
+C     RADIUS     Distance of a point from the origin.
 C
-C      LONG       Angle of the point from the XZ plane in radians.
+C     LONG       Angle of the point from the XZ plane in radians.
 C
-C      LAT        Angle of the point from the XY plane in radians.
+C     LAT        Angle of the point from the XY plane in radians.
 C
 C$ Detailed_Output
 C
-C      RHO        Distance of the point from the origin.
+C     RHO        Distance of the point from the origin.
 C
-C      COLAT      Angle between the vector from the origin to the point
-C                 and the positive Z axis in radians.
+C     COLAT      Angle between the vector from the origin to the point
+C                and the positive Z axis in radians. COLAT is computed
+C                as PI/2 - LAT.
 C
-C      LONGS      Angle of the point from the XZ plane (radians).
+C     LONGS      Angle of the point from the XZ plane (radians). LONGS
+C                is set equal to LONG.
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This routine returns the spherical coordinates of a point
-C      whose position is input in latitudinal coordinates.
+C     This routine returns the spherical coordinates of a point
+C     whose position is input in latitudinal coordinates.
 C
-C      Latitudinal coordinates are defined by a distance from a central
-C      reference point, an angle from a reference meridian, and an angle
-C      above the equator of a sphere centered at the central reference
-C      point.
+C     Latitudinal coordinates are defined by a distance from a central
+C     reference point, an angle from a reference meridian, and an angle
+C     above the equator of a sphere centered at the central reference
+C     point.
 C
-C      Spherical coordinates are defined by a distance from a central
-C      reference point, an angle from a reference meridian, and an angle
-C      from the z-axis.
+C     Spherical coordinates are defined by a distance from a central
+C     reference point, an angle from a reference meridian, and an angle
+C     from the z-axis.
 C
 C$ Examples
 C
-C      Co-latitude is obtained by subtracting latitude from HALFPI()
-C      Radius and longitude mean the same thing in both latitudinal
-C      and spherical coordinates.  The table below lists LAT
-C      corresponding COLAT in terms of degrees.
+C     Co-latitude is obtained by subtracting latitude from HALFPI()
+C     Radius and longitude mean the same thing in both latitudinal
+C     and spherical coordinates.  The table below lists LAT
+C     corresponding COLAT in terms of degrees.
 C
 C             LAT            COLAT
 C            ------         ------
@@ -112,25 +122,21 @@ C            -45            135
 C
 C$ Restrictions
 C
-C      None.
-C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
-C
-C      None.
-C
-C$ Author_and_Institution
-C
-C      W.L. Taber      (JPL)
+C     None.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
+C
+C$ Author_and_Institution
+C
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.2, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
 C
 C-    SPICELIB Version 1.0.1, 10-MAR-1992 (WLT)
 C
@@ -150,9 +156,9 @@ C-&
  
 C$ Revisions
 C
-C-     Beta Version 1.0.1, 1-Feb-1989 (WLT)
+C-    Beta Version 1.0.1, 1-Feb-1989 (WLT)
 C
-C      Example section of header upgraded.
+C        Example section of header upgraded.
 C
 C-&
  

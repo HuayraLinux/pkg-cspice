@@ -4,7 +4,7 @@ C$Procedure      CYLSPH ( Cylindrical to spherical )
  
 C$ Abstract
 C
-C      Convert from cylindrical to spherical coordinates.
+C     Convert from cylindrical to spherical coordinates.
 C
 C$ Disclaimer
 C
@@ -37,7 +37,7 @@ C     None.
 C
 C$ Keywords
 C
-C      CONVERSION,  COORDINATES
+C     CONVERSION,  COORDINATES
 C
 C$ Declarations
  
@@ -50,48 +50,57 @@ C$ Declarations
  
 C$ Brief_I/O
 C
-C      VARIABLE  I/O  DESCRIPTION
-C      --------  ---  -------------------------------------------------
-C      R          I   Distance of point from Z axis.
-C      LONGC      I   Angle (radians) of point from XZ plane.
-C      Z          I   Height of point above XY plane.
-C      RADIUS     O   Distance of point from origin.
-C      COLAT      O   Polar angle (co-latitude in radians) of point.
-C      LONG       O   Azimuthal angle (longitude) of point (radians).
+C     VARIABLE  I/O  DESCRIPTION
+C     --------  ---  -------------------------------------------------
+C     R          I   Distance of point from Z axis.
+C     LONGC      I   Angle (radians) of point from XZ plane.
+C     Z          I   Height of point above XY plane.
+C     RADIUS     O   Distance of point from origin.
+C     COLAT      O   Polar angle (co-latitude in radians) of point.
+C     LONG       O   Azimuthal angle (longitude) of point (radians).
 C
 C$ Detailed_Input
 C
-C      R          Distance of the point of interest from Z axis.
+C     R          Distance of the point of interest from Z axis.
 C
-C      LONGC      Cylindrical angle (radians) of the point from the
-C                 XZ plane.
+C     LONGC      Cylindrical angle (radians) of the point from the
+C                XZ plane.
 C
-C      Z          Height of the point above XY plane.
+C     Z          Height of the point above XY plane.
 C
 C$ Detailed_Output
 C
-C      RADIUS     Distance of the point from origin.
+C     RADIUS     Distance of the point from origin.
 C
-C      COLAT      Polar angle (co-latitude in radians) of the point.
+C     COLAT      Polar angle (co-latitude in radians) of the point.
+C                The range of COLAT is [-pi, pi].
 C
-C      LONG       Azimuthal angle (longitude) of the point (radians).
+C     LONG       Azimuthal angle (longitude) of the point (radians).
+C                LONG is set equal to LONGC.
 C
 C$ Parameters
 C
-C      None.
+C     None.
+C
+C$ Exceptions
+C
+C     Error free.
+C
+C$ Files
+C
+C     None.
 C
 C$ Particulars
 C
-C      This returns the spherical coordinates of a point whose position
-C      is input through cylindrical coordinates.
+C     This returns the spherical coordinates of a point whose position
+C     is input through cylindrical coordinates.
 C
 C$ Examples
 C
-C
-C      Below are two tables:  The first is a set of input values
-C      the second is the result of the following sequence of
-C      calls to Spicelib routines.  Note all input and output angular
-C      quantities are in degrees.
+C     Below are two tables:  The first is a set of input values
+C     the second is the result of the following sequence of
+C     calls to SPICELIB routines.  Note all input and output angular
+C     quantities are in degrees.
 C
 C         CALL CONVRT ( LONGC, 'DEGREES', 'RADIANS', LONGC       )
 C
@@ -102,38 +111,39 @@ C         CALL CONVRT ( LAT,   'RADIANS', 'DEGREES', LAT         )
 C
 C
 C
-C      Inputs:                         Results:
+C     Inputs:                         Results:
 C
-C      R        LONGC    Z             RADIUS   LONG     COLAT
-C      ------   ------   ------        ------   ------   ------
-C      1.0000     0       0            1.0000     0       90.00
-C      1.0000    90.00    0            1.0000    90.00    90.00
-C      1.0000   180.00    1.000        1.4142   180.00    45.00
-C      1.0000   180.00   -1.000        1.4142   180.00   135.00
-C      0.0000   180.00    1.000        1.0000   180.00     0.00
-C      0.0000    33.00    0            0.0000    33.00     0.00
+C     R        LONGC    Z             RADIUS   LONG     COLAT
+C     ------   ------   ------        ------   ------   ------
+C     1.0000     0       0            1.0000     0       90.00
+C     1.0000    90.00    0            1.0000    90.00    90.00
+C     1.0000   180.00    1.000        1.4142   180.00    45.00
+C     1.0000   180.00   -1.000        1.4142   180.00   135.00
+C     0.0000   180.00    1.000        1.0000   180.00     0.00
+C     0.0000    33.00    0            0.0000    33.00     0.00
 C
 C$ Restrictions
 C
-C      None.
-C
-C$ Exceptions
-C
-C     Error free.
-C
-C$ Files
-C
-C      None.
-C
-C$ Author_and_Institution
-C
-C      W.L. Taber      (JPL)
+C     None.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
+C
+C$ Author_and_Institution
+C
+C     W.L. Taber      (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.1.1, 26-JUL-2016 (BVS)
+C
+C        Minor headers edits.
+C
+C-    SPICELIB Version 1.1.0, 30-MAR-2016 (BVS)
+C
+C        A cosmetic change: replaced '0.0 D0's with '0.0D0's.
+C        Re-arranged header sections.
 C
 C-    SPICELIB Version 1.0.2, 22-AUG-2001 (EDW)
 C
@@ -166,14 +176,14 @@ C
       DOUBLE PRECISION TH
  
 C
-C  Convert to spherical, storing in temporary variables
+C     Convert to spherical, storing in temporary variables
 C
       BIG = MAX( DABS(R), DABS(Z) )
  
-      IF ( BIG .EQ. 0.0 D0 ) THEN
+      IF ( BIG .EQ. 0.0D0 ) THEN
  
-         TH = 0.0 D0
-         RH = 0.0 D0
+         TH = 0.0D0
+         RH = 0.0D0
  
       ELSE
  

@@ -289,6 +289,11 @@ C     RESULT     is a SPICE window containing the intersection of the
 C                results of the search and the contents of RESULT
 C                on entry.
 C
+C
+C                When RESULT is empty on input, the intervals of the
+C                output window stored in RESULT represent times when
+C                the state function UDCOND returns the value .TRUE.
+C
 C$ Parameters
 C
 C     LBCELL     is the SPICELIB cell lower bound.
@@ -352,8 +357,17 @@ C     N.J. Bachman   (JPL)
 C     W.L. Taber     (JPL)
 C     I.M. Underwood (JPL)
 C     L. S. Elson    (JPL)
+C     E.D. Wright    (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 2.0.0,  31-JAN-2017 (NJB) (EDW)
+C
+C        Restrictions on the input tolerance have been loosened:
+C        it is no longer required that the tolerance must yield
+C        a new value when it is added to, or subtracted from,
+C        either of the input interval bounds. The tolerance
+C        still must be strictly positive. 
 C
 C-    SPICELIB Version 1.1.0,  24-OCT-2010 (EDW)
 C
@@ -380,6 +394,7 @@ C     SPICELIB functions.
 C
 
       DOUBLE PRECISION      BRCKTD
+      DOUBLE PRECISION      DPMAX
       DOUBLE PRECISION      TOUCHD
 
       LOGICAL               FAILED
@@ -390,6 +405,8 @@ C     Local variables
 C
       DOUBLE PRECISION      BEGIN
       DOUBLE PRECISION      CURTIM
+      DOUBLE PRECISION      DIFF
+      DOUBLE PRECISION      PRVDIF
       DOUBLE PRECISION      SVDTIM
       DOUBLE PRECISION      T
       DOUBLE PRECISION      T1
@@ -458,48 +475,7 @@ C
 
       END IF
 
-C
-C     Make sure that TOL is not too small, i.e. that neither
-C     START + TOL nor START - TOL equals START.
-C
-      IF (  ( TOUCHD (START - TOL) .EQ. START )
-     .     .OR.
-     .      ( TOUCHD (START + TOL) .EQ. START ) ) THEN
-
-         CALL SETMSG ('TOL has value #1. '                      //
-     .                'This value is too small to distinguish ' //
-     .                'START - TOL or START + TOL from '        //
-     .                'START, #2.'                               )
-         CALL ERRDP  ( '#1', TOL                                 )
-         CALL ERRDP  ( '#2', START                               )
-         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                     )
-         CALL CHKOUT ('ZZGFSOLV'                                 )
-         RETURN
-
-      END IF
-
-
-C
-C     Make sure that TOL is not too small, i.e. that neither
-C     FINISH + TOL nor FINISH - TOL equals FINISH.
-C
-      IF (  ( TOUCHD (FINISH - TOL) .EQ. FINISH )
-     .     .OR.
-     .      ( TOUCHD (FINISH + TOL) .EQ. FINISH ) ) THEN
-
-         CALL SETMSG ('TOL has value #1. '                      //
-     .                'This value is too small to distinguish ' //
-     .                'FINISH - TOL or FINISH + TOL from '      //
-     .                'FINISH, #2.'                              )
-         CALL ERRDP  ( '#1', TOL                                 )
-         CALL ERRDP  ( '#2', FINISH                              )
-         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                     )
-         CALL CHKOUT ('ZZGFSOLV'                                 )
-         RETURN
-
-      END IF
-
-
+ 
 C
 C     If active, update the progress reporter.
 C
@@ -535,7 +511,7 @@ C     Determine if the state at the current time satisfies some
 C     constraint. This constraint may indicate only existence of
 C     a state.
 C
-      CALL UDCOND ( CURTIM,  CURSTE )
+      CALL UDCOND ( CURTIM, CURSTE )
 
       IF ( FAILED() ) THEN
          CALL CHKOUT (  'ZZGFSOLV' )
@@ -704,6 +680,14 @@ C
             T2     = CURTIM
 
 C
+C           Set the states at T1 and T2 for use by the refinement
+C           function, in case the caller has passed in a function
+C           that uses them.
+C
+            L1     = SAVST
+            L2     = CURSTE
+
+C
 C           Make sure that T1 is not greater than T2. Signal an
 C           error for T1 > T2.
 C
@@ -724,15 +708,19 @@ C           interval down until it is less than some tolerance in
 C           length.  Do it as described below...
 C
 C           Loop while the difference between the times T1 and T2
-C           exceeds a specified tolerance.
-C
+C           exceeds a specified tolerance, and while the magnitude
+C           of the difference is decreasing from one loop iteration
+C           to the next.
+C           
+            PRVDIF = DPMAX()
+            DIFF   = TOUCHD( ABS(T2 - T1) )
+            NLOOP  = 0
 
-            NLOOP = 0
+            DO WHILE (       ( DIFF .GT. TOL    )
+     .                 .AND. ( DIFF .LT. PRVDIF )  )
 
-            DO WHILE ( TOUCHD (T2 - T1) .GT. TOL )
 
                NLOOP = NLOOP + 1
-
 C
 C              This loop count error exists to catch pathologies
 C              in the refinement function. The default bisection
@@ -805,14 +793,23 @@ C
                   IF ( S .EQV. STATE1 ) THEN
 
                      T1  = T
+                     L1  = S
 
                   ELSE
 
                      T2 = T
+                     L2 = S
 
                   END IF
 
                END IF
+
+C
+C              Update PRVDIF and DIFF for the next loop termination
+C              test.
+C
+               PRVDIF = DIFF
+               DIFF   = TOUCHD( ABS(T2 - T1) )
 
             END DO
 

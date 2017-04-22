@@ -109,11 +109,11 @@
 </PRE>
 <h4><a name="Required_Reading">Required_Reading</a></h4>
 <PRE>
-   <a href="../req/gf.html">GF</a>.REQ
-   <a href="../req/naif_ids.html">NAIF_IDS</a>.REQ
-   <a href="../req/spk.html">SPK</a>.REQ
-   <a href="../req/time.html">TIME</a>.REQ
-   <a href="../req/windows.html">WINDOWS</a>.REQ
+   <a href="../req/gf.html">GF</a>
+   <a href="../req/naif_ids.html">NAIF_IDS</a>
+   <a href="../req/spk.html">SPK</a>
+   <a href="../req/time.html">TIME</a>
+   <a href="../req/windows.html">WINDOWS</a>
 </PRE>
 <h4><a name="Keywords">Keywords</a></h4>
 <PRE>
@@ -328,7 +328,7 @@
               constraint is satisfied.
 
               If `result' is non-empty on input, its contents will be
-              discarded before '<b>gfrr_c</b>' conducts its search.
+              discarded before <b>gfrr_c</b> conducts its search.
 
               `result' must be declared with sufficient size to capture
               the full set of time intervals within the search region
@@ -867,6 +867,14 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.2, 31-JUL-2014 (EDW)
+
+      Edit to header, replaced ' character with character &quot; to indicate
+      C strings.
+
+      Edit to header, correct Required Reading entry eliminating &quot;.REQ&quot;
+      suffix.
+
    -CSPICE Version 1.0.1, 28-FEB-2013 (NJB) (EDW)
 
       Header was updated to discuss use of <a href="gfstol_c.html">gfstol_c</a>.
@@ -889,7 +897,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:35 2014</pre>
+   <pre>Wed Apr  5 17:54:36 2017</pre>
 
 </body>
 </html>

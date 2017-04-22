@@ -10,6 +10,8 @@ C$Procedure      DASRWR ( DAS, read/write records )
      .                    DATAD,
      .                    DATAI,
      .                    DATAC   )
+
+      IMPLICIT NONE
  
 C$ Abstract
 C
@@ -230,6 +232,11 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration and
+C        reading of non-native files.
+C
 C-    SPICELIB Version 1.1.1, 10-FEB-2014 (BVS)
 C
 C        Added description of NWD, NWI, and NWC to the Parameters
@@ -291,9 +298,6 @@ C
 C
 C     Local parameters
 C
-      INTEGER               LBCELL
-      PARAMETER           ( LBCELL  =   -5 )
- 
       INTEGER               LBPOOL
       PARAMETER           ( LBPOOL  =   -5 )
  
@@ -314,7 +318,6 @@ C
 C        -- data records
 C        -- Fortran record numbers
 C        -- file handles
-C        -- Fortran logical unit numbers
 C        -- Update flags
 C
 C     In addition, for each buffer there is a doubly linked list that
@@ -327,20 +330,20 @@ C     that row.
 C
 C
 C
-C     Linked          Record       Record   Handles   Unit     Update
-C      List           buffer       Numbers           Numbers   Flags
+C     Linked          Record       Record   Handles   Update
+C      List           buffer       Numbers            Flags
 C
-C      +---+      +------------+    +---+    +---+    +---+    +---+
-C      |   | ---> |            |    |   |    |   |    |   |    |   |
-C      +---+      +------------+    +---+    +---+    +---+    +---+
-C      |   | ---> |            |    |   |    |   |    |   |    |   |
-C      +---+      +------------+    +---+    +---+    +---+    +---+
-C        .              .             .        .        .        .
-C        .              .             .        .        .        .
-C        .              .             .        .        .        .
-C      +---+      +------------+    +---+    +---+    +---+    +---+
-C      |   | ---> |            |    |   |    |   |    |   |    |   |
-C      +---+      +------------+    +---+    +---+    +---+    +---+
+C      +---+      +------------+    +---+    +---+    +---+
+C      |   | ---> |            |    |   |    |   |    |   |    
+C      +---+      +------------+    +---+    +---+    +---+   
+C      |   | ---> |            |    |   |    |   |    |   |   
+C      +---+      +------------+    +---+    +---+    +---+   
+C        .              .             .        .        .     
+C        .              .             .        .        .     
+C        .              .             .        .        .     
+C      +---+      +------------+    +---+    +---+    +---+   
+C      |   | ---> |            |    |   |    |   |    |   |   
+C      +---+      +------------+    +---+    +---+    +---+   
 C
 C
       CHARACTER*(NWC)       RCBUFC (      BUFSZC )
@@ -354,11 +357,7 @@ C
       INTEGER               HNBUFC (      BUFSZC )
       INTEGER               HNBUFD (      BUFSZD )
       INTEGER               HNBUFI (      BUFSZI )
- 
-      INTEGER               LUBUFC (      BUFSZC )
-      INTEGER               LUBUFD (      BUFSZD )
-      INTEGER               LUBUFI (      BUFSZI )
- 
+  
       LOGICAL               UPBUFC (      BUFSZC )
       LOGICAL               UPBUFD (      BUFSZD )
       LOGICAL               UPBUFI (      BUFSZI )
@@ -381,6 +380,7 @@ C
       INTEGER               NEXT
       INTEGER               NODE
       INTEGER               UNIT
+      INTEGER               WRUNIT
  
       LOGICAL               PASS1
  
@@ -405,11 +405,7 @@ C
       DATA                  HNBUFC  / BUFSZC * 0       /
       DATA                  HNBUFD  / BUFSZD * 0       /
       DATA                  HNBUFI  / BUFSZI * 0       /
- 
-      DATA                  LUBUFC  / BUFSZC * 0       /
-      DATA                  LUBUFD  / BUFSZD * 0       /
-      DATA                  LUBUFI  / BUFSZI * 0       /
- 
+  
       DATA                  UPBUFC  / BUFSZC * .FALSE. /
       DATA                  UPBUFD  / BUFSZD * .FALSE. /
       DATA                  UPBUFI  / BUFSZI * .FALSE. /
@@ -418,7 +414,9 @@ C
       DATA                  HEADD   / 0                /
       DATA                  HEADI   / 0                /
  
- 
+      DATA                  UNIT    / -1 /
+      DATA                  WRUNIT  / -1 /
+
 C
 C     Standard SPICE error handling.
 C
@@ -603,6 +601,11 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration and
+C        reading of non-native files.
+C
 C-    SPICELIB Version 1.1.1, 10-FEB-2014 (BVS)
 C
 C        Added description of NWD to the Parameters and Brief_I/O
@@ -675,9 +678,7 @@ C
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWD )    )  THEN
  
-         CALL CHKIN  ( 'DASRRD'      )
-         CALL DASHLU (  HANDLE, UNIT )
- 
+         CALL CHKIN  ( 'DASRRD' )
          CALL SETMSG ( 'Array indices FIRST and LAST were #,  #; '    //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -685,7 +686,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWD                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASRRD' )
@@ -773,12 +774,26 @@ C
 C        If the allocated buffer entry was updated, write it out.
 C
          IF (  UPBUFD(NODE)  ) THEN
- 
+C
+C           We'll need a logical unit in order to write to the file.
+C
+            CALL ZZDDHHLU ( HNBUFD(NODE), 'DAS', .FALSE., WRUNIT )
+
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASRRD' )
+               RETURN
+            END IF
+
             CALL DASIOD ( 'WRITE',
-     .                     LUBUFD(    NODE ),
+     .                     WRUNIT,
      .                     RNBUFD(    NODE ),
      .                     RCBUFD( 1, NODE )  )
  
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASRRD' )
+               RETURN
+            END IF
+
          END IF
  
  
@@ -795,8 +810,7 @@ C
 C
 C     Try to read the record.
 C
-      CALL DASHLU ( HANDLE, UNIT )
-      CALL DASIOD ( 'READ', UNIT, RECNO, RCBUFD(1,NODE) )
+      CALL ZZDASGRD ( HANDLE, RECNO, RCBUFD(1,NODE) )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASRRD' )
@@ -808,14 +822,13 @@ C     The read was successful.  Link the node pointing to the buffer
 C     entries for this record in before the current head of the
 C     list, thus putting them at the head.
 C
-C     Set the file handle, record number, unit, and update flag for
+C     Set the file handle, record number, and update flag for
 C     this record.
 C
       CALL LNKILB ( NODE, HEADD, POOLD )
  
       HNBUFD ( NODE )  =  HANDLE
       RNBUFD ( NODE )  =  RECNO
-      LUBUFD ( NODE )  =  UNIT
       UPBUFD ( NODE )  =  .FALSE.
       HEADD            =  NODE
  
@@ -995,6 +1008,11 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration and
+C        reading of non-native files.
+C
 C-    SPICELIB Version 1.1.1, 10-FEB-2014 (BVS)
 C
 C        Added description of NWI to the Parameters and Brief_I/O
@@ -1069,9 +1087,7 @@ C
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWI )    )  THEN
  
-         CALL CHKIN  ( 'DASRRI'      )
-         CALL DASHLU (  HANDLE, UNIT )
- 
+         CALL CHKIN  ( 'DASRRI'      ) 
          CALL SETMSG ( 'Array indices FIRST and LAST were #,  #; '    //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -1079,7 +1095,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWI                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASRRI' )
@@ -1168,11 +1184,19 @@ C
 C        If the allocated buffer entry was updated, write it out.
 C
          IF (  UPBUFI(NODE)  ) THEN
- 
-            CALL DASIOI (  'WRITE',
-     .                      LUBUFI(    NODE ),
-     .                      RNBUFI(    NODE ),
-     .                      RCBUFI( 1, NODE )   )
+
+            CALL ZZDDHHLU ( HNBUFI(NODE), 'DAS', .FALSE., WRUNIT )
+
+            CALL DASIOI ( 'WRITE',
+     .                    WRUNIT,
+     .                    RNBUFI(    NODE ),
+     .                    RCBUFI( 1, NODE )   )
+
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASRRI' )
+               RETURN
+            END IF
+
          END IF
  
  
@@ -1189,8 +1213,7 @@ C
 C
 C     Try to read the record.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
-      CALL DASIOI ( 'READ',  UNIT,  RECNO,  RCBUFI(1,NODE)  )
+      CALL ZZDASGRI ( HANDLE,  RECNO,  RCBUFI(1,NODE)  )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASRRI' )
@@ -1202,14 +1225,13 @@ C     The read was successful.  Link the node pointing to the buffer
 C     entries for this record in before the current head of the
 C     list, thus putting them at the head.
 C
-C     Set the file handle, record number, unit, and update flag for
+C     Set the file handle, record number, and update flag for
 C     this record.
 C
       CALL LNKILB ( NODE, HEADI, POOLI )
  
       HNBUFI ( NODE )  =  HANDLE
       RNBUFI ( NODE )  =  RECNO
-      LUBUFI ( NODE )  =  UNIT
       UPBUFI ( NODE )  =  .FALSE.
       HEADI            =  NODE
  
@@ -1391,6 +1413,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.1.1, 10-FEB-2014 (BVS)
 C
 C        Added description of NWC to the Parameters and Brief_I/O
@@ -1462,9 +1488,7 @@ C
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWC )    )  THEN
  
-         CALL CHKIN  ( 'DASRRC'      )
-         CALL DASHLU (  HANDLE, UNIT )
- 
+         CALL CHKIN  ( 'DASRRC' ) 
          CALL SETMSG ( 'Array indices FIRST and LAST were #,  #; '    //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -1472,7 +1496,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWC                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASRRC' )
@@ -1553,12 +1577,19 @@ C
 C        If the allocated buffer entry was updated, write it out.
 C
          IF (  UPBUFC(NODE)  ) THEN
+
+            CALL ZZDDHHLU ( HNBUFC( NODE ), 'DAS', .FALSE., WRUNIT )
  
             CALL DASIOC (  'WRITE',
-     .                      LUBUFC( NODE ),
+     .                      WRUNIT,
      .                      RNBUFC( NODE ),
      .                      RCBUFC( NODE )  )
  
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASRRC' )
+               RETURN
+            END IF
+
          END IF
  
  
@@ -1575,7 +1606,8 @@ C
 C
 C     Try to read the record.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
+
       CALL DASIOC ( 'READ',  UNIT,  RECNO, RCBUFC(NODE) )
  
       IF ( FAILED() ) THEN
@@ -1588,14 +1620,13 @@ C     The read was successful.  Link the node pointing to the buffer
 C     entries for this record in before the current head of the
 C     list, thus putting them at the head.
 C
-C     Set the file handle, record number, unit, and update flag for
+C     Set the file handle, record number, and update flag for
 C     this record.
 C
       CALL LNKILB ( NODE, HEADC, POOLC )
  
       HNBUFC ( NODE )  =  HANDLE
       RNBUFC ( NODE )  =  RECNO
-      LUBUFC ( NODE )  =  UNIT
       UPBUFC ( NODE )  =  .FALSE.
       HEADC            =  NODE
  
@@ -1762,6 +1793,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 30-JUL-2014 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWD to the Parameters and Brief_I/O
@@ -1807,9 +1842,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASWRD' )
       END IF
+
+      CALL CHKIN ( 'DASWRD' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -1908,8 +1943,10 @@ C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFD(NODE)  ) THEN
  
+            CALL ZZDDHHLU ( HNBUFD( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOD (  'WRITE',
-     .                      LUBUFD(    NODE ),
+     .                      WRUNIT,
      .                      RNBUFD(    NODE ),
      .                      RCBUFD( 1, NODE )  )
  
@@ -1929,14 +1966,11 @@ C
  
 C
 C     Set the update flag, indicating that this buffer entry
-C     has been modified.  Also set the handle, unit, and record number
+C     has been modified. Also set the handle and record number
 C     entries.
-C
-      CALL DASHLU ( HANDLE, UNIT )
- 
+C 
       UPBUFD ( NODE ) = .TRUE.
       HNBUFD ( NODE ) =  HANDLE
-      LUBUFD ( NODE ) =  UNIT
       RNBUFD ( NODE ) =  RECNO
  
 C
@@ -2103,6 +2137,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 30-JUL-2014 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWI to the Parameters and Brief_I/O
@@ -2148,9 +2186,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASWRI' )
       END IF
+
+      CALL CHKIN ( 'DASWRI' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -2248,11 +2286,18 @@ C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFI(NODE)  ) THEN
  
+            CALL ZZDDHHLU ( HNBUFI( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOI (  'WRITE',
-     .                      LUBUFI(    NODE ),
+     .                      WRUNIT,
      .                      RNBUFI(    NODE ),
      .                      RCBUFI( 1, NODE )  )
  
+            IF ( FAILED() ) THEN
+               CALL CHKOUT ( 'DASWRI' )
+               RETURN
+            END IF
+
          END IF
  
       END IF
@@ -2264,14 +2309,13 @@ C
  
 C
 C     Set the update flag, indicating that this buffer entry
-C     has been modified.  Also set the handle, unit, and record number
+C     has been modified.  Also set the handle and record number
 C     entries.
 C
-      CALL DASHLU ( HANDLE, UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
  
       UPBUFI ( NODE ) = .TRUE.
       HNBUFI ( NODE ) =  HANDLE
-      LUBUFI ( NODE ) =  UNIT
       RNBUFI ( NODE ) =  RECNO
  
 C
@@ -2439,6 +2483,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 30-JUL-2014 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWC to the Parameters and Brief_I/O
@@ -2484,9 +2532,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASWRC' )
       END IF
+
+      CALL CHKIN ( 'DASWRC' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -2584,8 +2632,10 @@ C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFC(NODE)  ) THEN
  
+            CALL ZZDDHHLU ( HNBUFC( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOC ( 'WRITE',
-     .                     LUBUFC( NODE ),
+     .                     WRUNIT,
      .                     RNBUFC( NODE ),
      .                     RCBUFC( NODE )  )
  
@@ -2601,18 +2651,15 @@ C
 C
 C     Now update the allocated buffer entry with the input data.
 C
-      RCBUFC (NODE)  =  RECC
+      RCBUFC(NODE)  =  RECC
  
 C
 C     Set the update flag, indicating that this buffer entry
-C     has been modified.  Also set the handle, unit, and record number
+C     has been modified.  Also set the handle and record number
 C     entries.
-C
-      CALL DASHLU ( HANDLE, UNIT )
- 
+C 
       UPBUFC ( NODE ) = .TRUE.
       HNBUFC ( NODE ) =  HANDLE
-      LUBUFC ( NODE ) =  UNIT
       RNBUFC ( NODE ) =  RECNO
  
 C
@@ -2624,8 +2671,6 @@ C
  
       CALL CHKOUT ( 'DASWRC' )
       RETURN
- 
- 
  
  
  
@@ -2815,6 +2860,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWD to the Parameters and Brief_I/O
@@ -2860,9 +2909,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASURD' )
       END IF
+
+      CALL CHKIN ( 'DASURD' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -2894,9 +2943,7 @@ C
      .      .OR.  ( FIRST .GT. NWD )
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWD )    )  THEN
- 
-         CALL DASHLU (  HANDLE, UNIT )
- 
+  
          CALL SETMSG ( 'Array indices FIRST and LAST were #,  #; '    //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -2904,7 +2951,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWD                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASURD' )
@@ -2995,8 +3042,10 @@ C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFD(NODE)  ) THEN
  
+            CALL ZZDDHHLU ( HNBUFD( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOD ( 'WRITE',
-     .                     LUBUFD(    NODE ),
+     .                     WRUNIT,
      .                     RNBUFD(    NODE ),
      .                     RCBUFD( 1, NODE )  )
  
@@ -3013,8 +3062,7 @@ C
 C
 C     Now try to read the record we're going to update.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
-      CALL DASIOD ( 'READ',  UNIT,  RECNO, RCBUFD(1,NODE) )
+      CALL ZZDASGRD ( HANDLE, RECNO, RCBUFD(1,NODE) )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASURD' )
@@ -3022,7 +3070,7 @@ C
       END IF
  
 C
-C     The read was successful, so set the record number, handle, unit,
+C     The read was successful, so set the record number, handle, 
 C     and update flag for this buffer entry, and link these buffer
 C     entries in before the current head of the list, thus putting
 C     them at the head.
@@ -3033,7 +3081,6 @@ C
  
       HNBUFD ( NODE )  =  HANDLE
       RNBUFD ( NODE )  =  RECNO
-      LUBUFD ( NODE )  =  UNIT
       UPBUFD ( NODE )  = .TRUE.
       HEADD            =  NODE
  
@@ -3237,6 +3284,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWI to the Parameters and Brief_I/O
@@ -3282,9 +3333,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASURI' )
       END IF
+
+      CALL CHKIN ( 'DASURI' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -3316,9 +3367,7 @@ C
      .      .OR.  ( FIRST .GT. NWI )
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWI )    )  THEN
- 
-         CALL DASHLU (  HANDLE, UNIT )
- 
+  
          CALL SETMSG ( 'Array indices FIRST and LAST were #,  #; '    //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -3326,7 +3375,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWI                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASURI' )
@@ -3415,8 +3464,10 @@ C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFI(NODE)  ) THEN
  
+            CALL ZZDDHHLU ( HNBUFI( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOI ( 'WRITE',
-     .                     LUBUFI(    NODE ),
+     .                     WRUNIT,
      .                     RNBUFI(    NODE ),
      .                     RCBUFI( 1, NODE )  )
  
@@ -3432,8 +3483,7 @@ C
 C
 C     Now try to read the record we're going to update.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
-      CALL DASIOI ( 'READ',  UNIT,  RECNO, RCBUFI(1,NODE) )
+      CALL ZZDASGRI ( HANDLE,   RECNO, RCBUFI(1,NODE) )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASURI' )
@@ -3441,7 +3491,7 @@ C
       END IF
  
 C
-C     The read was successful, so set the record number, handle, unit,
+C     The read was successful, so set the record number, handle, 
 C     and update flag for this buffer entry, and link these buffer
 C     entries in before the current head of the list, thus putting
 C     them at the head.
@@ -3452,7 +3502,6 @@ C
  
       HNBUFI ( NODE )  =  HANDLE
       RNBUFI ( NODE )  =  RECNO
-      LUBUFI ( NODE )  =  UNIT
       UPBUFI ( NODE )  = .TRUE.
       HEADI            =  NODE
  
@@ -3661,6 +3710,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 05-FEB-2015 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.3, 10-FEB-2014 (BVS)
 C
 C        Added description of NWC to the Parameters and Brief_I/O
@@ -3706,9 +3759,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASURC' )
       END IF
+
+      CALL CHKIN ( 'DASURC' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -3742,8 +3795,6 @@ C
      .      .OR.  ( LAST  .LT. 1   )
      .      .OR.  ( LAST  .GT. NWC )    )  THEN
  
-         CALL DASHLU (  HANDLE, UNIT )
- 
          CALL SETMSG ( 'String indices FIRST and LAST were #,  #; '   //
      .                 'allowed range for both is [#, #]. File was '  //
      .                 '#, record number was #.'                       )
@@ -3751,7 +3802,7 @@ C
          CALL ERRINT ( '#',  LAST                                      )
          CALL ERRINT ( '#',  1                                         )
          CALL ERRINT ( '#',  NWC                                       )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL SIGERR ( 'SPICE(INDEXOUTOFRANGE)'                        )
          CALL CHKOUT ( 'DASURC' )
@@ -3839,9 +3890,12 @@ C
 C        If the allocated record was updated, write it out.
 C
          IF (  UPBUFC(NODE)  ) THEN
- 
+
+
+            CALL ZZDDHHLU ( HNBUFC( NODE ), 'DAS', .FALSE., WRUNIT )
+
             CALL DASIOC ( 'WRITE',
-     .                     LUBUFC( NODE ),
+     .                     WRUNIT,
      .                     RNBUFC( NODE ),
      .                     RCBUFC( NODE )  )
  
@@ -3857,7 +3911,8 @@ C
 C
 C     Now try to read the record we're going to update.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE.,  UNIT )
+
       CALL DASIOC ( 'READ',  UNIT,  RECNO, RCBUFC(NODE) )
  
       IF ( FAILED() ) THEN
@@ -3866,7 +3921,7 @@ C
       END IF
  
 C
-C     The read was successful, so set the record number, handle, unit,
+C     The read was successful, so set the record number, handle, 
 C     and update flag for this buffer entry, and link these buffer
 C     entries in before the current head of the list, thus putting
 C     them at the head.
@@ -3877,7 +3932,6 @@ C
  
       HNBUFC ( NODE )  =  HANDLE
       RNBUFC ( NODE )  =  RECNO
-      LUBUFC ( NODE )  =  UNIT
       UPBUFC ( NODE )  = .TRUE.
       HEADC            =  NODE
  
@@ -4052,6 +4106,10 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 30-JUL-2014 (NJB)
+C
+C        Upgraded to support handle manager integration.
+C
 C-    SPICELIB Version 1.0.2, 03-NOV-1995 (NJB)
 C
 C        Removed weird spaces from ENTRY statement.
@@ -4092,9 +4150,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASWBR' )
       END IF
+
+      CALL CHKIN ( 'DASWBR' )
  
 C
 C     Check that the file is open for writing.  Signal an error if not.
@@ -4118,7 +4176,17 @@ C
          PASS1  = .FALSE.
  
       END IF
- 
+
+C
+C     Obtain a logical unit for HANDLE.
+C
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., WRUNIT )
+
+      IF ( FAILED() ) THEN
+         CALL CHKOUT ( 'DASWBR' )
+         RETURN
+      END IF
+
 C
 C     For each buffer, find the records belonging to this file, and
 C     write them out to the file.
@@ -4135,7 +4203,7 @@ C           This record belongs to the file of interest, so write the
 C           the record out.
 C
             CALL DASIOD ( 'WRITE',
-     .                     LUBUFD(    NODE ),
+     .                     WRUNIT,
      .                     RNBUFD(    NODE ),
      .                     RCBUFD( 1, NODE )  )
  
@@ -4187,7 +4255,7 @@ C           This record belongs to the file of interest, so write the
 C           the record out.
 C
             CALL DASIOI ( 'WRITE',
-     .                     LUBUFI(    NODE ),
+     .                     WRUNIT,
      .                     RNBUFI(    NODE ),
      .                     RCBUFI( 1, NODE )  )
  
@@ -4239,7 +4307,7 @@ C           This record belongs to the file of interest, so write the
 C           the record out.
 C
             CALL DASIOC ( 'WRITE',
-     .                     LUBUFC( NODE ),
+     .                     WRUNIT,
      .                     RNBUFC( NODE ),
      .                     RCBUFC( NODE )  )
  

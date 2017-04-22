@@ -147,7 +147,7 @@ C$ Exceptions
 C
 C      1) If the kernel pool does not contain all of the data required
 C         for computing the transformation matrix, TIPM, the error
-C         SPICE(INSUFFICIENTANGLES) is signalled.
+C         SPICE(INSUFFICIENTANGLES) is signaled.
 C
 C      2) If the reference frame, REF,  is not recognized, a routine
 C         called by TIPBOD will diagnose the condition and invoke the
@@ -172,28 +172,28 @@ C     evaluated and the transformation matrix is calculated
 C     from them.  Using the Euler angles PHI, DELTA and W
 C     we compute
 C
-C            TIPM = [W] [DELTA] [PHI]
-C                      3       1     3
+C           TIPM = [W] [DELTA] [PHI]
+C                     3       1     3
 C
 C
-C      If no appropriate binary PCK files have been loaded,
-C      the text PCK file is used.  Here information is found
-C      as RA, DEC and W (with the possible addition of nutation
-C      and libration terms for satellites).  Again, the Euler
-C      angles are found, and the transformation matrix is
-C      calculated from them.  The transformation from inertial to
-C      bodyfixed coordinates is represented as:
+C     If no appropriate binary PCK files have been loaded,
+C     the text PCK file is used.  Here information is found
+C     as RA, DEC and W (with the possible addition of nutation
+C     and libration terms for satellites).  Again, the Euler
+C     angles are found, and the transformation matrix is
+C     calculated from them.  The transformation from inertial to
+C     bodyfixed coordinates is represented as:
 C
-C            TIPM = [W] [HALFPI-DEC] [RA+HALFPI]
-C                      3            1           3
+C           TIPM = [W] [HALFPI-DEC] [RA+HALFPI]
+C                     3            1           3
 C
 C     These are basically the Euler angles, PHI, DELTA and W:
 C
-C       RA = PHI - HALFPI
-C       DEC = HALFPI - DELTA
-C       W = W
+C        RA = PHI - HALFPI
+C        DEC = HALFPI - DELTA
+C        W = W
 C
-C      In the text file, RA, DEC, and W are defined as follows:
+C     In the text file, RA, DEC, and W are defined as follows:
 C
 C                                         2      ____
 C                                    RA2*t       \
@@ -215,7 +215,7 @@ C                                       2       ----   i          i
 C                                      d          i
 C
 C
-C      where:
+C     where:
 C
 C            d = seconds/day
 C
@@ -230,58 +230,67 @@ C
 C            planet.
 C
 C
-C        These angles -- typically nodal rates -- vary in number and
-C        definition from one planetary system to the next.
+C     These angles -- typically nodal rates -- vary in number and
+C     definition from one planetary system to the next.
 C
 C$ Examples
 C
-C      Note that the items necessary to compute the Euler angles
-C      must have been loaded into the kernel pool (by one or more
-C      previous calls to FURNSH).  The Euler angles are typically
-C      stored in the P_constants kernel file that comes with
-C      SPICELIB.
+C     Note that the items necessary to compute the Euler angles
+C     must have been loaded into the kernel pool (by one or more
+C     previous calls to FURNSH).  The Euler angles are typically
+C     stored in the P_constants kernel file that comes with
+C     SPICELIB.
 C
-C      1)  In the following code fragment, TIPBOD is used to transform
-C          a position in J2000 inertial coordinates to a state in
-C          bodyfixed coordinates.
+C     1)  In the following code fragment, TIPBOD is used to transform
+C         a position in J2000 inertial coordinates to a state in
+C         bodyfixed coordinates.
 C
-C          The 3-vectors POSTN represents the inertial position
-C          of an object with respect to the center of the
-C          body at time ET.
+C         The 3-vectors POSTN represents the inertial position
+C         of an object with respect to the center of the
+C         body at time ET.
 C
-C             C
-C             C     First load the kernel pool.
-C             C
-C                   CALL FURNSH ( 'PLANETARY_CONSTANTS.KER' )
+C            C
+C            C     First load the kernel pool.
+C            C
+C                  CALL FURNSH ( 'PLANETARY_CONSTANTS.KER' )
 C
-C             C
-C             C     Next get the transformation and its derivative.
-C             C
-C                   CALL TIPBOD ( 'J2000', BODY, ET, TIPM )
+C            C
+C            C     Next get the transformation and its derivative.
+C            C
+C                  CALL TIPBOD ( 'J2000', BODY, ET, TIPM )
 C
-C             C
-C             C     Convert position, the first three elements of
-C             C     STATE, to bodyfixed coordinates.
-C             C
-C                   CALL MXVG    ( TIPM, POSTN, BDPOS )
+C            C
+C            C     Convert position, the first three elements of
+C            C     STATE, to bodyfixed coordinates.
+C            C
+C                  CALL MXVG    ( TIPM, POSTN, BDPOS )
 C
 C$ Restrictions
 C
-C      The kernel pool must be loaded with the appropriate
-C      coefficients (from the P_constants kernel or binary PCK file)
-C      prior to calling this routine.
+C     The kernel pool must be loaded with the appropriate
+C     coefficients (from the P_constants kernel or binary PCK file)
+C     prior to calling this routine.
 C
 C$ Literature_References
 C
-C      None.
+C     None.
 C
 C$ Author_and_Institution
 C
-C      N.J. Bachman   (JPL)
-C      W.L. Taber     (JPL)
-C      K.S. Zukor     (JPL)
+C     N.J. Bachman   (JPL)
+C     B.V. Semenov    (JPL)
+C     W.L. Taber     (JPL)
+C     K.S. Zukor     (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.3.0, 02-MAR-2016 (BVS)
+C
+C        Updated to use the 3x3 top-left corner of the 6x6 matrix
+C        returned by TISBOD instead of fetching kernel data and doing
+C        computations in-line. 
+C
+C        Fixed indentation of some header sections.
 C
 C-    SPICELIB Version 1.2.0, 23-OCT-2005 (NJB)
 C
@@ -321,6 +330,12 @@ C-&
  
 C$ Revisions
 C
+C-    SPICELIB Version 1.3.0, 27-JUL-2016 (BVS)
+C
+C        Updated to use the 3x3 top-left corner of the 6x6 matrix
+C        returned by TISBOD instead of fetching kernel data and doing
+C        computations in-line.
+C
 C-    SPICELIB Version 1.2.0, 06-SEP-2005 (NJB)
 C
 C        Updated to remove non-standard use of duplicate arguments
@@ -344,11 +359,13 @@ C
 C
 C     Local variables
 C
-      DOUBLE PRECISION      REF2J  ( 3, 3 )
-      DOUBLE PRECISION      TMPMAT ( 3, 3 )
- 
+      DOUBLE PRECISION      TSIPM   ( 6, 6 )
+
+      INTEGER               I
+      INTEGER               J
+
 C
-C     Standard SPICE error handling.
+C     Standard SPICE Error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
@@ -357,32 +374,23 @@ C
       END IF
  
 C
-C     Get the transformation from the inertial from REF to J2000
-C     coordinates.
+C     Get 6x6 state transformation from TISBOD. If succeeded, pull out
+C     left-top 3x3 matrix.
 C
-      CALL IRFTRN ( REF, 'J2000', REF2J )
- 
-C
-C     Get the transformation from J2000 to body-fixed coordinates
-C     for the requested epoch.
-C
-      CALL BODMAT ( BODY, ET, TIPM )
+      CALL TISBOD ( REF, BODY, ET, TSIPM )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'TIPBOD' )
          RETURN
       END IF
 
-C
-C     Compose the transformations to arrive at the REF-to-J2000
-C     transformation.
-C
-      CALL MXM   ( TIPM,   REF2J, TMPMAT )
-      CALL MOVED ( TMPMAT, 9,     TIPM   )
- 
-C
-C     That's all folks.  Check out and get out.
-C
+      DO  I = 1, 3
+         DO   J  = 1, 3
+            TIPM  ( I, J ) = TSIPM  ( I, J )
+         END DO
+      END DO
+
       CALL CHKOUT ( 'TIPBOD' )
       RETURN
       END
+

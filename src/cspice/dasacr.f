@@ -131,7 +131,8 @@ C                  CALL DASACR ( HANDLE, 10 )
 C
 C$ Restrictions
 C
-C     None.
+C     1) The DAS file must have a binary file format native to the host
+C        system.
 C
 C$ Literature_References
 C
@@ -144,6 +145,14 @@ C     W.L. Taber     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.2.0, 05-FEB-2015 (NJB)  
+C
+C        Updated to support integration with the handle 
+C        manager subsystem.
+C
+C        Cleaned up use of unnecessary variables and unneeded
+C        declarations.
+C     
 C-    SPICELIB Version 1.1.0, 11-OCT-1996 (NJB)  
 C
 C        Bug fix:  backward and forward directory record pointers
@@ -208,9 +217,6 @@ C
       INTEGER               DP
       PARAMETER           ( DP     =   2  )
  
-      INTEGER               INT
-      PARAMETER           ( INT    =   3  )
- 
 C
 C     Directory pointer locations (backward and forward):
 C
@@ -221,25 +227,12 @@ C
       PARAMETER           ( FWDLOC =   2  )
  
 C
-C     Directory address range locations
-C
-      INTEGER               CHRRNG
-      PARAMETER           ( CHRRNG =          3 )
- 
-      INTEGER               DPRNG
-      PARAMETER           ( DPRNG  = CHRRNG + 2 )
- 
-      INTEGER               INTRNG
-      PARAMETER           ( INTRNG = DPRNG  + 2 )
- 
-C
 C     Location of first type descriptor
 C
       INTEGER               BEGDSC
       PARAMETER           ( BEGDSC = 9 )
  
- 
- 
+  
 C
 C     Local variables
 C
@@ -257,7 +250,6 @@ C
       INTEGER               LOC
       INTEGER               LREC
       INTEGER               LINDEX
-      INTEGER               LTYPE
       INTEGER               LWORD
       INTEGER               NCOMC
       INTEGER               NCOMR
@@ -299,10 +291,21 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'DASACR' )
       END IF
- 
+
+      CALL CHKIN ( 'DASACR' )
+
+C
+C     Programmer's note: the calls to 
+C
+C        DASIOC
+C        DASIOD
+C        DASIOI
+C
+C     for read access are valid only for native format DAS files.
+C     If this routine is updated to support writing to non-native
+C     DAS files, at least the calls to the numeric I/O routines
+C     will need to be replaced. (Consider using ZZDASGRD, ZZDASGRI.)
 C
 C     Make sure this DAS file is open for writing.  Signal an error if
 C     not.
@@ -312,7 +315,7 @@ C
 C
 C     Get the logical unit for this DAS file.
 C
-      CALL DASHLU ( HANDLE,  UNIT )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., UNIT )
  
       IF ( FAILED() ) THEN
          CALL CHKOUT ( 'DASACR' )
@@ -360,8 +363,7 @@ C
  
 C
 C     Find the record and word positions LREC and LWORD of the last
-C     descriptor in the file, and also find the type of the descriptor
-C     LTYPE.
+C     descriptor in the file.
 C
       CALL MAXAI  ( LASTRC,  3,  LREC,  LOC )
       LWORD  =  0
@@ -372,19 +374,18 @@ C
      .        .AND. ( LASTWD(I) .GT. LWORD )  ) THEN
  
             LWORD = LASTWD(I)
-            LTYPE = I
  
          END IF
  
       END DO
  
 C
-C     LREC, LWORD, and LTYPE are now the record, word, and data type
-C     of the last descriptor in the file.  If LREC is zero, there are
-C     no directories in the file yet.  However, even DAS files that
-C     don't contain any data have their first directory records
-C     zeroed out, and this should remain true after the addition of
-C     the comment records.
+C     LREC and LWORD are now the record and word index of the last word
+C     of the last descriptor in the file. If LREC is zero, there are no
+C     directories in the file yet. However, even DAS files that don't
+C     contain any data have their first directory records zeroed out,
+C     and this should remain true after the addition of the comment
+C     records.
 C
       IF ( LREC .EQ. 0 ) THEN
 C
@@ -464,6 +465,12 @@ C                 the successor of the current type, according to our
 C                 ordering of types.
 C
                   IF (  DIRREC(POS+1)  .GT.  0  ) THEN
+C
+C                    This assignment and the one below in the ELSE
+C                    block are performed from the second loop iteration
+C                    onward. NXTTYP is initialized on the first loop
+C                    iteration.
+C
                      TYPE  =  PREV( NXTTYP )
                   ELSE
                      TYPE  =  NEXT( NXTTYP )

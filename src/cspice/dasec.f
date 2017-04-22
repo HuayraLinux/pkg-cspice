@@ -43,6 +43,10 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
+
+      INCLUDE 'das.inc'
+
       INTEGER               HANDLE
       INTEGER               BUFSIZ
       INTEGER               N
@@ -100,19 +104,19 @@ C
 C$ Exceptions
 C
 C     1)   If the size of the output line buffer is is not positive,
-C          the error SPICE(INVALIDARGUMENT) will be signalled.
+C          the error SPICE(INVALIDARGUMENT) will be signaled.
 C
 C     3)   If a comment line in a DAS file is longer than the length
 C          of a character string array element of BUFFER, the error
-C          SPICE(COMMENTTOOLONG) will be signalled.
+C          SPICE(COMMENTTOOLONG) will be signaled.
 C
 C     3)   If there is a mismatch between the number of comment
 C          characters found and the number of comment characters
 C          expected, the error SPICE(BADDASCOMMENTAREA) will be
-C          signalled.
+C          signaled.
 C
 C     4)   If the binary DAS file attached to HANDLE is not open for
-C          reading, an error will be signalled by a routine called by
+C          reading, an error will be signaled by a routine called by
 C          this routine.
 C
 C$ Files
@@ -268,7 +272,7 @@ C        of a text line that may be placed into the comment area of a
 C        DAS file. The maximum length of a line stored in the comment
 C        area should be kept reasonable, so that they may be easily
 C        extracted. A good value for this would be 255 characters, as
-C        this can easily accomodate ``screen width'' lines as well as
+C        this can easily accommodate ``screen width'' lines as well as
 C        long lines which may contain some other form of information.
 C
 C$ Literature_References
@@ -280,6 +284,12 @@ C
 C     K.R. Gehringer (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.4.0, 10-FEB-2017 (NJB)
+C
+C        Updated to use ZZDDHHLU.
+C
+C        Now imports parameter FTSIZE from das.inc.
 C
 C-    SPICELIB Version 1.3.0, 18-JUN-1999 (WLT)
 C
@@ -357,10 +367,7 @@ C
 C
 C     Local parameters
 C
-C     The maximum number of DAS files that may be open simultaneously.
-C
-      INTEGER               FTSIZE
-      PARAMETER           ( FTSIZE = 21 )
+
 C
 C     Length of a DAS character record, in characters.
 C
@@ -513,7 +520,7 @@ C
 C     Convert the DAS file handle to its corresponding Fortran logical
 C     unit number for reading the comment records.
 C
-      CALL DASHLU ( HANDLE, DASLUN )
+      CALL ZZDDHHLU ( HANDLE, 'DAS', .FALSE., DASLUN )
  
       IF ( FAILED() ) THEN
  
@@ -544,7 +551,7 @@ C     we did, INDEX will be > 0.
 C
       IF ( INDEX .GT. 0 ) THEN
 C
-C        Set the record number and the starting position accordingly,
+C        Set the record number and the starting position accocrdingly,
 C        i.e., where we left off when we last read from that file.
 C
          RECNO  = LSTREC(INDEX)
@@ -704,7 +711,7 @@ C        Check for the end of the comments.
 C
          IF ( NCHARS .EQ. NCOMC ) THEN
 C
-C           If we have reached the end of the comments, signalled
+C           If we have reached the end of the comments, signaled
 C           by having processed all of the comment characters, NCOMC,
 C           then we are done. So, set DONE to .TRUE. and remove the
 C           entry for this file from the file table.

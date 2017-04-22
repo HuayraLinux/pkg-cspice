@@ -186,6 +186,12 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 11-MAY-2015 (NJB) 
+C
+C        Updated to support subtype 2. Now performs
+C        computations in-line, rather than calling
+C        SPKE18.
+C
 C-    SPICELIB Version 1.0.0, 14-MAR-2014 (NJB) (BVS)
 C
 C-&
@@ -203,10 +209,52 @@ C     None.
 C
 C-& 
  
+
 C
 C     SPICELIB functions
 C
+      DOUBLE PRECISION      LGRINT
       LOGICAL               RETURN
+ 
+C
+C     Local parameters
+C
+
+C
+C     Index of subtype code in record:
+C
+      INTEGER               SBTIDX
+      PARAMETER           ( SBTIDX = 1 )
+
+C
+C     Index of packet count in record:
+C
+      INTEGER               CNTIDX
+      PARAMETER           ( CNTIDX = 2 )
+
+C
+C     Index at which packets start:
+C
+      INTEGER               PKTIDX
+      PARAMETER           ( PKTIDX = 3 )
+
+C
+C     Local variables
+C
+      DOUBLE PRECISION      LOCREC ( MAXREC )
+      DOUBLE PRECISION      WORK   ( MAXREC * 2,  2 )
+      DOUBLE PRECISION      VBUFF  ( 6 )
+      
+      INTEGER               FROM
+      INTEGER               I
+      INTEGER               J
+      INTEGER               N
+      INTEGER               PACKSZ
+      INTEGER               SUBTYP
+      INTEGER               TO
+      INTEGER               XSTART
+      INTEGER               YSTART
+
       
 C
 C     Standard SPICE error handling.
@@ -218,12 +266,192 @@ C
       CALL CHKIN ( 'SPKE19' )
  
 C
-C     Given that our nominally type 19 input record is actually a 
-C     valid type 18 record, we let the type 18 evaluator do the 
-C     work.
-C     
-      CALL SPKE18 ( ET, RECORD, STATE )
+C     Capture the subtype from the record and set the packet size
+C     accordingly.
+C
+      SUBTYP =  NINT( RECORD(SBTIDX) )
 
+      IF ( SUBTYP .EQ. S19TP0 ) THEN
+
+         PACKSZ = S19PS0
+
+      ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
+
+         PACKSZ = S19PS1
+
+      ELSE IF ( SUBTYP .EQ. S19TP2 ) THEN
+
+         PACKSZ = S19PS2
+
+      ELSE
+         
+         CALL SETMSG ( 'Unexpected SPK type 19 subtype found in ' 
+     .   //            'type 19 record.'                          )
+         CALL ERRINT ( '#',  SUBTYP                               )
+         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                      )
+         CALL CHKOUT ( 'SPKE19'                                   )
+         RETURN
+      
+      END IF
+
+C
+C     Get the packet count.
+C
+      N = NINT( RECORD(CNTIDX) )
+
+
+      IF ( SUBTYP .EQ. S19TP0 ) THEN
+C
+C        We interpolate each state component in turn.  Position and
+C        velocity are interpolated separately.
+C
+         XSTART = 3  +  PACKSZ * N 
+   
+         DO I = 1, 3
+ 
+            DO J = 1, N
+C
+C              For the Jth input packet, copy the Ith position and
+C              velocity components into the local record buffer LOCREC.
+C
+               FROM         = 2 + PACKSZ*(J-1) + I
+               TO           =     2 * J        - 1
+            
+               LOCREC(TO  ) = RECORD ( FROM     )
+               LOCREC(TO+1) = RECORD ( FROM + 3 )
+            
+            END DO
+
+C
+C           Interpolate the Ith position and velocity components of the
+C           state.  We'll keep the position and overwrite the velocity.
+C        
+            CALL HRMINT ( N, 
+     .                    RECORD(XSTART),
+     .                    LOCREC,
+     .                    ET,           
+     .                    WORK,
+     .                    STATE(I  ),
+     .                    STATE(I+3)      ) 
+
+         END DO
+ 
+C
+C        Now interpolate velocity, using separate velocity data and 
+C        acceleration.
+C
+         DO I = 1, 3
+  
+            DO J = 1, N
+C
+C              For the Jth input packet, copy the Ith position and
+C              velocity components into the local record buffer LOCREC.
+C
+               FROM         = 2  +  PACKSZ*(J-1)  +  PACKSZ/2  +  I
+               TO           =       2 * J         -  1
+            
+               LOCREC(TO  ) = RECORD ( FROM     )
+               LOCREC(TO+1) = RECORD ( FROM + 3 )
+            
+            END DO
+
+C
+C           Interpolate the Ith velocity and acceleration components of 
+C           the state.  We'll capture the result in a temporary buffer,
+C           then transfer the velocity to the output state array.
+C        
+            CALL HRMINT ( N, 
+     .                    RECORD(XSTART),
+     .                    LOCREC,
+     .                    ET,           
+     .                    WORK,
+     .                    VBUFF(I  ),
+     .                    VBUFF(I+3)     ) 
+         END DO
+ 
+C
+C        Fill in the velocity in the output state using the results of
+C        interpolating velocity and acceleration.
+C
+         CALL VEQU ( VBUFF, STATE(4) )
+
+
+      ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
+C
+C        We perform Lagrange interpolation on each state component.
+C
+C        We'll transpose the state information in the input record so
+C        that contiguous pieces of it can be shoved directly into the
+C        interpolation routine LGRINT.  
+C 
+         CALL XPSGIP ( PACKSZ, N, RECORD(PKTIDX) )
+ 
+C
+C        We interpolate each state component in turn.
+C
+         XSTART   =   3   +  N * PACKSZ
+ 
+         DO I = 1, PACKSZ
+ 
+            YSTART    =   3   +  N * (I-1)
+ 
+            STATE(I)  =   LGRINT ( N,
+     .                             RECORD(XSTART),
+     .                             RECORD(YSTART),
+     .                             LOCREC,
+     .                             ET              )
+         END DO  
+
+
+      ELSE IF ( SUBTYP .EQ. S19TP2 ) THEN
+C
+C        We perform Hermite interpolation on each position component
+C        and corresponding velocity component.
+C
+         XSTART   =   3   +  N * PACKSZ
+ 
+         DO I = 1, 3
+ 
+            DO J = 1, N
+C
+C              For the Jth input packet, copy the Ith position and
+C              velocity components into the local record buffer LOCREC.
+C
+               FROM         = 2 + PACKSZ*(J-1) + I
+               TO           =     2 * J        - 1
+            
+               LOCREC(TO  ) = RECORD ( FROM     )
+               LOCREC(TO+1) = RECORD ( FROM + 3 )
+            
+            END DO
+
+C
+C           Interpolate the Ith position and velocity components of the
+C           state. 
+C        
+            CALL HRMINT ( N, 
+     .                    RECORD(XSTART),
+     .                    LOCREC,
+     .                    ET,           
+     .                    WORK,
+     .                    STATE(I),
+     .                    STATE(I+3)      ) 
+         END DO
+
+
+      ELSE
+C
+C         This is a backstop case.
+C   
+         CALL SETMSG ( 'Unexpected SPK type 19 subtype found in ' 
+     .   //            'type 19 record.'                          )
+         CALL ERRINT ( '#',  SUBTYP                               )
+         CALL SIGERR ( 'SPICE(INVALIDVALUE)'                      )
+         CALL CHKOUT ( 'SPKE19'                                   )
+         RETURN
+
+      END IF
+   
       CALL CHKOUT ( 'SPKE19' )
       RETURN
       END

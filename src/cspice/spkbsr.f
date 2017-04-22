@@ -335,6 +335,10 @@ C     B.V. Semenov    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 6.0.1, 15-MAR-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 6.0.0, 17-MAR-2014 (NJB)
 C
 C        Updated segment pool initialization condition in entry
@@ -405,7 +409,7 @@ C           7) In SPKSFS, a subscript bound violation in a loop
 C              termination test was corrected.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -459,7 +463,7 @@ C        following the header.
 C
 C-    SPICELIB Version 1.0.2, 9-SEP-1991 (HAN)
 C
-C        The declaraion of the variable STATE in the Examples section
+C        The declaration of the variable STATE in the Examples section
 C        was changed from a 3 dimensional vector to a 6 dimensional
 C        vector, and the term state was specified to be the position
 C        and velocity of a body relative to another body.
@@ -535,7 +539,7 @@ C           7) In SPKSFS, a subscript bound violation in a loop
 C              termination test was corrected.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.  For each body, the associated re-use 
 C        interval marks the time interval containing the previous 
 C        request time for which the previously returned segment provides
@@ -888,7 +892,7 @@ C        by the parameter FTSIZE in DAFAH, an error is signaled by a
 C        routine in the call tree of this routine.
 C
 C     2) If an attempt is made to load more files than is specified
-C        by the local paramater FTSIZE, and if the DAF system has 
+C        by the local parameter FTSIZE, and if the DAF system has 
 C        room to load another file, the error SPICE(SPKFILETABLEFULL)
 C        signaled.  The current setting of FTSIZE does not allow this
 C        situation to arise:  the DAF system will trap the error 
@@ -925,6 +929,10 @@ C     R.E. Thurman    (JPL)
 C     I.M. Underwood  (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 5.0.1, 15-MAR-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
 C
 C-    SPICELIB Version 5.0.0, 17-MAR-2014 (NJB)
 C
@@ -1008,7 +1016,7 @@ C
 C-    SPICELIB Version 3.0.0, 14-AUG-1995 (WLT)
 C
 C        An interim fix to a bug in SPKBSR was made.  The parameters
-C        STSIZE and BTSIZE were increase to be much larger than before
+C        STSIZE and BTSIZE were increased to be much larger than before
 C        (from 100 and 20 to 2000 and 40 respectively).  This should
 C        keep the boundary errors experienced by Cassini users from
 C        occurring again.  Version 4.0.0 with a real fix to the
@@ -1268,7 +1276,7 @@ C
 C
 C              The highest file searched for body I is not in the file 
 C              table.  This occurs when the highest file searched has 
-C              been unloaded.  Note that this assigment makes all files
+C              been unloaded.  Note that this assignment makes all files
 C              appear to be "new" when a lookup for body I is performed.
 C
                BTHFS(I) = 0
@@ -1430,6 +1438,10 @@ C     I.M. Underwood  (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 4.1.1, 15-MAR-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 4.1.0, 08-SEP-2005 (NJB)
 C
 C        Updated to remove non-standard use of duplicate arguments
@@ -1449,7 +1461,7 @@ C
 C-    SPICELIB Version 3.0.0, 14-AUG-1995 (WLT)
 C
 C        An interim fix to a bug in SPKBSR was made.  The parameters
-C        STSIZE and BTSIZE were increase to be much larger than before
+C        STSIZE and BTSIZE were increased to be much larger than before
 C        (from 100 and 20 to 2000 and 40 respectively).  This should
 C        keep the boundary errors experienced by Cassini users from
 C        occurring again.  Version 4.0.0 with a real fix to the
@@ -1797,6 +1809,10 @@ C     R.E. Thurman    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 4.2.1, 15-MAR-2017 (NJB)
+C
+C        Corrected various spelling errors within comments.
+C
 C-    SPICELIB Version 4.2.0, 01-MAR-2011 (NJB)
 C
 C        Bug fix: 
@@ -1834,7 +1850,7 @@ C           4) A subscript bound violation in a loop termination test
 C              was corrected.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -1858,7 +1874,7 @@ C
 C-    SPICELIB Version 3.0.0, 14-AUG-1995 (WLT)
 C
 C        An interim fix to a bug in SPKBSR was made.  The parameters
-C        STSIZE and BTSIZE were increase to be much larger than before
+C        STSIZE and BTSIZE were increased to be much larger than before
 C        (from 100 and 20 to 2000 and 40 respectively).  This should
 C        keep the boundary errors experienced by Cassini users from
 C        occurring again.  Version 4.0.0 with a real fix to the
@@ -1932,7 +1948,7 @@ C              'SEARCH W/O BUFFERING' block; it finds the start of a
 C              partial list that is to be freed.
 C
 C        The "re-use interval" feature was introduced to improve speed 
-C        in the case where repeated, consecutive requests are satisified
+C        in the case where repeated, consecutive requests are satisfied
 C        by the same segment.
 C
 C        The segment list cost algorithm was modified slightly:  
@@ -2453,7 +2469,7 @@ C           1) We can have a NEW BODY
 C
 C           2) We have checked the current list (CHECK LIST) for
 C              this body, didn't find an applicable segment and
-C              have some files left that have not been seached.
+C              have some files left that have not been searched.
  
             FINDEX = NFT
  

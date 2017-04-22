@@ -53,6 +53,12 @@ C     None.
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0  29-NOV-2016 (NJB)
+C
+C        Upgraded to support surfaces represented by DSKs. 
+C
+C        Bug fix: removed declaration of NVRMAX parameter. 
+C
 C-    SPICELIB Version 1.3.0, 01-OCT-2011 (NJB) 
 C
 C       Added NWILUM parameter.
@@ -167,12 +173,6 @@ C
       PARAMETER           ( FRMNLN = 32 )
 
 C
-C     NVRMAX is the maximum number of vertices if FOV type is "POLYGON"
-C
-      INTEGER               NVRMAX
-      PARAMETER           ( NVRMAX = 50 )
-
-C
 C     FOVTLN -- maximum length for FOV string.
 C
       INTEGER               FOVTLN
@@ -215,11 +215,14 @@ C
 C
 C     Occultation target shape specifications:
 C
+      CHARACTER*(*)         DSSHAP
+      PARAMETER           ( DSSHAP = 'DSK' )
+
       CHARACTER*(*)         EDSHAP
-      PARAMETER           ( EDSHAP = 'ELLIPSOID'   ) 
+      PARAMETER           ( EDSHAP = 'ELLIPSOID' ) 
 
       CHARACTER*(*)         PTSHAP
-      PARAMETER           ( PTSHAP = 'POINT'   ) 
+      PARAMETER           ( PTSHAP = 'POINT' ) 
 
       CHARACTER*(*)         RYSHAP
       PARAMETER           ( RYSHAP = 'RAY' )

@@ -371,17 +371,17 @@
          <a href="frmnam_c.html">frmnam_c</a> ( ic[2], FRNMLN, frname );
 
          printf ( &quot;\n&quot;
-                  &quot; Body       = %ld\n&quot;
-                  &quot; Center     = %ld\n&quot;
+                  &quot; Body       = %d\n&quot;
+                  &quot; Center     = %d\n&quot;
                   &quot; Frame      = %s\n&quot;
-                  &quot; Data type  = %ld\n&quot;
+                  &quot; Data type  = %d\n&quot;
                   &quot; Start ET   = %24.17e\n&quot;
                   &quot; Stop ET    = %24.17e\n&quot;
                   &quot; Segment ID = %s\n&quot;,
-                  (long)ic[0],
-                  (long)ic[1],
+                  (int)ic[0],
+                  (int)ic[1],
                   frname,
-                  (long)ic[3],
+                  (int)ic[3],
                   dc[0],
                   dc[1],
                   segid                 ); 
@@ -430,8 +430,8 @@
             }
             else
             {
-               printf ( &quot;\nNo data for body %ld found at %s.\n&quot;, 
-                        (long)body,
+               printf ( &quot;\nNo data for body %d found at %s.\n&quot;, 
+                        (int)body,
                         outstr                                 );
                exit(0);
             }
@@ -495,6 +495,11 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.1, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.0, 05-OCT-2012 (NJB) (WLT)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -510,7 +515,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:44 2014</pre>
+   <pre>Wed Apr  5 17:54:44 2017</pre>
 
 </body>
 </html>

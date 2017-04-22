@@ -129,6 +129,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error message.
+C
 C-    SPICELIB Version 2.0.0, 31-MAY-2010 (NJB)
 C
 C        Bug fix: substring bound out-of-range violation
@@ -163,7 +168,6 @@ C
       INTEGER               IVAL
       INTEGER               PRVPTR
       INTEGER               RECNO
-      INTEGER               UNIT
  
       LOGICAL               FOUND
       LOGICAL               ISNULL
@@ -173,9 +177,9 @@ C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKFRX' )
       END IF
+
+      CALL CHKIN ( 'ZZEKFRX' )
  
 C
 C     Determine the data type of the column, and look up the value
@@ -210,10 +214,9 @@ C
  
       ELSE
  
-         CALL DASHLU ( HANDLE,  UNIT  )
          CALL SETMSG ( 'File = #; COLIDX = #. Unrecognized data ' //
      .                 'type code # found in descriptor.'           )
-         CALL ERRFNM ( '#',     UNIT                                )
+         CALL ERRHAN ( '#',     HANDLE                              )
          CALL ERRINT ( '#',     COLDSC(ORDIDX)                      )
          CALL ERRINT ( '#',     DTYPE                               )
          CALL SIGERR ( 'SPICE(ITEMNOTFOUND)'                        )
@@ -230,12 +233,11 @@ C        We have a most heinous situation.  We should always be able
 C        to find the value associated with a record.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL SETMSG ( 'File = #; RECNO = #; COLIDX = #. Column '     //
      .                 'entry was not found.  This probably indicates'//
      .                 ' a corrupted file or a bug in the EK code.'    )
-         CALL ERRFNM ( '#',     UNIT                                   )
+         CALL ERRHAN ( '#',     HANDLE                                 )
          CALL ERRINT ( '#',     RECNO                                  )
          CALL ERRINT ( '#',     COLDSC(ORDIDX)                         )
          CALL SIGERR ( 'SPICE(ITEMNOTFOUND)'                           )
@@ -281,14 +283,13 @@ C
 C        Big problem.  This should never happen.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL SETMSG ( 'File = #; RECNO = #; COLIDX = #.  Record ' //
      .                 'that was last less than or equal to RECNO '//
      .                 'was not equal to RECNO.  This probably '   //
      .                 'indicates  a corrupted file or a bug in '  //
      .                 'the EK code.'                               )
-         CALL ERRFNM ( '#',     UNIT                                )
+         CALL ERRHAN ( '#',     HANDLE                              )
          CALL ERRINT ( '#',     RECNO                               )
          CALL ERRINT ( '#',     COLDSC(ORDIDX)                      )
          CALL SIGERR ( 'SPICE(ITEMNOTFOUND)'                        )

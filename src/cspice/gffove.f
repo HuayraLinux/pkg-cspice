@@ -1238,7 +1238,7 @@ C           TSHAPE = 'RAY'
 C
 C     C
 C     C     Create a unit direction vector pointing from
-C     c     observer to star. We'll assume the direction
+C     C     observer to star. We'll assume the direction
 C     C     is constant during the confinement window, and
 C     C     we'll use et0 as the epoch at which to compute the
 C     C     direction from the spacecraft to the star.
@@ -1408,6 +1408,11 @@ C     L.S. Elson    (JPL)
 C     E.D. Wright   (JPL)
 C
 C$ Version
+C
+C-    SPICELIB Version 1.0.1 17-JAN-2017 (NJB) (JDR)
+C
+C        Fixed typo in second example program: initial letter
+C        "C" indicating a comment line was in lower case.
 C
 C-    SPICELIB Version 1.0.0 15-APR-2009 (NJB) (LSE) (EDW)
 C

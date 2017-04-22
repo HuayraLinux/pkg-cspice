@@ -174,6 +174,14 @@ C     E.D. Wright     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 04-APR-2017 (NJB)
+C
+C        Typo in comment fixed.
+C
+C        11-MAY-2015 (NJB) 
+C
+C        Updated to support subtype 2.
+C
 C-    SPICELIB Version 1.0.0, 17-OCT-2011 (NJB) (BVS) (WLT) (IMU) (EDW)
 C
 C-&
@@ -257,6 +265,7 @@ C
       INTEGER               NREAD
       INTEGER               NSDIR
       INTEGER               PKTSIZ
+      INTEGER               PKTSZS ( 0 : S19NST-1 )
       INTEGER               PTRBAS
       INTEGER               REMAIN
       INTEGER               SHIFT
@@ -266,6 +275,16 @@ C
       INTEGER               WNDSIZ
 
       LOGICAL               FINAL
+
+C
+C     Saved variables
+C
+      SAVE
+
+C
+C     Initial values
+C
+      DATA                  PKTSZS / S19PS0, S19PS1, S19PS2 /
  
 C
 C     Standard SPICE error handling.
@@ -388,7 +407,7 @@ C                    - A packet count
 C
 C        3)  All input mini-segments whose interpolation intervals
 C            follow that of the first used mini-segment and whose stop
-C            times are are less than or equal to END are copied whole
+C            times are less than or equal to END are copied whole
 C            to the output segment. We refer to this sequence of
 C            mini-segments as the "middle group." The middle group may
 C            be empty.
@@ -632,15 +651,7 @@ C
 C
 C     Set the packet size, which is a function of the subtype.
 C
-      IF ( SUBTYP .EQ. S19TP0 ) THEN
-
-         PKTSIZ = S19PS0
-
-      ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
-
-         PKTSIZ = S19PS1
-
-      ELSE
+      IF ( ( SUBTYP .LT. 0 ) .OR. ( SUBTYP .GE. S19NST ) ) THEN
 
          CALL SETMSG ( 'Unexpected SPK type 19 subtype # found in ' 
      .   //            'type 19 segment within mini-segment #.'     )
@@ -651,6 +662,9 @@ C
          RETURN
 
       END IF
+
+      PKTSIZ = PKTSZS( SUBTYP )
+
 
 C
 C     Determine how much of the mini-segment we need to transfer. The
@@ -1271,15 +1285,7 @@ C
 C
 C           Set the packet size, which is a function of the subtype.
 C
-            IF ( SUBTYP .EQ. S19TP0 ) THEN
-
-               PKTSIZ = S19PS0
-
-            ELSE IF ( SUBTYP .EQ. S19TP1 ) THEN
-
-               PKTSIZ = S19PS1
-
-            ELSE
+            IF ( ( SUBTYP .LT. 0 ) .OR. ( SUBTYP .GE. S19NST ) ) THEN
 
                CALL SETMSG ( 'Unexpected SPK type 19 subtype # found ' 
      .         //            'in type 19 segment within mini-segment '
@@ -1291,6 +1297,8 @@ C
                RETURN
 
             END IF
+
+            PKTSIZ = PKTSZS( SUBTYP )
 
 C
 C           Determine how much of the mini-segment we need to transfer.

@@ -402,6 +402,11 @@ C     B.V. Semenov   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    SPICELIB Version 2.0.3, 10-FEB-2014 (BVS)
 C
 C        Added descriptions of ADSCSZ and LBCELL to the Parameters
@@ -552,12 +557,6 @@ C     Length of strings used for data type names.
 C
       INTEGER               TYPLEN
       PARAMETER           ( TYPLEN = 4 )
- 
-C
-C     Chunk size for buffered DAS integer reads.
-C
-      INTEGER               CHNKSZ
-      PARAMETER           ( CHNKSZ = 1000 )
  
 C
 C     Length of status strings.
@@ -851,7 +850,6 @@ C
       INTEGER               TOP
       INTEGER               TPTVEC ( LBCELL : MAXTAB )
       INTEGER               UBASE  ( MXJRS )
-      INTEGER               UNIT
       INTEGER               UNROWS
       INTEGER               USIZE
  
@@ -1091,6 +1089,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.1.0, 09-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    SPICELIB Version 2.0.0, 16-NOV-2001 (NJB)
 C
 C        Bug fix:   When an already loaded kernel is opened with EKOPR,
@@ -1242,12 +1245,13 @@ C
 C
 C        Sorry, there are no free file table entries left.
 C
-         CALL DASHLU ( HANDLE,   UNIT                                  )
-         CALL EKCLS  ( HANDLE                                          )
+C        We close the EK AFTER setting the long error message.
+C
          CALL SETMSG ( 'The EK file # could not be loaded; the '      //
      .                 'maximum number of loaded EKs has already '    //
      .                 'been reached.'                                 )
-         CALL ERRFNM ( '#',      UNIT                                  )
+         CALL ERRHAN ( '#', HANDLE                                     )
+         CALL EKCLS  ( HANDLE                                          )
          CALL SIGERR ( 'SPICE(EKFILETABLEFULL)'                        )
          CALL CHKOUT ( 'EKLEF'                                         )
          RETURN
@@ -1265,22 +1269,22 @@ C
 C        There are too many segments for the amount of space we've got
 C        left.
 C
-         CALL DASHLU ( HANDLE,   UNIT                                  )
-         CALL EKCLS  ( HANDLE                                          )
+C        We close the EK AFTER setting the long error message.
+C
          CALL SETMSG ( 'The EK file # could not be loaded; the '      //
      .                 'maximum number of loaded segments has '       //
      .                 'already been reached.'                         )
-         CALL ERRFNM ( '#',      UNIT                                  )
+         CALL ERRHAN ( '#', HANDLE                                     )
+         CALL EKCLS  ( HANDLE                                          )
          CALL SIGERR ( 'SPICE(EKSEGTABLEFULL)'                         )
          CALL CHKOUT ( 'EKLEF'                                         )
          RETURN
  
       ELSE IF ( NSEG .LT. 1 ) THEN
  
-         CALL DASHLU ( HANDLE,   UNIT                                  )
-         CALL EKCLS  ( HANDLE                                          )
          CALL SETMSG ( 'The EK file # contains no segments.'           )
-         CALL ERRFNM ( '#',      UNIT                                  )
+         CALL ERRHAN ( '#',  HANDLE                                    )
+         CALL EKCLS  ( HANDLE                                          )
          CALL SIGERR ( 'SPICE(EKNOSEGMENTS)'                           )
          CALL CHKOUT ( 'EKLEF'                                         )
          RETURN
@@ -2045,15 +2049,13 @@ C           We've cleaned up after the aborted partial load.
 C
 C           Now that the mess has been arranged, tell the user what the
 C           problem was.
-C
-            CALL DASHLU ( HANDLE, UNIT )
- 
+C 
             IF ( PROBLM .EQ. 'TABLE_LIST_FULL' ) THEN
  
                CALL SETMSG ( 'The EK file # could not be loaded; the '//
      .                       'maximum number of distinct tables has ' //
      .                       'already been reached.'                   )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#', HANDLE                               )
                CALL SIGERR ( 'SPICE(EKTABLELISTFULL)'                  )
  
  
@@ -2062,7 +2064,7 @@ C
                CALL SETMSG ( 'The EK file # could not be loaded; the '//
      .                       'segment # contains duplicate column '   //
      .                       'names in table #.'                       )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL ERRINT ( '#',      SEG                             )
                CALL ERRCH  ( '#',      TABNAM                          )
                CALL SIGERR ( 'SPICE(EKCOLNUMMISMATCH)'                 )
@@ -2074,7 +2076,7 @@ C
      .                       'number of columns (#) in segment # '    //
      .                       'does not match the number of columns '  //
      .                       '(#) in the parent table #.'              )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL ERRINT ( '#',      NCOLS                           )
                CALL ERRINT ( '#',      SEG                             )
                CALL ERRINT ( '#',      NPCOL                           )
@@ -2089,7 +2091,7 @@ C
      .                       'loaded column.  The offending '         //
      .                       'column name is #; the column is '       //
      .                       'in segment #* of the file.'              )
-               CALL ERRFNM ( '#',  UNIT                                )
+               CALL ERRHAN ( '#',  HANDLE                              )
                CALL ERRCH  ( '#',  COLNAM                              )
                CALL ERRINT ( '*',  SEG                                 )
                CALL SIGERR ( 'SPICE(BADATTRIBUTES)'                    )
@@ -2100,7 +2102,7 @@ C
                CALL SETMSG ( 'The EK file # could not be loaded; the' //
      .                        'maximum allowed number of loaded '     //
      .                        'columns already been reached.'          )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL SIGERR ( 'SPICE(COLDESCTABLEFULL)'                 )
  
  
@@ -2110,7 +2112,7 @@ C
      .                       'maximum number of columns having'       //
      .                       'distinct attributes has already been '  //
      .                       'reached.'                                )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL SIGERR ( 'SPICE(EKCOLATTRTABLEFULL)'               )
  
  
@@ -2119,7 +2121,7 @@ C
                CALL SETMSG ( 'The EK file # could not be loaded; the '//
      .                       'column # in already loaded table # is ' //
      .                       'not present in segment # in the EK file.')
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL ERRCH  ( '#',      COLNAM                          )
                CALL ERRCH  ( '#',      TABNAM                          )
                CALL ERRINT ( '#',      SEG                             )
@@ -2132,7 +2134,7 @@ C
      .                       'problem "#" occurred while attempting ' //
      .                       'to load the file.  By way, there is a ' //
      .                       'bug in EKLEF if you see this message.'   )
-               CALL ERRFNM ( '#',      UNIT                            )
+               CALL ERRHAN ( '#',      HANDLE                          )
                CALL ERRCH  ( '#',      PROBLM                          )
                CALL SIGERR ( 'SPICE(BUG)'                              )
  

@@ -42,6 +42,7 @@ C     UTILITY
 C
 C$ Declarations
  
+      IMPLICIT NONE
  
       INCLUDE 'ekbool.inc'
       INCLUDE 'ekcoldsc.inc'
@@ -137,6 +138,13 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error message.
+C
+C        Deleted unneeded declarations and code.
+C
 C-    Beta Version 1.0.0, 28-SEP-1995 (NJB)
 C
 C-&
@@ -159,21 +167,19 @@ C
       INTEGER               BASE
       INTEGER               DATPTR
       INTEGER               IDXTYP
-      INTEGER               NCOLS
       INTEGER               NLINKS
       INTEGER               P
       INTEGER               PTRLOC
       INTEGER               RECNO
-      INTEGER               UNIT
  
 C
 C     Standard SPICE error handling.
 C
       IF ( RETURN () ) THEN
          RETURN
-      ELSE
-         CALL CHKIN ( 'ZZEKDE02' )
       END IF
+
+      CALL CHKIN ( 'ZZEKDE02' )
  
 C
 C     Before trying to actually modify the file, do every error
@@ -188,13 +194,6 @@ C
          CALL CHKOUT ( 'ZZEKDE02' )
          RETURN
       END IF
- 
-C
-C     We'll need to know how many columns the segment has in order to
-C     compute the size of the record pointer.  The record pointer
-C     contains DPTBAS items plus two elements for each column.
-C
-      NCOLS  =  SEGDSC ( NCIDX )
  
 C
 C     Compute the data pointer location.  If the data pointer is
@@ -283,14 +282,13 @@ C        UNINIT was the last valid possibility.  The data pointer is
 C        corrupted.
 C
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU (  HANDLE,  UNIT  )
  
          CALL SETMSG ( 'Data pointer is corrupted. SEGNO = #; '  //
      .                 'COLIDX =  #; RECNO = #; EK = #'          )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                      )
          CALL ERRINT ( '#',  COLDSC(ORDIDX)                      )
          CALL ERRINT ( '#',  RECNO                               )
-         CALL ERRFNM ( '#',  UNIT                                )
+         CALL ERRHAN ( '#',  HANDLE                              )
          CALL SIGERR ( 'SPICE(BUG)'                              )
          CALL CHKOUT ( 'ZZEKDE02'                                )
          RETURN

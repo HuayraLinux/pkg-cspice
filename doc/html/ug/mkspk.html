@@ -81,7 +81,7 @@
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H1> MKSPK User's Guide
 </H1><HR SIZE=3 NOSHADE><P><BR><BR><BR>
-   Last revised on 2012 FEB 24 by B. V. Semenov.
+   Last revised on 2016 MAR 01 by B. V. Semenov.
 <P>
  
 <BR><BR>
@@ -211,11 +211,11 @@
    options, and exits.
 <P>
  
-   If -u or -usage is speficied, the program displays the usage
+   If -u or -usage is specified, the program displays the usage
    information.
 <P>
  
-   If -h or -help is speficied, the program displays a brief summary of its
+   If -h or -help is specified, the program displays a brief summary of its
    functionality.
 <P>
  
@@ -236,7 +236,7 @@
    setup keywords is rather large and some of the keywords are specific for
    just one input data type or output SPK type, using this complete
    template as the starting point in creating a setup for the case at hand
-   may be cumberssome and inefficient.
+   may be cumbersome and inefficient.
 <P>
  
    To display a more concise, type-specific template, the input data type
@@ -709,8 +709,9 @@ time strings -- white space (' ') or comma (',').<BR>
 </B><BR><BR>
 <DD>
  number of lines to be ignored at the beginning of the input file. If
-this keyword is absent, the program starts data processing from the
-first line of the input file.<BR>
+this keyword is absent or is set to an integer number less than or
+equal to 0, the program starts data processing from the first line of
+the input file.<BR>
 </DL>
 <DL><DT>
 <B>
@@ -1346,13 +1347,17 @@ tag in an input record if the delimiter is comma or white space.<BR>
    in addition to the state vector.
 <P>
  
+   Any other allowed parameters in the DATA_ORDER value for the input type
+   STATES are treated by the program program as SKIP.
+<P>
+ 
 <BR><BR>
 <A NAME="Input Type ELEMENTS"></A>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Type ELEMENTS
 </H3><P><BR><BR>
    An input file of the ELEMENTS type must contain records consisting of
-   EPOCH, E, INC, PER, NOD and one of A, RPI, T, P, as well as one of MEAN,
+   EPOCH, E, INC, PER, NOD and one of A, RP, T, P, as well as one of MEAN,
    EXAN, TRAN, EPOCHP, TAU.
 <P>
  
@@ -1363,7 +1368,11 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <PRE>
       DPER/DT, DMPN/DT, DNOD/DT
 </PRE>
-   in addition to the state vector.
+   in addition to the base elements.
+<P>
+ 
+   Any other allowed parameters in the DATA_ORDER value for the input type
+   ELEMENTS are treated by the program program as SKIP.
 <P>
  
 <BR><BR>
@@ -1374,6 +1383,10 @@ tag in an input record if the delimiter is comma or white space.<BR>
    An input file of the EQ_ELEMENTS type must contain EPOCH and nine
    equinoctial elements EQ_A, EQ_H, EQ_K, EQ_ML, EQ_P, EQ_Q, DPER/DT,
    DMPN/DT, DNOD/DT.
+<P>
+ 
+   Any other allowed parameters in the DATA_ORDER value for the input type
+   EQ_ELEMENTS are treated by the program program as SKIP.
 <P>
  
 <BR><BR>
@@ -1954,7 +1967,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    of unevenly spaced states and a two body propagation method.
 <P>
  
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM value will be stored in
    the output SPK file together with the states. The IGNORE_FIRST_LINE
@@ -1983,7 +1996,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 2
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_STATES_05'
    \begintext
 </PRE>
@@ -2264,8 +2277,8 @@ tag in an input record if the delimiter is comma or white space.<BR>
    potential.
 <P>
  
-   The PCK file 'gravity.tpc' containing GM and J2 of the central body
-   (Jupiter) is specified using the PCK_FILE keyword. Alternatively,
+   The PCK file, e.g. 'Gravity.tpc', containing GM and J2 of the central
+   body (Jupiter) is specified using the PCK_FILE keyword. Alternatively,
    Jupiter's GM and J2 can be specified using the CENTER_GM and CENTER_J2
    keywords. The CENTER_POLE_RA and CENTER_POLE_DEC keywords contain
    Jupiter's pole RA and DEC with respect to the reference frame specified
@@ -2303,7 +2316,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 2
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc' )
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc' )
    PRECESSION_TYPE   = 'NO PRECESSION'
    CENTER_POLE_RA    = 268.001
    CENTER_POLE_DEC   = 64.504
@@ -2336,27 +2349,27 @@ tag in an input record if the delimiter is comma or white space.<BR>
 </H3><P><BR><BR>
    The SPK data Type 17 represents a continuous ephemeris using a compact
    analytic model. The object is following an elliptic orbit with
-   precessing line of nodes and argument of periapse relative to the
+   precessing line of nodes and argument of periapsis relative to the
    equatorial frame of some central body. The orbit is modeled via
    equinoctial elements.
 <P>
  
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
-   is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
-   be specified using the CENTER_GM keyword. The GM value is required to
-   convert states from the input file to a set of equinoctial elements
-   stored in the output SPK file. The CENTER_POLE_RA and CENTER_POLE_DEC
-   keywords contain Jupiter's pole RA and DEC with respect to the reference
-   frame specified in the REF_FRAME_NAME keyword -- in this case B1950. If
-   these keywords wouldn't be present in the setup file the program would
-   compute these values from data present in the PCK file 'pck00005.tpc'
-   provided using the PCK_FILE keyword. The START_TIME and STOP_TIME
-   keywords specifying file coverage interval are required for the output
-   SPK Type 17. The IGNORE_FIRST_LINE keyword is used to the header (three
-   lines) of the input file and the LINES_PER_RECORD keyword is used to
-   specify that each record of the input file occupies three lines, which
-   the program must know because the input data delimiter ' ' is one that
-   can be used in a SPICE time string.
+   The PCK file, e.g. 'Gravity.tpc', containing GM of the central body
+   (Jupiter) is specified using the PCK_FILE keyword. Alternatively,
+   Jupiter's GM can be specified using the CENTER_GM keyword. The GM value
+   is required to convert states from the input file to a set of
+   equinoctial elements stored in the output SPK file. The CENTER_POLE_RA
+   and CENTER_POLE_DEC keywords contain Jupiter's pole RA and DEC with
+   respect to the reference frame specified in the REF_FRAME_NAME keyword
+   -- in this case B1950. If these keywords wouldn't be present in the
+   setup file the program would compute these values from data present in
+   the PCK file 'pck00005.tpc' provided using the PCK_FILE keyword. The
+   START_TIME and STOP_TIME keywords specifying file coverage interval are
+   required for the output SPK Type 17. The IGNORE_FIRST_LINE keyword is
+   used to the header (three lines) of the input file and the
+   LINES_PER_RECORD keyword is used to specify that each record of the
+   input file occupies three lines, which the program must know because the
+   input data delimiter ' ' is one that can be used in a SPICE time string.
 <P>
  
    Setup file (In this example the value of DATA_ORDER is line-wrapped due
@@ -2383,7 +2396,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 3
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc')
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc')
    CENTER_POLE_RA    = 268.001
    CENTER_POLE_DEC   = 64.504
    SEGMENT_ID        = 'SPK_STATES_17'
@@ -2409,7 +2422,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 05
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM is needed to convert
    elements to states and it is also contained in the output SPK file. The
@@ -2439,7 +2452,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 2
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_ELEMENTS_05'
    \begintext
 </PRE>
@@ -2463,7 +2476,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 08
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM is needed to convert
    elements to states. The POLYNOM_DEGREE keyword is used to specify the
@@ -2496,7 +2509,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
    POLYNOM_DEGREE    = 8
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_ELEMENTS_08'
    \begintext
 </PRE>
@@ -2520,7 +2533,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 09
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM is needed to convert
    elements to states. The POLYNOM_DEGREE keyword is used to specify the
@@ -2553,7 +2566,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
    POLYNOM_DEGREE    = 8
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_ELEMENTS_09'
    \begintext
 </PRE>
@@ -2577,7 +2590,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 12
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM is needed to convert
    elements to states. The POLYNOM_DEGREE keyword is used to specify the
@@ -2610,7 +2623,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
    POLYNOM_DEGREE    = 7
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_ELEMENTS_12'
    \begintext
 </PRE>
@@ -2634,7 +2647,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 13
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM is needed to convert
    elements to states. The POLYNOM_DEGREE keyword is used to specify the
@@ -2667,7 +2680,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
    POLYNOM_DEGREE    = 7
-   PCK_FILE          = 'gravity.tpc'
+   PCK_FILE          = 'Gravity.tpc'
    SEGMENT_ID        = 'SPK_ELEMENTS_13'
    \begintext
 </PRE>
@@ -2691,7 +2704,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 15
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM and J2 of the central body
+   The PCK file 'Gravity.tpc' containing GM and J2 of the central body
    (Jupiter) is specified using the PCK_FILE keyword. Alternatively,
    Jupiter's GM and J2 can be specified using the CENTER_GM and CENTER_J2
    keywords. The CENTER_POLE_RA and CENTER_POLE_DEC keywords contain
@@ -2730,7 +2743,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 2
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc' )
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc' )
    PRECESSION_TYPE   = 'NO PRECESSION'
    CENTER_POLE_RA    = 268.001
    CENTER_POLE_DEC   = 64.504
@@ -2761,7 +2774,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H3> Input Data Type ELEMENTS / Output SPK Type 17
 </H3><P><BR><BR>
-   The PCK file 'gravity.tpc' containing GM of the central body (Jupiter)
+   The PCK file 'Gravity.tpc' containing GM of the central body (Jupiter)
    is specified using the PCK_FILE keyword. Alternatively, Jupiter's GM can
    be specified using the CENTER_GM keyword. The GM value is required to
    convert elements from the input file to a set of equinoctial elements
@@ -2803,7 +2816,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 3
    IGNORE_FIRST_LINE = 3
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc' )
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc' )
    CENTER_POLE_RA    = 268.001
    CENTER_POLE_DEC   = 64.504
    SEGMENT_ID        = 'SPK_ELEMENTS_17'
@@ -2996,7 +3009,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    LINES_PER_RECORD  = 2
    IGNORE_FIRST_LINE = 1
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc')
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc')
    SEGMENT_ID        = 'TEST'
    \begintext
 </PRE>
@@ -3050,7 +3063,7 @@ tag in an input record if the delimiter is comma or white space.<BR>
    EPOCH_STR_LENGTH  = 30
    IGNORE_FIRST_LINE = 1
    LEAPSECONDS_FILE  = 'naif0007.tls'
-   PCK_FILE          = ('pck00005.tpc' 'gravity.tpc')
+   PCK_FILE          = ('pck00005.tpc' 'Gravity.tpc')
    SEGMENT_ID        = 'TEST'
    \begintext
 </PRE>

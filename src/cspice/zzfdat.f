@@ -240,6 +240,12 @@ C     E.D. Wright     (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 5.1.0, 30-OCT-2014 (BVS)
+C
+C        Added the following PCK frame:
+C
+C           IAU_BENNU
+C
 C-    SPICELIB Version 5.0.0, 08-AUG-2013 (BVS)
 C
 C        Changed routine's calling sequence by dropping name and ID
@@ -1089,16 +1095,25 @@ C
       TYPE   ( NINERT + 105 ) =  PCK
 
 C
+C     Frame for Bennu asteroid, for OSIRIS-Rex project.
+C 
+      NAME   ( NINERT + 106 ) =  'IAU_BENNU'
+      IDCODE ( NINERT + 106 ) =  10106
+      CENTER ( NINERT + 106 ) =  2101955
+      TYPID  ( NINERT + 106 ) =  2101955
+      TYPE   ( NINERT + 106 ) =  PCK
+
+C
 C     Below is a template to use for adding another non-inertial
 C     frame. Copy it, fill in the new values and then leave
 C     a new template for the next person who needs to modify this
 C     routine.
 C
-C     NAME   ( NINERT + 106 ) =  name
-C     IDCODE ( NINERT + 106 ) =  10101
-C     CENTER ( NINERT + 106 ) =  center
-C     TYPID  ( NINERT + 106 ) =  type ID code
-C     TYPE   ( NINERT + 106 ) =  type (INERTL, PCK, etc. )
+C     NAME   ( NINERT + 107 ) =  name
+C     IDCODE ( NINERT + 107 ) =  10107
+C     CENTER ( NINERT + 107 ) =  center
+C     TYPID  ( NINERT + 107 ) =  type ID code
+C     TYPE   ( NINERT + 107 ) =  type (INERTL, PCK, etc. )
 C
 
 C

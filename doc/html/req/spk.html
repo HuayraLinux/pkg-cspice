@@ -96,6 +96,7 @@
          <A HREF="#References0">References</A>
          <A HREF="#Contacts">Contacts</A>
    <A HREF="#Appendix C---Revision History">Appendix C---Revision History</A>
+         <A HREF="#March 29, 2017">March 29, 2017</A>
          <A HREF="#July 14, 2014">July 14, 2014</A>
          <A HREF="#April 15, 2009">April 15, 2009</A>
          <A HREF="#February 28, 2008">February 28, 2008</A>
@@ -116,7 +117,7 @@
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H1> SPK Required Reading
 </H1><HR SIZE=3 NOSHADE><P><BR><BR><BR>
-   Last revised on 2014 JUL 14 by N. J. Bachman.
+   Last revised on 2017 MAR 29 by N. J. Bachman.
 <P>
  
 <BR><BR>
@@ -224,8 +225,8 @@ collection of papers and memos; assembled by I. Underwood; 11 Dec 1989
    the platform on which the Toolkit was compiled. If a non-native EOL
    terminator is detected in the first 132 characters of a text kernel, the
    execution is stopped and an error message is displayed. This feature
-   does not work with files that are smaller that 132 bytes or have the
-   first line longer that 132 characters.
+   does not work with files that are smaller than 132 bytes or have the
+   first line longer than 132 characters.
 <P>
  
 <BR><BR>
@@ -348,7 +349,6 @@ collection of papers and memos; assembled by I. Underwood; 11 Dec 1989
  
 <PRE>
    <a href="../cspice/stelab_c.html">stelab_c</a> ( pobj, vobs, appobj )
-   stlabx_c ( pobj, vobs, corpos )
 </PRE>
    Translating between object names and object ID codes (see NAIF_IDS
    Required Reading, <a href="../req/naif_ids.html">naif_ids.req</a>)
@@ -371,7 +371,6 @@ collection of papers and memos; assembled by I. Underwood; 11 Dec 1989
  
 <PRE>
    <a href="../cspice/sxform_c.html">sxform_c</a> ( &lt;from_name&gt;,   &lt;to_name&gt;,   &lt;et&gt;, mat6x6 )
-   frmchg_c ( &lt;from_idcode&gt;, &lt;to_idcode&gt;, &lt;et&gt;, mat6x6 )
 </PRE>
    Classifying frames (see Frames Required Reading, <a href="../req/frames.html">frames.req</a>)
 <P>
@@ -792,7 +791,7 @@ another body relative to a user specified reference frame.
 <BR><BR></UL>
 <UL>
 <TT>2.</TT> Determine the apparent, true, or geometric state of a body with respect to
-an observer with having a user-supplied state.
+an observer having a user-supplied state.
 <BR><BR></UL>
 <UL>
 <TT>3.</TT> Determine the geometric state of a body with respect to the solar system
@@ -847,13 +846,13 @@ particular body.
 <P>
  
 <PRE>
-   et = ( 2447751.8293d0 - j2000() ) * <a href="../cspice/spd_c.html">spd_c</a>();
+   et = ( 2447751.8293 - <a href="../cspice/j2000_c.html">j2000_c</a>() ) * <a href="../cspice/spd_c.html">spd_c</a>();
  
    <a href="../cspice/spkezr_c.html">spkezr_c</a> ( "triton",    et,    "j2000", &lt;aberr&gt;,
               "voyager-2", state, &amp;lt              ); { Easier state }
 </PRE>
-   where the function J2000 returns the epoch of the J2000 frame (Julian
-   Ephemeris Date 2451545.0) and the function SPD returns the number of
+   where the function <a href="../cspice/j2000_c.html">j2000_c</a> returns the epoch of the J2000 frame (Julian
+   Ephemeris Date 2451545.0) and the function <a href="../cspice/spd_c.html">spd_c</a> returns the number of
    seconds per Julian day (86400.0).
 <P>
  
@@ -1063,7 +1062,7 @@ particular body.
    value computed above and can be insignificant. For example, for the
    spacecraft Mars Reconnaissance Orbiter and Mars Express, the position
    error for the one-iteration light time correction, applied to the
-   spacecraft-to-Mars center
+   spacecraft-to-Mars center vector, is approximately 2 cm.
 <P>
  
    You can make <a href="../cspice/spkezr_c.html">spkezr_c</a> (and other applicable SPK functions) compute a
@@ -1313,7 +1312,7 @@ the target frame's orientation is accounted for as well.
    required reading file, <a href="../req/naif_ids.html">naif_ids.req</a>.
 <P>
  
-   <a href="../cspice/spkez_c.html">spkez_c</a> is useful in those situations when you ID codes for objects
+   <a href="../cspice/spkez_c.html">spkez_c</a> is useful in those situations when you have ID codes for objects
    stored as integers. There is also a modest efficiency gain when using
    integer ID codes instead of character strings to specify targets and
    observers.
@@ -1350,7 +1349,7 @@ the target frame's orientation is accounted for as well.
 <PRE>
    for ( i = 0;  i &lt; N;  i++ )
    {
-      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( ephem[I] );        { Load kernel file }
+      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( ephem[i] );        { Load kernel file }
    }
 </PRE>
    In general, a state returned by <a href="../cspice/spkezr_c.html">spkezr_c</a> is built from several more
@@ -1416,7 +1415,7 @@ the target frame's orientation is accounted for as well.
 <H3> Unloading Files
 </H3><P><BR><BR>
    The number of SPK files that may be loaded at any one time is limited
-   but very large -- up to 1000 total for all loaded SPK, CK, and binary
+   but very large -- up to 5000 total for all loaded SPK, CK, and binary
    PCK files combined. Although unlikely, in some cases your application
    program may need to unload some SPK files to make room for others or to
    remove a particular SPK from the set of loaded data. An SPK file may be
@@ -1485,7 +1484,7 @@ the target frame's orientation is accounted for as well.
    On the other hand, the orientation of non-inertial frames with respect
    to other frames are almost always the result of observation. They are
    improved and extended as further observations are made. For some of
-   these frames (such as spacecraft fixed frames) vary large data sets are
+   these frames (such as spacecraft fixed frames) very large data sets are
    needed to express the orientation of the frame with respect to other
    frames. Frame transformations that are a function of time and require
    megabytes of data are not suitable for encapsulation in C or FORTRAN
@@ -1533,7 +1532,7 @@ binary PCK file
             <a href="../cspice/unload_c.html">unload_c</a> ( &lt;file&gt; );
 </PRE>
 <UL>
-<TT>&#32;&#32;</TT> text based PCK files are loaded via the function <a href="../cspice/furnsh_c.html">furnsh_c</a>.
+<TT>&#32;&#32;</TT> Text based PCK files are loaded via the function <a href="../cspice/furnsh_c.html">furnsh_c</a>.
 <BR><BR></UL>
 <PRE>
             <a href="../cspice/furnsh_c.html">furnsh_c</a> ( &lt;file&gt; )
@@ -1781,7 +1780,7 @@ the segment, given in ephemeris seconds past Julian year 2000.
    used for ephemeris data. Users with access to data suitable for creating
    an ephemeris may choose to invent their own representations, adapting
    <a href="../cspice/spkpvn_c.html">spkpvn_c</a> accordingly. (We recommend that you consult with NAIF prior to
-   implementing an new data type.)
+   implementing a new data type.)
 <P>
  
    The data types currently supported by CSPICE software are listed under
@@ -1922,7 +1921,7 @@ the segment, given in ephemeris seconds past Julian year 2000.
  
       /*
       Load constants into the kernel pool. Two files are
-      needed. The first ("time.ker") contains the dates
+      needed. The first ("leapseconds.ker") contains the dates
       of leap seconds and values for constants needed to
       compute the difference between UTC and ET at any
       epoch. The second ("pck.ker") contains IAU values
@@ -1932,14 +1931,14 @@ the segment, given in ephemeris seconds past Julian year 2000.
       solar system. (These files, or their equivalents,
       are normally distributed along with CSPICE.)
       */
-      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "time.ker"  );
+      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "leapseconds.ker"  );
       <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "pck.ker"   );
  
       /*
       Several ephemeris files are used. Most contain data for
-      a single planetary system ("jupiter.ker", "saturn.ker",
-      and so on). Some contain data for spacecraft ("vgr1.ker",
-      "mgn.ker").
+      a single planetary system ("jupiter.bsp", "saturn.bsp",
+      and so on). Some contain data for spacecraft ("vgr1.bsp",
+      "mgn.bsp").
       */
       <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "mercury.bsp" );
       <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "venus.bsp"   );
@@ -2082,15 +2081,15 @@ the segment, given in ephemeris seconds past Julian year 2000.
  
       /*
       Load constants into the kernel pool. Two files are
-      needed. The first ("time.ker") contains the dates
+      needed. The first ("leapseconds.ker") contains the dates
       of leap seconds and values for constants needed to
       compute the difference between UTC and ET at any
-      epoch. The second ("radii.ker") contains values
+      epoch. The second ("radii.tpc") contains values
       for the tri-axial ellipsoids used to model the major
       major bodies of the solar system.
       */
-      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "time.ker"  );
-      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "radii.ker" );
+      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "leapseconds.ker"  );
+      <a href="../cspice/furnsh_c.html">furnsh_c</a> ( "radii.tpc" );
  
       /*
       Several ephemeris files are needed. Most contain data for
@@ -3695,11 +3694,11 @@ information about the generic segment.
  
 <PRE>
              +----------------------------------+
-           1 | Epoch of Periapsis               |
+          1  | Epoch of Periapsis               |
              +----------------------------------+
-           2 | Semi-Major Axis                  |
+          2  | Semi-Major Axis                  |
              +----------------------------------+
-           3 | H term of equinoctial elements   |
+          3  | H term of equinoctial elements   |
              +----------------------------------+
           4  | K term of equinoctial elements   |
              +----------------------------------+
@@ -3995,7 +3994,7 @@ overlap only at their endpoints, and have no intervening gaps.
    mathematical representation of ephemeris data as a ``subtype.''
 <P>
  
-   Currently SPK type 19 supports two subtypes:
+   Currently SPK type 19 supports three subtypes:
 <P>
  
 <UL>
@@ -4038,8 +4037,28 @@ method are in principle independent. The same interpolation degree is used
 for each position and velocity component.
 <BR><BR></UL>
 <UL>
-<TT>&#32;&#32;</TT> The interpolation degree of a subtype 0 mini-segment must be odd and must
+<TT>&#32;&#32;</TT> The interpolation degree of a subtype 1 mini-segment must be odd and must
 be in the range 1:MAXDEG, where MAXDEG is the maximum supported degree.
+<BR><BR></UL>
+<UL>
+<TT>3.</TT> Subtype 2
+<BR><BR></UL>
+<UL>
+<TT>&#32;&#32;</TT> Sliding-window Hermite interpolation of position and velocity. The
+ephemeris is represented by a series of 6-element ``packets'' and
+associated time tags. The time tags may be unequally spaced. Each packet
+contains three Cartesian position components and three velocity components.
+The position components and velocity components are interpolated together.
+<BR><BR></UL>
+<UL>
+<TT>&#32;&#32;</TT> The interpolation degree of a subtype 2 mini-segment must be equivalent to
+3 mod 4, that is, it must be in the set
+<BR><BR></UL>
+<PRE>
+            { 3, 7, 11, ..., MAXDEG }
+</PRE>
+<UL>
+<TT>&#32;&#32;</TT> where MAXDEG is the maximum supported degree.
 <BR><BR></UL>
    The sliding-window interpolation technique used by this data type works
    as follows: for any request epoch, the data type's state evaluation code
@@ -4215,6 +4234,7 @@ be in the range 1:MAXDEG, where MAXDEG is the maximum supported degree.
 <PRE>
    Subtype 0:     DEGREE  =  2 * WINDOW_SIZE  -  1
    Subtype 1:     DEGREE  =      WINDOW_SIZE  -  1
+   Subtype 2:     DEGREE  =  2 * WINDOW_SIZE  -  1
 </PRE>
    The mini-segment's set of time tags is augmented by a series of
    directory entries; these entries allow the type 19 reader to search for
@@ -5045,6 +5065,15 @@ common degree of the Chebyshev expansions for each velocity component.
 <p align="right"><a href="#top"><small>Top</small></a></p>
 <H1> Appendix C---Revision History
 </H1><HR SIZE=3 NOSHADE><P><BR><BR><BR>
+<BR><BR>
+<A NAME="March 29, 2017"></A>
+<p align="right"><a href="#top"><small>Top</small></a></p>
+<H3> March 29, 2017
+</H3><P><BR><BR>
+   Updated to describe subtype 2 of data type 19. Miscellaneous typos were
+   corrected.
+<P>
+ 
 <BR><BR>
 <A NAME="July 14, 2014"></A>
 <p align="right"><a href="#top"><small>Top</small></a></p>

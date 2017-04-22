@@ -129,6 +129,11 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 07-FEB-2015 (NJB)
+C
+C        Now uses ERRHAN to insert DAS file name into
+C        long error messages.
+C
 C-    Beta Version 1.0.0, 17-OCT-1995 (NJB)
 C
 C-&
@@ -145,7 +150,6 @@ C
       INTEGER               NCOLS
       INTEGER               PTRLOC
       INTEGER               RECNO
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -160,7 +164,6 @@ C
       IF (  ( COLIDX .LT. 1 ) .OR. ( COLIDX .GT. NCOLS )  ) THEN
  
          RECNO  =  ZZEKRP2N ( HANDLE, SEGDSC(SNOIDX), RECPTR )
-         CALL DASHLU ( HANDLE, UNIT )
  
          CALL CHKIN  ( 'ZZEKGCDP'                              )
          CALL SETMSG ( 'Column index = #; valid range is 1:#.' //
@@ -169,7 +172,7 @@ C
          CALL ERRINT ( '#',  NCOLS                             )
          CALL ERRINT ( '#',  SEGDSC(SNOIDX)                    )
          CALL ERRINT ( '#',  RECNO                             )
-         CALL ERRFNM ( '#',  UNIT                              )
+         CALL ERRHAN ( '#',  HANDLE                            )
          CALL SIGERR ( 'SPICE(INVALIDINDEX)'                   )
          CALL CHKOUT ( 'ZZEKGCDP'                              )
          RETURN

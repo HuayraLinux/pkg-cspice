@@ -300,9 +300,9 @@
 
             if ( !found )
             {
-               printf ( &quot;No descriptor was found for ID %ld at &quot;
+               printf ( &quot;No descriptor was found for ID %d at &quot;
                         &quot;TDB %24.17e\n&quot;, 
-                        (long) idcode,
+                        (int) idcode,
                         et                                       );
             }
             else
@@ -311,9 +311,9 @@
                Display the DAF file handle.
                ./
                printf ( &quot;\n&quot;
-                        &quot;DAF handle: %ld\n&quot;
+                        &quot;DAF handle: %d\n&quot;
                         &quot;\n&quot;,
-                        (long)handle        );
+                        (int)handle        );
 
                /.
                Display the segment ID.
@@ -324,17 +324,17 @@
 
                printf ( &quot;Segment found.\n&quot;
                         &quot;   Segment ID:        %s\n&quot;
-                        &quot;   Body ID code:      %ld\n&quot;
-                        &quot;   Center ID code:    %ld\n&quot;
-                        &quot;   Frame ID code:     %ld\n&quot;
-                        &quot;   SPK data type:     %ld\n&quot;
+                        &quot;   Body ID code:      %d\n&quot;
+                        &quot;   Center ID code:    %d\n&quot;
+                        &quot;   Frame ID code:     %d\n&quot;
+                        &quot;   SPK data type:     %d\n&quot;
                         &quot;   Start time (TDB):  %24.17e\n&quot;
                         &quot;   Stop time  (TDB):  %24.17e\n&quot;,
                         segid,
-                        (long) ic[0],
-                        (long) ic[1],
-                        (long) ic[2],
-                        (long) ic[3],
+                        (int) ic[0],
+                        (int) ic[1],
+                        (int) ic[2],
+                        (int) ic[3],
                         dc[0],
                         dc[1]                             );
             }
@@ -380,6 +380,11 @@
 <h4><a name="Version">Version</a></h4>
 <PRE>
  
+   -CSPICE Version 1.0.1, 12-JUL-2016 (EDW)
+
+      Edit to example program to use &quot;%d&quot; with explicit casts
+      to int for printing SpiceInts with printf.
+
    -CSPICE Version 1.0.0, 05-OCT-2012 (NJB) (RET)
 </PRE>
 <h4><a name="Index_Entries">Index_Entries</a></h4>
@@ -394,7 +399,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:44 2014</pre>
+   <pre>Wed Apr  5 17:54:44 2017</pre>
 
 </body>
 </html>

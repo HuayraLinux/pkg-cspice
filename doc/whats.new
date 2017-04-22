@@ -15,6 +15,7 @@ Introduction
  
    The Toolkit version changes described in this document are
  
+      Version 66 --- April 2017
       Version 65 --- July 2014
       Version 64 --- June 2010
       Version 63 --- April 2009
@@ -40,6 +41,962 @@ Introduction
       Version 43 --- May 1996
       Version 42 --- December 1995
       Version 41 --- October 1995
+ 
+ 
+Version 66 --- April 2017
+===========================================================================
+ 
+ 
+Summary
+--------------------------------------------------------
+ 
+   This is a brief summary of what's new and updated in N0066, with the
+   details about each item provided later in this section:
+ 
+       --   new Digital Shape Kernel (DSK) subsystem supporting Type 2
+            (tessellated plate model) shape data
+ 
+       --   new DAS linked array (DLA) file format subsystem supporting DSK
+ 
+       --   new surface name/ID mapping subsystem supporting DSK
+ 
+       --   run-time binary translation extended to work with DAS files
+ 
+       --   kernel loading subsystem updated to work with DSKs
+ 
+       --   binary file opening/closing management updated to work with DAS
+            files allowing access to up to 5000 DSKs at the same time
+ 
+       --   most existing high level geometry routines updated to work with
+            both ellipsoid and DSK surfaces
+ 
+       --   new limb and terminator routines supporting ellipsoid and DSK
+            surfaces
+ 
+       --   new lon/lat grid to surface points routine supporting ellipsoid
+            and DSK surfaces
+ 
+       --   new illumination routine with visibility and illumination flags
+            supporting ellipsoid and DSK surfaces
+ 
+       --   new surface normal routine supporting ellipsoid and DSK
+            surfaces
+ 
+       --   many new Icy wrappers
+ 
+       --   many new Mice wrappers
+ 
+       --   SPK 10 (two line elements) evaluator update to use the Vallado
+            derived propagator
+ 
+       --   text PCK-based frames performance improvement
+ 
+       --   new SPK Type 19 subtype 2
+ 
+       --   new DSK utility programs in generic toolkit -- DSKBRIEF,
+            DSKEXP, MKDSK
+ 
+       --   bug fixes in Toolkit and utility programs
+ 
+ 
+Environments
+--------------------------------------------------------
+ 
+ 
+New Environments
+ 
+   No new environments were introduced for N0066.
+ 
+ 
+Deprecated Environments
+ 
+   The SPICE Toolkit is no longer supported on these environments:
+ 
+      Icy:
+ 
+         Mac/Intel    OS-X          Apple C / IDL 8.x / 32bit
+ 
+      Mice:
+ 
+         Mac/Intel    OS-X          Apple C / MATLAB 7.x / 32bit
+         PC           Linux         gCC / MATLAB 7.x / 32bit
+         PC           Windows       MS Visual C / MATLAB 7.x / 32bit
+ 
+ 
+ 
+Complete List of Supported Environments
+ 
+   This is the complete list of environments on which the N0066 version of
+   the SPICE Toolkit is supported:
+ 
+      FORTRAN Toolkit:
+ 
+         Mac/Intel    OS-X          GFORTRAN / 32bit
+         Mac/Intel    OS-X          GFORTRAN / 64bit
+         Mac/Intel    OS-X          Intel FORTRAN / 32bit
+         Mac/Intel    OS-X          Intel FORTRAN / 64bit
+         PC           CYGWIN        GFORTRAN / 32bit
+         PC           CYGWIN        GFORTRAN / 64bit
+         PC           Linux         GFORTRAN / 32bit
+         PC           Linux         GFORTRAN / 64bit
+         PC           Linux         Intel FORTRAN / 32bit
+         PC           Linux         Intel FORTRAN / 64bit
+         PC           Linux         g77 / 32bit
+         PC           Windows       Intel FORTRAN / 32bit
+         PC           Windows       Intel FORTRAN / 64bit
+         Sun          Solaris       SUN FORTRAN / 32bit
+         Sun/Intel    Solaris       SUN FORTRAN / 32bit
+         Sun/Intel    Solaris       SUN FORTRAN / 64bit
+ 
+      CSPICE:
+ 
+         Mac/Intel    OS-X          Apple C / 32bit
+         Mac/Intel    OS-X          Apple C / 64bit
+         PC           CYGWIN        gCC / 32bit
+         PC           CYGWIN        gCC / 64bit
+         PC           Linux         gCC / 32bit
+         PC           Linux         gCC / 64bit
+         PC           Windows       MS Visual C / 32bit
+         PC           Windows       MS Visual C / 64bit
+         Sun          Solaris       SUN C / 32bit
+         Sun          Solaris       SUN C / 64bit
+         Sun          Solaris       gCC / 32bit
+         Sun          Solaris       gCC / 64bit
+         Sun/Intel    Solaris       SUN C / 32bit
+         Sun/Intel    Solaris       SUN C / 64bit
+ 
+      Icy:
+ 
+         Mac/Intel    OS-X          Apple C / IDL 8.x / 64bit
+         PC           Linux         gCC / IDL 8.x / 32bit
+         PC           Linux         gCC / IDL 8.x / 64bit
+         PC           Windows       MS Visual C / IDL 7.x / 32bit
+         PC           Windows       MS Visual C / IDL 7.x / 64bit
+         Sun          Solaris       SUN C / IDL 7.x / 32bit
+         Sun          Solaris       gCC / IDL 7.x / 32bit
+         Sun          Solaris       gCC / IDL 7.x / 64bit
+         Sun/Intel    Solaris       SUN C / IDL 8.x / 64bit
+ 
+      Mice:
+ 
+         Mac/Intel    OS-X          Apple C / MATLAB 7.x / 64bit
+         PC           Linux         gCC / MATLAB 7.x / 64bit
+         PC           Windows       MS Visual C / MATLAB 7.x / 64bit
+         Sun          Solaris       SUN C / MATLAB 7.x / 64bit
+ 
+ 
+ 
+Scratch EK File Issue in Icy on PC/Windows
+ 
+   The scratch EK file issue in Icy on PC/Windows described in the N0061
+   section of this document persists in the N0066 version of the Toolkit.
+ 
+ 
+Optimization on PC Linux, Intel FORTRAN, 32bit
+ 
+   Default optimization was turned off in the PC Linux, Intel FORTRAN,
+   32bit toolkit because of the bugs in the compiler versions available to
+   NAIF.
+ 
+ 
+Need for Static System Libraries on Linux and OS-X
+ 
+   Static system libraries needed to build statically-linked FORTRAN
+   toolkit executables on Linux and OS-X are frequently not included in
+   more modern versions of these operating systems. If a need to recompile
+   a Linux or an OS-X FORTRAN toolkit arises and the linking step performed
+   by mkprodct.csh build scripts fails with an error message indicating the
+   lack of needed static system libraries, users should install these
+   libraries as appropriate for their system before re-trying a recompile.
+ 
+ 
+SPICELIB/CSPICE/Icy/Mice Additions and Updates
+--------------------------------------------------------
+ 
+ 
+The Digital Shape Kernel (DSK) Subsystem
+ 
+   The Digital Shape Kernel (DSK) is a new SPICE kernel type.
+ 
+   The DSK subsystem enables SPICE applications to access detailed
+   representations of shapes of extended objects, and conveniently use
+   those shape data in geometry calculations. The subsystem also provides
+   mechanisms for documenting and porting such data.
+ 
+   The DSK subsystem consists of the DSK file format, SPICE routines that
+   can access these files, utility programs, and documentation.
+ 
+   The DSK subsystem design allows for multiple mathematical
+   representations of shapes; each such representation is called a ``DSK
+   data type.'' Currently the only supported data type is DSK type 2, which
+   models shapes of objects as collections of triangular plates. Such shape
+   representations are also called ``tessellated plate models'' or
+   ``triangular irregular networks'' (TINs).
+ 
+   Support for a data type that accommodates digital elevation models
+   (DEMs) is planned for release in a future SPICE Toolkit version.
+ 
+   High-level SPICE geometry APIs, when using DSK shape data, work
+   independently of the underlying DSK data type. SPICE also includes
+   lower-level, type-dependent DSK APIs, such as those for fetching DSK
+   type 2 plate and vertex data.
+ 
+   The DSK subsystem includes three new utility programs:
+ 
+                  MKDSK
+                  DSKBRIEF
+                  DSKEXP
+ 
+   These utilities, respectively, enable SPICE users to make DSK files from
+   data in a variety of text formats, summarize the contents of DSK files,
+   and export data from binary DSK files to easily readable text files.
+ 
+   The previously existing SPICE utilities for comment area access and
+   binary-transfer format conversion
+ 
+                  COMMNT
+                  TOBIN
+                  TOXFR
+ 
+   work with DSK files.
+ 
+   See the DSK Required Reading document, dsk.req, for further information.
+ 
+   Status of the prototype Alpha DSK Toolkit is discussed in a section
+   below.
+ 
+ 
+DSK Loading and Run-time Binary Translation
+ 
+   DSK files are ``loaded'' and ``unloaded'' just like other SPICE kernels.
+   SPICE-based user applications load DSK files for read access by calling
+ 
+                  FURNSH          (SPICELIB)
+                  furnsh_c        (CSPICE)
+                  cspice_furnsh   (ICY and MICE)
+ 
+   and unload them by calling
+ 
+                  UNLOAD          (SPICELIB)
+                  unload_c        (CSPICE)
+                  cspice_unload   (ICY and MICE)
+ 
+               or
+ 
+                  KCLEAR          (SPICELIB)
+                  kclear_c        (CSPICE)
+                  cspice_kclear   (ICY and MICE)
+ 
+   The names of DSK files to be loaded can be listed in a meta-kernel,
+   along with the names of other SPICE kernels.
+ 
+   Large DSK data sets will normally be partitioned into multiple DSK
+   files. These files can be named in a meta-kernel and loaded
+   simultaneously. The DSK subsystem will automatically select data as
+   needed from loaded DSK files.
+ 
+   Information on loaded DSKs---names of loaded kernels, file handles, and
+   names of meta-kernels referencing those DSKs---can be obtained by
+   calling
+ 
+                  KTOTAL
+                  KINFO
+                  KDATA           (SPICELIB)
+ 
+                  ktotal_c
+                  kinfo_c
+                  kdata_c         (CSPICE)
+ 
+                  cspice_ktotal   (ICY and MICE)
+                  cspice_kinfo    (ICY and MICE)
+                  cspice_kdata    (ICY and MICE)
+ 
+   DSK files use the SPICE DAS (Direct Access Segregated) architecture; DSK
+   files are a subclass of DAS files. The SPICE Toolkit has been upgraded
+   so that open and close operations on DAS files, along with DAF files,
+   are managed by a common subsystem. This subsystem allows up to 5000 DAS
+   and DAF files to be accessible for reading at the same time.
+ 
+   The SPICE Toolkit has been upgraded to support run-time translation of
+   DAS files: DAS files having ``big-endian'' binary file formats can be
+   read on ``little-endian'' host systems, and vice versa. It still is
+   necessary to convert DAS files to the host system's binary file format
+   if the files need to be writable. For larger DAS files, conversion to
+   the host format is still desirable to improve efficiency.
+ 
+ 
+High Level Routines Updated to Work with DSK Surfaces
+ 
+   The following high level geometry routines were updated to work with the
+   surface of a target body represented by a triaxial ellipsoid or by
+   topographic data provided by DSK files:
+ 
+       --   ray surface intercept routine:
+ 
+                  SINCPT          (SPICELIB)
+                  sincpt_c        (CSPICE)
+                  cspice_sincpt   (ICY and MICE)
+ 
+       --   sub-observer point routine:
+ 
+                  SUBPNT          (SPICELIB)
+                  subpnt_c        (CSPICE)
+                  cspice_subpnt   (ICY and MICE)
+ 
+       --   sub-solar point routine:
+ 
+                  SUBSLR          (SPICELIB)
+                  subslr_c        (CSPICE)
+                  cspice_subslr   (ICY and MICE)
+ 
+       --   solar illumination angles routine:
+ 
+                  ILUMIN          (SPICELIB)
+                  ilumin_c        (CSPICE)
+                  cspice_ilumin   (ICY and MICE)
+ 
+       --   arbitrary body illumination angles routine:
+ 
+                  ILLUMG          (SPICELIB)
+                  illumg_c        (CSPICE)
+                  cspice_illumg   (ICY and MICE)
+ 
+       --   occultation condition routine:
+ 
+                  OCCULT          (SPICELIB)
+                  occult_c        (CSPICE)
+                  cspice_occult   (ICY and MICE)
+ 
+       --   GF occultation finder routine:
+ 
+                  GFOCLT          (SPICELIB)
+                  gfoclt_c        (CSPICE)
+                  cspice_gfoclt   (ICY and MICE)
+ 
+       --   GF occultation finder routine, with interrupt and reporting:
+ 
+                  GFOCCE          (SPICELIB)
+                  gfocce_c        (CSPICE)
+ 
+ 
+New Limb Routine
+ 
+   The N0066 version offers a new routine to find limb points on a target
+   body, with the surface of the body represented by a triaxial ellipsoid
+   or by topographic data provided by DSK files:
+ 
+                  LIMBPT          (SPICELIB)
+                  limbpt_c        (CSPICE)
+                  cspice_limbpt   (ICY and MICE)
+ 
+ 
+New Terminator Routine
+ 
+   The N0066 version offers a new routine to find umbral or penumbral
+   terminator points on a target body, with the surface of the body
+   represented by a triaxial ellipsoid or by topographic data provided by
+   DSK files:
+ 
+                  TERMPT          (SPICELIB)
+                  termpt_c        (CSPICE)
+                  cspice_termpt   (ICY and MICE)
+ 
+ 
+New Lon/Lat Grid to Surface Points Routine
+ 
+   The N0066 version offers a new routine to map an array of planetocentric
+   longitude/latitude coordinate pairs to surface points on a specified
+   target body, with the surface of the body represented by a triaxial
+   ellipsoid or by topographic data provided by DSK files:
+ 
+                  LATSRF          (SPICELIB)
+                  latsrf_c        (CSPICE)
+                  cspice_latsrf   (ICY and MICE)
+ 
+ 
+New Illumination Routine with Visibility and Illumination Flags
+ 
+   The N0066 version offers a new routine to compute the illumination
+   angles -- phase, incidence, and emission -- at a specified point on a
+   target body and to return logical flags indicating whether the surface
+   point is visible from the observer's position and whether the surface
+   point is illuminated, with the target body's surface represented using
+   topographic data provided by DSK files, or by a reference ellipsoid:
+ 
+                  ILLUMF          (SPICELIB)
+                  illumf_c        (CSPICE)
+                  cspice_illumf   (ICY and MICE)
+ 
+ 
+New Surface Normal Routine
+ 
+   The N0066 version offers a new routine to map an array of surface points
+   on a specified target body to the corresponding unit length outward
+   surface normal vectors, with the surface of the target body represented
+   by a triaxial ellipsoid or by topographic data provided by DSK files:
+ 
+                  SRFNRM          (SPICELIB)
+                  srfnrm_c        (CSPICE)
+                  cspice_srfnrm   (ICY and MICE)
+ 
+ 
+New DSK-Specific Surface Intercept Routines
+ 
+   The N0066 version offers the following routines for computing ray
+   surface intercepts for surfaces modeled by DSK:
+ 
+       --   a new routine to compute ray-surface intercepts for a set of
+            rays, using data provided by multiple loaded DSK segments:
+ 
+                  DSKXV           (SPICELIB)
+                  dskxv_c         (CSPICE)
+                  cspice_dskxv    (ICY and MICE)
+ 
+       --   a new routine to compute a ray-surface intercept using data
+            provided by multiple loaded DSK segments, returning information
+            about the source of the data defining the surface on which the
+            intercept was found:
+ 
+                  DSKXSI          (SPICELIB)
+                  dskxsi_c        (CSPICE)
+                  cspice_dskxsi   (ICY and MICE)
+ 
+ 
+New DSK Summary Routines
+ 
+   The N0066 version offers the following routines for getting a summary of
+   the DSK file contents from within a user's application:
+ 
+       --   a new routine to return the set of body ID codes of all objects
+            for which data are provided in a DSK file:
+ 
+                  DSKOBJ          (SPICELIB)
+                  dskobj_c        (CSPICE)
+                  cspice_dskobj   (ICY and MICE)
+ 
+       --   a new routine to return the set of surface ID codes for all
+            surfaces associated with a body in a DSK file:
+ 
+                  DSKSRF          (SPICELIB)
+                  dsksrf_c        (CSPICE)
+                  cspice_dsksrf   (ICY and MICE)
+ 
+ 
+New Type 2 DSK Bulk Read Routines
+ 
+   The N0066 version offers the following routines enabling retrieval of
+   plate and vertex data stored in Type 2 DSK segments:
+ 
+       --   a new routine to return plate model size parameters (plate
+            count and vertex count) for a type 2 DSK segment:
+ 
+                  DSKZ02          (SPICELIB)
+                  dskz02_c        (CSPICE)
+                  cspice_dskz02   (ICY and MICE)
+ 
+       --   a new routine to return triangular plates from a type 2 DSK
+            segment:
+ 
+                  DSKP02          (SPICELIB)
+                  dskp02_c        (CSPICE)
+                  cspice_dskp02   (ICY and MICE)
+ 
+       --   a new routine to return vertices from a type 2 DSK segment:
+ 
+                  DSKV02          (SPICELIB)
+                  dskv02_c        (CSPICE)
+                  cspice_dskv02   (ICY and MICE)
+ 
+ 
+New Surface Name/ID Mapping Routines
+ 
+   Each set of shape data in a DSK file is associated with a specified
+   body. In order to efficiently and conveniently support simultaneous use
+   of multiple versions of shape data for a given body, the data have an
+   additional attribute called a ``surface ID.'' Surface IDs have
+   associated names.
+ 
+   The surface name/ID subsystem supports the DSK subsystem by providing
+   means to map between names and IDs of surfaces stored in DSK files. The
+   N0066 version offers the following surface name/ID mapping routines:
+ 
+       --   a new routine to translate a surface ID code, together with a
+            body name, to the corresponding surface name:
+ 
+                  SRFCSS          (SPICELIB)
+                  srfcss_c        (CSPICE)
+                  cspice_srfcss   (ICY and MICE)
+ 
+       --   a new routine to translate a surface string, together with a
+            body name, to the corresponding surface ID code:
+ 
+                  SRFS2C          (SPICELIB)
+                  srfs2c_c        (CSPICE)
+                  cspice_srfs2c   (ICY and MICE)
+ 
+       --   a new routine to translate a surface ID code, together with a
+            body ID code, to the corresponding surface name:
+ 
+                  SRFC2S          (SPICELIB)
+                  srfc2s_c        (CSPICE)
+                  cspice_srfc2s   (ICY and MICE)
+ 
+       --   a new routine to translate a surface string, together with a
+            body ID code, to the corresponding surface ID code:
+ 
+                  SRFSCC          (SPICELIB)
+                  srfscc_c        (CSPICE)
+                  cspice_srfscc   (ICY and MICE)
+ 
+ 
+Status of the Alpha DSK Toolkit
+ 
+   Alpha DSK Toolkit high-level ``pl02'' geometry software is now
+   deprecated. Users of the Alpha DSK Toolkit are encouraged to migrate
+   their application software to the new SPICE Toolkit APIs. In all cases,
+   Alpha DSK high-level geometry APIs have been superseded by SPICE APIs
+   with superior capabilities. In particular, the new APIs can seamlessly
+   work with data sets distributed across multiple DSK files.
+ 
+   However, for convenience of Alpha DSK Toolkit users, the Alpha DSK
+   geometry APIs are included in the SPICE Toolkit. There have been some
+   changes to the sets of header files referenced by the C versions of
+   those routines; other than that, the interfaces of the routines are
+   unchanged.
+ 
+   The Alpha versions of the DLA and DSK type 2 routines are also included
+   in the SPICE Toolkit and are considered official SPICE APIs. Aside from
+   the exceptions cited below, interfaces are unchanged from the Alpha
+   versions.
+ 
+   A few backward-compatibility violations do exist:
+ 
+       --   The calling sequence of the DSK type 2 writing routine DSKW02
+            has changed.
+ 
+       --   The routine DSKSGR is no longer provided.
+ 
+   The Alpha DSK versions of the utility programs MKDSK and DSKBRIEF have
+   been upgraded and are included in the SPICE Toolkit.
+ 
+   DSKBRIEF upgrades include:
+ 
+       --   The default display has been simplified. The old, detailed
+            display can be invoked using the -full option.
+ 
+       --   Multiple DSK files, and multiple segments within a DSK file,
+            can be summarized together.
+ 
+       --   Coverage bounds and coverage gaps can be displayed for multiple
+            DSK files or multiple segments within a file.
+ 
+       --   Names of supporting kernels that enable body, surface, and
+            frame ID-to-name translation can be provided on the command
+            line.
+ 
+   MDKSK upgrades include:
+ 
+       --   The maximum output segment plate count has been increased to 32
+            million plates on Linux, Mac, and Solaris/Intel environments
+            and to 10 million plates on Windows and Solaris/Sparc
+            environments.
+ 
+       --   Height grid input data are now supported.
+ 
+       --   Latitudinal, planetodetic, and rectangular coordinate systems
+            are supported.
+ 
+       --   Voxel scales no longer need to be specified in the setup file;
+            MKDSK will calculate them automatically.
+ 
+       --   Execution speed of the program has been improved.
+ 
+       --   The user can command generation of a vertex-plate mapping.
+ 
+       --   Fixes of bugs in the setup file error handling code.
+ 
+   The DSK file format introduced in 2010 is unchanged and will remain
+   backward-compatible going forward. The only planned changes are
+   additions of new data types.
+ 
+   Run-time translation of old DSK files is now supported, as it is for all
+   DAS files.
+ 
+ 
+New Alpha-DSK Backwards Compatibility Routines
+ 
+   Solely for backwards compatibility reasons the N0066 version offers the
+   Type 2 DSK specific routines shown below that were a part of the
+   Alpha-DSK toolkit routine set. These routines are deprecated and
+   superseded by other DSK-enabled high-level routines. These routines are
+   not available in FORTRAN toolkits.
+ 
+       --   in CSPICE:
+ 
+                  illum_pl02            illum_plid_pl02
+                  limb_pl02             llgrid_pl02
+                  subpt_pl02            subsol_pl02
+                  term_pl02
+ 
+       --   in ICY and MICE:
+ 
+                  cspice_illum_pl02     cspice_illum_plid_pl02
+                  cspice_limb_pl02      cspice_llgrid_pl02
+                  cspice_subpt_pl02     cspice_subsol_pl02
+                  cspice_term_pl02
+ 
+ 
+New DSK Mid-Level, Low-Level, and Utility Routines
+ 
+   The following additional public DSK mid-level, low-level, and utility
+   routines are available in the N0066 toolkit:
+ 
+       --   in SPICELIB:
+ 
+                  DSKB02            DSKCLS            DSKD02
+                  DSKGD             DSKGTL            DSKI02
+                  DSKMI2            DSKN02            DSKOPN
+                  DSKRB2            DSKSTL            DSKW02
+                  DSKX02            PLTAR             PLTEXP
+                  PLTNP             PLTNRM            PLTVOL
+ 
+       --   in CSPICE:
+ 
+                  dskb02_c          dskcls_c          dskd02_c
+                  dskgd_c           dskgtl_c          dski02_c
+                  dskmi2_c          dskn02_c          dskopn_c
+                  dskrb2_c          dskstl_c          dskw02_c
+                  dskx02_c          pltar_c           pltexp_c
+                  pltnp_c           pltnrm_c          pltvol_c
+ 
+       --   in ICY and MICE:
+ 
+                  cspice_dskb02     cspice_dskcls     cspice_dskd02
+                  cspice_dskgd      cspice_dskgtl     cspice_dski02
+                  cspice_dskmi2     cspice_dskn02     cspice_dskopn
+                  cspice_dskrb2     cspice_dskstl     cspice_dskw02
+                  cspice_dskx02     cspice_pltar      cspice_pltexp
+                  cspice_pltnp      cspice_pltnrm     cspice_pltvol
+ 
+ 
+New DLA File Format and Routines
+ 
+   SPICE DSK files are built upon an intermediate-level file format that
+   sits between the levels of the DSK and DAS formats: DAS Linked Array
+   (DLA). The DLA format enables applications to view DAS files as a
+   doubly-linked list of ``arrays,'' where each array consists of data
+   occupying three sequences of of contiguous DAS character, integer, and
+   double precision addresses.
+ 
+   The data in a DSK file are organized into one or more ``segments''; each
+   segment contains data for a specified body, spatial region and time
+   interval. DSK segments are implemented as DLA arrays.
+ 
+   DSK data type-dependent routines, such as those that fetch vertices from
+   a plate model, operate on DSK segments. DLA APIs are used to traverse
+   DSK files and locate DSK segments so that the segments can be referenced
+   by type-dependent DSK routines.
+ 
+   The following public DLA routines are available in the N0066 toolkit:
+ 
+       --   in SPICELIB:
+ 
+                  DLABBS            DLABFS            DLABNS
+                  DLAENS            DLAFNS            DLAFPS
+                  DLAOPN            DLASSG
+ 
+       --   in CSPICE:
+ 
+                  dlabbs_c          dlabfs_c          dlafns_c
+                  dlafps_c
+ 
+       --   in ICY and MICE:
+ 
+                  cspice_dlabfs     cspice_dlafns
+ 
+   See the DLA Required Reading document, dla.req, for details. See the API
+   documentation of DSK type 2 routines and DLA routines for complete
+   example programs that demonstrate use of the routines.
+ 
+ 
+Other New SPICELIB Interfaces
+ 
+   The following new APIs were added to SPICELIB:
+ 
+                  EDNMPT            EDPNT            INCNSG
+                  INSANG            NPSGPT           OSCLTX
+                  XDDA
+ 
+ 
+Other New CSPICE Interfaces
+ 
+   The following new APIs were added to CSPICE:
+ 
+                  chbder_c          cleard_c         dasdc_c
+                  dashfn_c          dasopw_c         dasrfr_c
+                  hrmint_c          lgrind_c         oscltx_c
+                  pckcls_c          pckopn_c         pckw02_c
+                  polyds_c
+ 
+ 
+Other New Icy and Mice Interfaces
+ 
+   A few APIs were added to Icy and Mice to make the sets of Icy and Mice
+   routines be more closely aligned with the sets available in toolkits for
+   other languages:
+ 
+                 cspice_bodfnd
+                 cspice_ccifrm
+                 cspice_dascls
+                 cspice_dasec
+                 cspice_dasopr
+                 cspice_lspcn
+                 cspice_pckcov
+                 cspice_pckfrm
+                 cspice_spkuds (ICY only)
+                 cspice_srfrec
+ 
+   The following global parameter scripts were added to Icy:
+ 
+                  DSKIcy02.pro
+                  DSKIcyUser.pro
+                  DSKtol.pro
+ 
+   The following global parameter scripts were added to Mice:
+ 
+                  DSKMice02.m
+                  DSKMiceUser.m
+                  DSKtol.m
+ 
+ 
+SPK 10 Evaluator Update to Use Vallado Propagator
+ 
+   NAIF added a TLE propagator based on the algorithms published by Vallado
+   et. al. (2006).
+ 
+      Vallado, David, Crawford, Paul, Hujsak, Richard,
+      and Kelso, T.S. 2006. Revisiting Spacetrack Report #3. Paper
+      AIAA 2006-6753 presented at the AIAA/AAS Astrodynamics
+      Specialist Conference, August 21-24, 2006. Keystone, CO.
+ 
+   Starting with the toolkit version N0066 the SPK subsystem uses this new
+   propagator to evaluate TLE Type 10 SPKs. Note that because the routines
+   implementing the Vallado propagator use some leapsecond constants,
+   loading an LSK is now required in order to read any TLE Type 10 SPKs.
+ 
+   The Spacetrack #3 (Hoots 1980) based TLE propagation routines used in
+   Toolkit version N0065 and earlier remain part of the Toolkit.
+ 
+      Hoots, F. R., and Roehrich, R. L. 1980. "Models for
+      Propagation of the NORAD Element Sets." Spacetrack Report #3.
+      U.S. Air Force: Aerospace Defense Command.
+ 
+ 
+Text PCK-based Frames Performance Improvement
+ 
+   The SPICELIB routines TISBOD, TIPBOD, and BODMAT computing natural body
+   body-fixed frame orientations based on the text PCK data and used by the
+   SPICE frames subsystem were modified to significantly speed up their
+   execution. As with the N0065 speedup improvements, these changes have
+   been designed around the premise that the contents of the SPICELIB's
+   POOL data buffer are not frequently modified via loading/unloading
+   kernels or via direct POOL data insertion/deletion APIs during the
+   program execution. Applications that constantly alter the POOL will not
+   see any significant speedup and in some cases may even see a slight
+   performance degradation (no more that 5 percent).
+ 
+ 
+SPK Type 19, subtype 2
+ 
+   SPK type 19 subtype 2 has been provided to support accurate duplication
+   by the SPICE SPK subsystem of spacecraft ephemeris data used by the
+   European Space Agency (ESA) on the Mars Express, Rosetta, SMART-1 and
+   Venus Express missions. Subtype 2 supports Hermite interpolation of
+   6-element packets consisting of position and velocity data.
+ 
+ 
+Built-in NAIF ID Code/Name Definitions
+ 
+   The following new built-in NAIF ID code/name definitions have been added
+   to or changed in the Toolkit:
+ 
+      Spacecraft:
+ 
+              -28   JUPITER ICY MOONS EXPLORER
+              -28   JUICE
+              -49   LUCY
+              -62   EMM
+              -62   EMIRATES MARS MISSION
+              -65   MCOA
+              -65   MARCO-A
+              -66   MCOB
+              -66   MARCO-B
+              -68   MERCURY MAGNETOSPHERIC ORBITER
+              -68   MMO
+              -68   BEPICOLOMBO MMO
+              -69   PSYC
+              -76   CURIOSITY
+             -117   EDL DEMONSTRATOR MODULE
+             -117   EDM
+             -117   EXOMARS 2016 EDM
+             -121   MERCURY PLANETARY ORBITER
+             -121   MPO
+             -121   BEPICOLOMBO MPO
+             -143   TRACE GAS ORBITER
+             -143   TGO
+             -143   EXOMARS 2016 TGO
+             -152   CH2
+             -152   CHANDRAYAAN-2
+             -159   EURC
+             -159   EUROPA CLIPPER
+             -198   NASA-ISRO SAR MISSION
+             -198   NISAR
+             -301   HELIOS 1
+             -302   HELIOS 2
+ 
+      Satellites:
+ 
+              553   DIA
+ 
+      Asteroids:
+ 
+          2000016   PSYCHE
+          2101955   BENNU
+ 
+   The following built-in NAIF ID code/name definitions have been removed
+   from the Toolkit:
+ 
+             -159   EUROPA ORBITER
+ 
+ 
+Built-in Body-Fixed Frames
+ 
+   The following built-in body-fixed frame was added to the list of frames
+   hard-coded in the Toolkit:
+ 
+                    IAU_BENNU
+ 
+ 
+New and Updated Toolkit Application
+--------------------------------------------------------
+ 
+ 
+DSKBRIEF
+ 
+   The DSKBRIEF program was added to the application set included in each
+   SPICE toolkit. This program summarizes the contents of a SPICE DSK
+   (digital shape kernel) file.
+ 
+   Compared to the Alpha-DSK version of the program DSKBRIEF upgrades
+   include:
+ 
+       --   The default display has been simplified. The old, detailed
+            display can be invoked using the -full option.
+ 
+       --   Multiple DSK files, and multiple segments within a DSK file,
+            can be summarized together.
+ 
+       --   Coverage bounds and coverage gaps can be displayed for multiple
+            DSK files or multiple segments within a file.
+ 
+       --   Names of supporting kernels that enable body, surface, and
+            frame ID-to-name translation can be provided on the command
+            line.
+ 
+   Refer to the DSKBRIEF User's Guide, dskbrief.ug, for more information
+   about the program.
+ 
+ 
+MKDSK
+ 
+   The MKDSK program was added to the application set included in each
+   SPICE toolkit. This program creates a SPICE DSK (digital shape kernel)
+   file from a text file containing surface shape and size data.
+ 
+   Compared to the Alpha-DSK version of the program MDKSK upgrades include:
+ 
+       --   The maximum output segment plate count has been increased to 32
+            million plates on Linux, Mac, and Solaris/Intel environments
+            and to 10 million plates on Windows and Solaris/Sparc
+            environments.
+ 
+       --   Height grid input data are now supported.
+ 
+       --   Latitudinal, planetodetic, and rectangular coordinate systems
+            are supported.
+ 
+       --   Voxel scales no longer need to be specified in the setup file;
+            MKDSK will calculate them automatically.
+ 
+       --   Execution speed of the program has been improved.
+ 
+       --   The user can command generation of a vertex-plate mapping.
+ 
+       --   Fixes of bugs in the setup file error handling code.
+ 
+   Refer to the MKDSK User's Guide, mkdsk.ug, for more information about
+   the program.
+ 
+ 
+DSKEXP
+ 
+   The DSKEXP program was added to the application set included in each
+   SPICE toolkit. This program enables SPICE Toolkit users to ``export''
+   data from a DSK file to any of a variety of simple, easily parsed text
+   formats. This capability enables users to easily transform DSK files
+   into formats required by other applications; it also makes it easy to
+   inspect the data in a DSK file.
+ 
+   Refer to the DSKEXP User's Guide, dskexp.ug, for more information about
+   the program.
+ 
+ 
+Bug Fixes
+--------------------------------------------------------
+ 
+ 
+SPICELIB -- BODEUL, TISBOD
+ 
+   These routines were updated to increase the room in the internal buffer
+   to hold the maximum possible number of values of ``NUT_PREC_ANGLES''
+   consistent with the maximum possible numbers of values for other related
+   PCK parameters.
+ 
+ 
+SPICELIB -- CKE05
+ 
+   This routine was updated to update PRVPTR at the end of the quaternion
+   sequence check for Hermite subtypes.
+ 
+ 
+SPICELIB -- KEEPER/UNLOAD
+ 
+   This routine was updated to unload binary kernels via low-level unload
+   routines only when those kernels have just one entry in the KEEPER
+   database.
+ 
+ 
+SPICELIB -- SUBPNT
+ 
+   This routine was updated to correctly initialize the values of saved
+   input method in all cases.
+ 
+ 
+SPICELIB -- XFMSTA
+ 
+   This routine was updated to not allow conversions to and from geodetic
+   and planetographic coordinates for bodies with unequal equatorial radii.
+   Previously it allowed such conversions even though these types of
+   coordinates are not applicable to triaxial ellipsoids. In doing that it
+   arbitrarily picked the first and the third radii to compute a body's
+   flattening coefficient.
+ 
+ 
+MKSPK
+ 
+   The MKSPK program was updated to not drop every 500th line of the input
+   comment file to be written to the comment area and to correctly
+   substitute values into some error messages.
  
  
 Version 65 --- July 2014
@@ -710,7 +1667,7 @@ CKBRIEF
  
    The CKBRIEF program was updated to display a summary for all CK files to
    be summarized as if the data were in a single CK file when the new
-   command line option ``-s'' is specified. The internal CKBRIEF buffers
+   command line option ``-a'' is specified. The internal CKBRIEF buffers
    were increased to allow the program to summarize CK files with larger
    numbers of segments.
  

@@ -159,7 +159,7 @@
 <PRE>
    target     the string name of a target body.  Optionally, you may
               supply the integer ID code for the object as an
-              integer string.  For example both 'MOON' and '301'
+              integer string.  For example both &quot;MOON&quot; and &quot;301&quot;
               are legitimate strings that indicate the moon is the
               target body.
 
@@ -174,7 +174,7 @@
    method     the string name of the method to use for the surface intercept
               calculation. The accepted values for method:
 
-                 'Ellipsoid'        The intercept computation uses
+                 &quot;Ellipsoid&quot;        The intercept computation uses
                                     a triaxial ellipsoid to model
                                     the surface of the target body.
                                     The ellipsoid's radii must be
@@ -192,37 +192,37 @@
               detailed description of the aberration correction options.
               For convenience, the options are listed below:
 
-                  'NONE'     Apply no correction.
+                  &quot;NONE&quot;     Apply no correction.
 
-                  'LT'       &quot;Reception&quot; case:  correct for
+                  &quot;LT&quot;       &quot;Reception&quot; case:  correct for
                              one-way light time using a Newtonian
                              formulation.
 
-                  'LT+S'     &quot;Reception&quot; case:  correct for
+                  &quot;LT+S&quot;     &quot;Reception&quot; case:  correct for
                              one-way light time and stellar
                              aberration using a Newtonian
                              formulation.
 
-                  'CN'       &quot;Reception&quot; case:  converged
+                  &quot;CN&quot;       &quot;Reception&quot; case:  converged
                              Newtonian light time correction.
 
-                  'CN+S'     &quot;Reception&quot; case:  converged
+                  &quot;CN+S&quot;     &quot;Reception&quot; case:  converged
                              Newtonian light time and stellar
                              aberration corrections.
 
-                  'XLT'      &quot;Transmission&quot; case:  correct for
+                  &quot;XLT&quot;      &quot;Transmission&quot; case:  correct for
                              one-way light time using a Newtonian
                              formulation.
 
-                  'XLT+S'    &quot;Transmission&quot; case:  correct for
+                  &quot;XLT+S&quot;    &quot;Transmission&quot; case:  correct for
                              one-way light time and stellar
                              aberration using a Newtonian
                              formulation.
 
-                  'XCN'      &quot;Transmission&quot; case:  converged
+                  &quot;XCN&quot;      &quot;Transmission&quot; case:  converged
                              Newtonian light time correction.
 
-                  'XCN+S'    &quot;Transmission&quot; case:  converged
+                  &quot;XCN+S&quot;    &quot;Transmission&quot; case:  converged
                              Newtonian light time and stellar
                              aberration corrections.
 
@@ -231,7 +231,7 @@
 
      obsrvr   the string naming the observing body. Optionally, you
               may supply the ID code of the object as an integer
-              string. For example, both 'EARTH' and '399' are
+              string. For example, both &quot;EARTH&quot; and &quot;399&quot; are
               legitimate strings to supply to indicate the
               observer is Earth.
 
@@ -252,33 +252,33 @@
 
               Coordinate System (CRDSYS)    Coordinates (COORD)      Range
 
-                 'RECTANGULAR'                  'X'
-                                                'Y'
-                                                'Z'
+                 &quot;RECTANGULAR&quot;                  &quot;X&quot;
+                                                &quot;Y&quot;
+                                                &quot;Z&quot;
 
-                 'LATITUDINAL'                  'RADIUS'
-                                                'LONGITUDE'        (-Pi,Pi]
-                                                'LATITUDE'         [-Pi/2,Pi/2]
+                 &quot;LATITUDINAL&quot;                  &quot;RADIUS&quot;
+                                                &quot;LONGITUDE&quot;        (-Pi,Pi]
+                                                &quot;LATITUDE&quot;         [-Pi/2,Pi/2]
 
-                 'RA/DEC'                       'RANGE'
-                                                'RIGHT ASCENSION'  [0,2Pi)
-                                                'DECLINATION'      [-Pi/2,Pi/2]
+                 &quot;RA/DEC&quot;                       &quot;RANGE&quot;
+                                                &quot;RIGHT ASCENSION&quot;  [0,2Pi)
+                                                &quot;DECLINATION&quot;      [-Pi/2,Pi/2]
 
-                 'SPHERICAL'                    'RADIUS'
-                                                'COLATITUDE'       [0,Pi]
-                                                'LONGITUDE'        (-Pi,Pi]
+                 &quot;SPHERICAL&quot;                    &quot;RADIUS&quot;
+                                                &quot;COLATITUDE&quot;       [0,Pi]
+                                                &quot;LONGITUDE&quot;        (-Pi,Pi]
 
-                 'CYLINDRICAL'                  'RADIUS'
-                                                'LONGITUDE'        [0,2Pi)
-                                                'Z'
+                 &quot;CYLINDRICAL&quot;                  &quot;RADIUS&quot;
+                                                &quot;LONGITUDE&quot;        [0,2Pi)
+                                                &quot;Z&quot;
 
-                 'GEODETIC'                     'LONGITUDE'        (-Pi,Pi]
-                                                'LATITUDE'         [-Pi/2,Pi/2]
-                                                'ALTITUDE'
+                 &quot;GEODETIC&quot;                     &quot;LONGITUDE&quot;        (-Pi,Pi]
+                                                &quot;LATITUDE&quot;         [-Pi/2,Pi/2]
+                                                &quot;ALTITUDE&quot;
 
-                 'PLANETOGRAPHIC'               'LONGITUDE'        [0,2Pi)
-                                                'LATITUDE'         [-Pi/2,Pi/2]
-                                                'ALTITUDE'
+                 &quot;PLANETOGRAPHIC&quot;               &quot;LONGITUDE&quot;        [0,2Pi)
+                                                &quot;LATITUDE&quot;         [-Pi/2,Pi/2]
+                                                &quot;ALTITUDE&quot;
 
                   The ALTITUDE coordinates have a constant value
                   of zero +/- roundoff for ellipsoid targets.
@@ -295,22 +295,22 @@
                Supported values of relate and corresponding meanings are
                shown below:
 
-                  '&gt;'      Separation is greater than the reference
+                  &quot;&gt;&quot;      Separation is greater than the reference
                            value refval.
 
-                  '='      Separation is equal to the reference
+                  &quot;=&quot;      Separation is equal to the reference
                            value refval.
 
-                  '&lt;'      Separation is less than the reference
+                  &quot;&lt;&quot;      Separation is less than the reference
                            value refval.
 
-                 'ABSMAX'  Separation is at an absolute maximum.
+                 &quot;ABSMAX&quot;  Separation is at an absolute maximum.
 
-                 'ABSMIN'  Separation is at an absolute  minimum.
+                 &quot;ABSMIN&quot;  Separation is at an absolute  minimum.
 
-                 'LOCMAX'  Separation is at a local maximum.
+                 &quot;LOCMAX&quot;  Separation is at a local maximum.
 
-                 'LOCMIN'  Separation is at a local minimum.
+                 &quot;LOCMIN&quot;  Separation is at a local minimum.
 
               The caller may indicate that the region of interest
               is the set of time intervals where the quantity is
@@ -718,7 +718,7 @@
    specific arithmetic implementation.
 
    The examples shown below require a &quot;standard&quot; set of SPICE
-   kernels. We list these kernels in a meta kernel named 'standard.tm'.
+   kernels. We list these kernels in a meta kernel named &quot;standard.tm.&quot;
 
    KPL/MK
 
@@ -1223,6 +1223,11 @@
 </PRE>
 <h4><a name="Version">Version</a></h4>
 <PRE>
+   -CSPICE Version 1.0.2, 31-JUL-2014 (EDW)
+
+      Edit to header, replaced ' character with character &quot; to indicate
+      C strings.
+
    -CSPICE Version 1.0.1, 28-FEB-2013 (NJB) (EDW)
 
       Header was updated to discuss use of <a href="gfstol_c.html">gfstol_c</a>.
@@ -1245,7 +1250,7 @@
   </tbody>
 </table>
 
-   <pre>Tue Jul 15 14:31:35 2014</pre>
+   <pre>Wed Apr  5 17:54:36 2017</pre>
 
 </body>
 </html>

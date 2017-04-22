@@ -128,7 +128,7 @@ C         will be diagnosed by routines called by this routine.
 C
 C     4)  If COLUMN specifies a column of whose data type is not
 C         character, the error SPICE(WRONGDATATYPE) will be
-C         signalled.
+C         signaled.
 C
 C     5)  If RECNO is out of range, the error will be diagnosed by
 C         routines called by this routine.
@@ -147,7 +147,7 @@ C         routines called by this routine.
 C
 C     9)  If COLUMN specifies a column of whose class is not
 C         an character class known to this routine, the error
-C         SPICE(NOCLASS) will be signalled.
+C         SPICE(NOCLASS) will be signaled.
 C
 C     10) If an I/O error occurs while reading or writing the indicated
 C         file, the error will be diagnosed by routines called by this
@@ -312,6 +312,10 @@ C     N.J. Bachman   (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 1.1.0, 05-FEB-2015 (NJB)
+C
+C        Updated to use ERRHAN.
+C
 C-    Beta Version 1.0.0, 26-SEP-1995 (NJB)
 C
 C-&
@@ -338,7 +342,6 @@ C
       INTEGER               DTYPE
       INTEGER               RECPTR
       INTEGER               SEGDSC ( SDSCSZ )
-      INTEGER               UNIT
  
 C
 C     Use discovery check-in.
@@ -361,7 +364,6 @@ C
       IF ( DTYPE .NE. CHR ) THEN
  
          CALL CHKIN  ( 'EKACEC'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Column # is of type #; EKACEC only works '    //
      .                 'with character columns.  RECNO = #; SEGNO = ' //
      .                 '#; EK = #.'                                    )
@@ -369,7 +371,7 @@ C
          CALL ERRINT ( '#',  DTYPE                                     )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(WRONGDATATYPE)'                          )
          CALL CHKOUT ( 'EKACEC'                                        )
          RETURN
@@ -407,7 +409,6 @@ C
 C        This is an unsupported character column class.
 C
          CALL CHKIN  ( 'EKACEC'                                        )
-         CALL DASHLU ( HANDLE,  UNIT                                   )
          CALL SETMSG ( 'Class # from input column descriptor is not ' //
      .                 'a supported character class.  COLUMN = #; '   //
      .                 'RECNO = #; SEGNO = #; EK = #.'                 )
@@ -415,7 +416,7 @@ C
          CALL ERRCH  ( '#',  COLUMN                                    )
          CALL ERRINT ( '#',  RECNO                                     )
          CALL ERRINT ( '#',  SEGNO                                     )
-         CALL ERRFNM ( '#',  UNIT                                      )
+         CALL ERRHAN ( '#',  HANDLE                                    )
          CALL SIGERR ( 'SPICE(NOCLASS)'                                )
          CALL CHKOUT ( 'EKACEC'                                        )
          RETURN

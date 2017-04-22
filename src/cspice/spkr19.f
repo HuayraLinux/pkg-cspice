@@ -194,6 +194,10 @@ C     B.V. Semenov    (JPL)
 C
 C$ Version
 C
+C-    SPICELIB Version 2.0.0, 11-MAY-2015 (NJB) 
+C
+C        Updated to support subtype 2.
+C
 C-    SPICELIB Version 1.0.0, 14-MAR-2014 (NJB) (BVS)
 C
 C-&
@@ -247,6 +251,9 @@ C
 
       INTEGER               S19MW1
       PARAMETER           ( S19MW1 =  ( MAXDEG + 1 )    )
+
+      INTEGER               S19MW2
+      PARAMETER           ( S19MW2 =  ( MAXDEG + 1 )    )
 
 C
 C     Local variables
@@ -342,9 +349,9 @@ C
 C
 C     Initial values
 C
-      DATA                  MXWNSZ  /  S19MW0, S19MW1 /      
+      DATA                  MXWNSZ  /  S19MW0, S19MW1, S19MW2 /      
       DATA                  PASS1   /  .TRUE.  /
-      DATA                  PKTSZS  /  S19PS0, S19PS1 /
+      DATA                  PKTSZS  /  S19PS0, S19PS1, S19PS2 /
       DATA                  SVBEG   /  -1      /
       DATA                  SVBTIM  /   0.D0   /
       DATA                  SVETIM  /  -1.D0   /
