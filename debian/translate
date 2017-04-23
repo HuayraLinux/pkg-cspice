@@ -4,7 +4,9 @@
 # Author: Rock Storm <rockstorm@gmx.com>
 
 # List source subfolders
-cdirs="brief_c chrnos_c ckbref_c commnt_c cspice csupport frmdif_c inspkt_c mkspk_c msopck_c spacit_c spkdif_c spkmrg_c tobin_c toxfr_c versn_c"
+cdirs="brief_c chrnos_c ckbref_c commnt_c cspice csupport \
+dskbrief_c dskexp_c frmdif_c inspkt_c mkdsk_c mkspk_c \
+msopck_c spacit_c spkdif_c spkmrg_c tobin_c toxfr_c versn_c"
 
 # Include every source subfolder to look for .inc files while translating
 # Include the debian folder to allow the architecture dependant .inc file to be

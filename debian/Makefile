@@ -14,15 +14,15 @@ INCLUDE_DIR=$(ROOT_DIR)/include
 LIB_DIR=$(ROOT_DIR)/lib
 EXE_DIR=$(ROOT_DIR)/exe
 SOURCES_DIR=$(ROOT_DIR)/src
-EXE_SRCS=brief chrnos ckbref commnt frmdif inspkt mkspk msopck spacit \
-         spkdif spkmrg tobin toxfr versn
+EXE_SRCS=brief chrnos ckbref commnt dskbrief dskexp frmdif inspkt \
+         mkdsk mkspk msopck spacit spkdif spkmrg tobin toxfr versn
 LIB_SRCS=cspice csupport
 
 # Upstream ships individual build scripts for each executable. However, a
 # common file is used in case modifing upstream's script is needed.
 COMMON_EXE=$(SOURCES_DIR)/brief_c/mkprodct.csh
-EXECUTABLES=brief chronos ckbrief commnt frmdiff inspekt mkspk msopck \
-            spacit spkdiff spkmerge tobin toxfr version
+EXECUTABLES=brief chronos ckbrief commnt dskbrief dskexp frmdiff inspekt \
+            mkdsk mkspk msopck spacit spkdiff spkmerge tobin toxfr version
 COOK=simple states subpt tictoc
 LIBRARIES=cspice.a csupport.a
 
@@ -42,7 +42,7 @@ $(addprefix $(LIB_DIR)/,$(LIBRARIES)):
 	@for idir in $(LIB_SRCS) ; do \
 		export TKCOMPILER="$(CC)"; \
 		export TKCOMPILEOPTIONS="-c -fPIC -DUIOLEN_int $(COMMON_CFLAGS)"; \
-		export TKLINKOPTIONS="$(COMMON_LFLAGS)"; \
+		export TKLINKOPTIONS="$(COMMON_LFLAGS) -Wl,-export-dynamic"; \
 		cd $(SOURCES_DIR)/$$idir; \
 		csh mkprodct.csh; \
 	done 
