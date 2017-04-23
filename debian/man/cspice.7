@@ -1,81 +1,115 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE 7
-.SH NAME
-cspice \- contents summary of the SPICE Toolkit utilities
-
-.SH DESCRIPTION
-This documentation summarizes the different utilities comprising the SPICE Toolkit and a brief description of the various files where SPICE stores its data, often called "kernels" or "kernel files".
-
-.SH TOOLKIT UTILITIES
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE" "7" "April 2017" "" "CSPICE Toolkit"
+.
+.SH "NAME"
+\fBcspice\fR \- contents summary of the CSPICE Toolkit utilities
+.
+.SH "DESCRIPTION"
+This documentation summarizes the different utilities comprising the CSPICE Toolkit and a brief description of the various files where SPICE stores its data, often called "kernels" or "kernel files"\.
+.
+.SH "TOOLKIT UTILITIES"
+.
 .TP
-.B cspice-brief
-A command line utility used to summarize the information within an SPK file. See
-.BR cspice-brief (1).
+\fBBRIEF\fR
+A command\-line utility program that displays a contents and time coverage summary for one or more binary SPK or binary PCK files\. See \fBcspice\-brief\fR(1)\.
+.
 .TP
-.B cspice-chronos
-A utility used to convert time values between various formats, e.g. UTC to ET, Et to SCLK, etc.  See
-.BR cspice-chronos (1).
+\fBCHRONOS\fR
+A command\-line program that converts between several time systems and time formats, e\.g\. UTC to ET, ET to SCLK, etc\. See \fBcspice\-chronos\fR(1)\.
+.
 .TP
-.B cspice-ckbrief
-A command line utility used to summarize the pointing data within a CK file. See
-.BR cspice-ckbrief (1).
+\fBCKBRIEF\fR
+A command\-line utility program that displays a contents and time coverage summary for one or more binary CK files\. See \fBcspice\-ckbrief\fR(1)\.
+.
 .TP
-.B cspice-commnt
-A utility, usable in either interactive or command line mode, used to examine and manipulate the comment area of a SPICE binary kernel. See
-.BR cspice-commnt (1).
+\fBCOMMNT\fR
+A command\-line program that reads, adds, extracts, or deletes comments from SPICE binary kernel files\. See \fBcspice\-commnt\fR(1)\.
+.
 .TP
-.B cspice-inspekt
-An interactive program used to examine and query to contents of an E-kernel. See
-.BR cspice-inspekt (1).
+\fBDSKBRIEF\fR
+A command\-line utility program that displays a summary of the spatial coverage and additional attributes of one or more binary Digital Shape Kernel (DSK) files\. See \fBcspice\-dskbrief\fR(1)\.
+.
 .TP
-.B cspice-mkspk
-An application used to create, or append to, SPK files. See
-.BR cspice-mkspk (1).
+\fBDSKEXP\fR
+A command\-line program that exports data from DSK files to text files\. See \fBcspice\-dskexp\fR(1)\.
+.
 .TP
-.B cspice-spacit
-An interactive application used to manipulate and examine SPK files. See
-.BR cspice-spacit (1).
+\fBFRMDIFF\fR
+A program that samples orientation of a reference frame known to SPICE or computes differences between orientations of two reference frames known to SPICE, and either displays this orientation or these differences, or shows statistics about it or them\. See \fBcspice\-frmdiff\fR(1)\.
+.
 .TP
-.B cspice-spkmerge
-An application used to merge several SPK files or subsets of SPK files into a single SPK file. See
-.BR cspice-spkmerge (1).
+\fBINSPEKT\fR
+An interactive program that examines the contents of an events component (ESQ) of an E\-kernel\. See \fBcspice\-inspekt\fR(1)\.
+.
 .TP
-.B cspice-tobin
-A command line utility used to convert SPICE ASCII transfer files to architecture native binary kernels. See
-.BR cspice-tobin (1).
+\fBMKDSK\fR
+A utility program that creates a SPICE Digital Shape Kernel (DSK) file from a text file containing shape data for an extended object\. See \fBcspice\-mkdsk\fR(1)\.
+.
 .TP
-.B cspice-toxfr
-A command line utility used to convert SPICE binary kernels to ASCII transfer format. See
-.BR cspice-toxfr (1).
+\fBMKSPK\fR
+A program that creates an SPK file from a text file containing trajectory information\. See \fBcspice\-mkspk\fR(1)\.
+.
 .TP
-.B cspice-version
-A command line utility used to display the current version number of the SPICE Toolkit. See
-.BR cspice-version (1).
-
-.SH SPICE KERNELS
-SPICE kernels are composed of navigation and other ancillary information that has been structured and formatted for easy access and correct use by the planetary science and engineering communities. A kernel may store data in either text (ASCII) or binary format. SPICE kernel file contents are summarized below:
-.RS
-.PP
-\fISpacecraft and Planet Kernel\fR (\fBSPK\fR): spacecraft, planet, satellite, comet, or asteroid ephemerides, or more generally, location of any target body, given as a function of time.
-.PP
-\fIPlanetary Constants Kernel\fR (\fBPCK\fR): physical, dynamical and cartographic constants for target bodies, such as size and shape specifications, and orientation of the spin axis and prime meridian.
-.PP
-\fIInstrument Kernel\fR (\fBIK\fR): description kernel, containing descriptive data peculiar to a particular scientific instrument, such as field-of-view size, shape and orientation parameters.
-.PP
-\fIC-matrix Kernel\fR (\fBCK\fR): pointing kernel, containing a transformation, traditionally called the "C-matrix," which provides time-tagged pointing (orientation) angles for a spacecraft bus or a spacecraft structure upon which science instruments are mounted. A C-kernel may also include angular rate data for that structure.
-.PP
-\fIEvents Kernel\fR (\fBEK\fR): kernel summarizing mission activities - both planned and unanticipated. Events data consists of three components: science plans, sequences, and notes.
-.PP
-\fIFrames Kernel\fR (\fBFK\fR): contains specifications for the assortment of reference frames that are typically used by flight projects. This file also includes mounting alignment information for instruments, antennas and perhaps other structures of interest.
-.PP
-\fISpacecraft CLock Kernel\fR (\fBSCLK\fR): spacecraft's clock correlation data.
-.PP
+\fBMSOPCK\fR
+A command\-line program that converts attitude data provided in a text file as UTC, SCLK, or ET\-tagged quaternions, Euler angles, or matrices, optionally accompanied by angular velocities, into a type 1, 2, or 3 SPICE C\-kernel\. See \fBcspice\-msopck\fR(1)\.
+.
+.TP
+\fBSPACIT\fR
+An interactive program that converts kernels in transfer format to binary format, converts binary kernels to transfer format, and summarizes the contents of binary kernels\. See \fBcspice\-spacit\fR(1)\.
+.
+.TP
+\fBSPKDIFF\fR
+Provides means for comparing the trajectories of two bodies or sampling the trajectory of a single body using data from SPICE kernels\. See \fBcspice\-spkdiff\fR(1)\.
+.
+.TP
+\fBSPKMERGE\fR
+A program that subsets or merges one or more SPK files into a single SPK file\. See \fBcspice\-spkmerge\fR(1)\.
+.
+.TP
+\fBTOBIN\fR
+A command\-line program that converts transfer format SPK, CK, PCK, DSK and EK files to binary format\. See \fBcspice\-tobin\fR(1)\.
+.
+.TP
+\fBTOXFR\fR
+A command\-line program that converts binary format SPK, CK, PCK, DSK and EK files to transfer format\. See \fBcspice\-toxfr\fR(1)\.
+.
+.TP
+\fBVERSION\fR
+A command line utility used to display the current version number of the SPICE Toolkit\. See \fBcspice\-version\fR(1)\.
+.
+.SH "SPICE KERNELS"
+SPICE kernels are composed of navigation and other ancillary information that has been structured and formatted for easy access and correct use by the planetary science and engineering communities\. A kernel may store data in either text (ASCII) or binary format\. SPICE kernel file contents are summarized below:
+.
+.IP "\(bu" 4
+\fISpacecraft and Planet Kernel\fR (\fBSPK\fR): Spacecraft, planet, satellite, comet, or asteroid ephemerides, or more generally, location of any target body, given as a function of time\.
+.
+.IP "\(bu" 4
+\fIPlanetary Constants Kernel\fR (\fBPCK\fR): Physical, dynamical and cartographic constants for target bodies, such as size and shape specifications, and orientation of the spin axis and prime meridian\.
+.
+.IP "\(bu" 4
+\fIInstrument Kernel\fR (\fBIK\fR): Description kernel, containing descriptive data peculiar to a particular scientific instrument, such as field\-of\-view size, shape and orientation parameters\.
+.
+.IP "\(bu" 4
+\fIC\-matrix Kernel\fR (\fBCK\fR): Pointing kernel, containing a transformation, traditionally called the "C\-matrix," which provides time\-tagged pointing (orientation) angles for a spacecraft bus or a spacecraft structure upon which science instruments are mounted\. A C\-kernel may also include angular rate data for that structure\.
+.
+.IP "\(bu" 4
+\fIEvents Kernel\fR (\fBEK\fR): Kernel summarizing mission activities \- both planned and unanticipated\. Events data consists of three components: science plans, sequences, and notes\.
+.
+.IP "\(bu" 4
+\fIFrames Kernel\fR (\fBFK\fR): Contains specifications for the assortment of reference frames that are typically used by flight projects\. This file also includes mounting alignment information for instruments, antennas and perhaps other structures of interest\.
+.
+.IP "\(bu" 4
+\fISpacecraft CLock Kernel\fR (\fBSCLK\fR): Spacecraft\'s clock correlation data\.
+.
+.IP "\(bu" 4
 \fILeap Seconds Kernel\fR (\fBLSK\fR)
-.PP
-\fIDigital Shape Kernel\fR (\fBDSK\fR): digital shape model for both small, irregularly shaped bodies such as asteroids and comet nuclei, and for large, more uniformly shaped bodies such as the moon, earth and Mars.
-.RE
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+.
+.IP "\(bu" 4
+\fIDigital Shape Kernel\fR (\fBDSK\fR): Digital shape model for both small, irregularly shaped bodies such as asteroids and comet nuclei, and for large, more uniformly shaped bodies such as the moon, earth and Mars\.
+.
+.IP "" 0
+.
+.SH "SEE ALSO"
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

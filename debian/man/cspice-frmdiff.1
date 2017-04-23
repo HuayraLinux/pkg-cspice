@@ -1,135 +1,164 @@
-.TH CSPICE-FRMDIFF 1
-.SH NAME
-cspice-frmdiff \- compute differences between two reference frames
-.SH SYNOPSIS
-\fBcspice-frmdiff\fR [\fIOPTIONS\fR] \fIFIRST_KERNEL\fR \fISECOND_KERNEL\fR
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-FRMDIFF" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-frmdiff\fR \- compute differences between two reference frames
+.
+.SH "SYNOPSIS"
+\fBcspice frmdiff\fR [\fIoptions\fR] \fIfirst_kernel\fR \fIsecond_kernel\fR
+.
 .br
-\fBcspice-frmdiff\fR [\fIOPTIONS\fR] \fIKERNEL\fR
+\fBcspice frmdiff\fR [\fIoptions\fR] \fIkernel\fR
+.
 .br
-\fBcspice-frmdiff\fR [\fIOPTIONS\fR]
-
-.SH DESCRIPTION
-.B cspice-frmdiff
-provides means for sampling orientation of a single reference frame, or for comparing orientations of two reference frames known to SPICE and supported by data from SPICE kernels.
-.PP
-To sample orientation of a single frame the program computes a set of transformations from one frame (the "from" frame) to another frame (the "to" frame) over an interval of time with fixed or variable time step, using a given set of kernel files. Then, depending on the requested type of output report, it prints to the screen a table containing these transformations expressed as total rotation angles and axes, quaternions, matrices or Euler angles and angular velocities, or only magnitude of the maximum rotation and angular velocity, or results of a simple statistical analysis of rotations.
-.PP
-To compare orientations of two frames the program computes a set of transformations from one frame (the "from" frame) to another frame (the "to" frame) over an interval of time with a fixed or variable time step using one set of kernels, computes a set of transformations for the same or a different "from"-"to" frame combination at the same times using the same or a different set of kernels, and then computes the difference in rotation and angular velocity between the corresponding transformations. Depending on the requested type of output report the program prints to the screen only maximum differences in rotation and angular velocity, or a complete table of rotation and angular velocity differences expressed as total rotation angles and axes, matrices, quaternions, or Euler angles, or results of a simple statistical analysis of the rotation differences.
-.PP
-.B cspice-frmdiff
-is part of the SPICE Toolkit. See \fBcspice\fR(7).
-
-.SH OPTIONS
+\fBcspice frmdiff\fR [\fIoptions\fR]
+.
+.SH "DESCRIPTION"
+\fBFRMDIFF\fR provides means for sampling orientation of a single reference frame, or for comparing orientations of two reference frames known to SPICE and supported by data from SPICE kernels\.
+.
+.P
+To sample orientation of a single frame the program computes a set of transformations from one frame (the "from" frame) to another frame (the "to" frame) over an interval of time with fixed or variable time step, using a given set of kernel files\. Then, depending on the requested type of output report, it prints to the screen a table containing these transformations expressed as total rotation angles and axes, quaternions, matrices or Euler angles and angular velocities, or only magnitude of the maximum rotation and angular velocity, or results of a simple statistical analysis of rotations\.
+.
+.P
+To compare orientations of two frames the program computes a set of transformations from one frame (the "from" frame) to another frame (the "to" frame) over an interval of time with a fixed or variable time step using one set of kernels, computes a set of transformations for the same or a different "from"\-"to" frame combination at the same times using the same or a different set of kernels, and then computes the difference in rotation and angular velocity between the corresponding transformations\. Depending on the requested type of output report the program prints to the screen only maximum differences in rotation and angular velocity, or a complete table of rotation and angular velocity differences expressed as total rotation angles and axes, matrices, quaternions, or Euler angles, or results of a simple statistical analysis of the rotation differences\.
+.
+.P
+\fBFRMDIFF\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OPTIONS"
+.
 .TP
-\fB\-k\fR \fIKERNEL\fR ...
-Specify the list of additional kernels that should be used for both frame transformations to be computed.
-Kernel names must be separated by spaces.
+\fB\-k\fR \fIkernel\fR \.\.\.
+Specify the list of additional kernels that should be used for both frame transformations to be computed\. Kernel names must be separated by spaces\.
+.
 .TP
-\fB\-f1\fR \fIFRAME\fR
-Specify the "from" frame for the first (or only) frame transformation to be computed. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID.
+\fB\-f1\fR \fIframe\fR
+Specify the "from" frame for the first (or only) frame transformation to be computed\. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID\.
+.
 .TP
-\fB\-t1\fR \fIFRAME\fR
-Specify the "to" frame for the first (or only) frame transformation to be computed. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID.
+\fB\-t1\fR \fIframe\fR
+Specify the "to" frame for the first (or only) frame transformation to be computed\. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID\.
+.
 .TP
-\fB\-c1\fR \fIFRAME\fR
-Specify the "coverage" frame to be used to look up the first coverage window. This frame must be known to SPICE and must be either a PCK-based (Class 2) or CK-based (Class 3) frame. It can be specified using the frame name, frame ID, or, if the first (or only) primary kernel is a CK or a binary PCK, class ID. If the first (or only) primary kernel file is a CK or a binary PCK, it must contain data for this frame.
+\fB\-c1\fR \fIframe\fR
+Specify the "coverage" frame to be used to look up the first coverage window\. This frame must be known to SPICE and must be either a PCK\-based (Class 2) or CK\-based (Class 3) frame\. It can be specified using the frame name, frame ID, or, if the first (or only) primary kernel is a CK or a binary PCK, class ID\. If the first (or only) primary kernel file is a CK or a binary PCK, it must contain data for this frame\.
+.
 .TP
-\fB\-k1\fR \fIKERNEL\fR ...
-Specify the list of additional kernels that should be used only for the first frame transformation to be computed. Kernel names must be separated by spaces.
+\fB\-k1\fR \fIkernel\fR \.\.\.
+Specify the list of additional kernels that should be used only for the first frame transformation to be computed\. Kernel names must be separated by spaces\.
+.
 .TP
-\fB\-f2\fR \fIFRAME\fR
-Specify the "from" frame for the second (or only) frame transformation to be  computed. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID.
+\fB\-f2\fR \fIframe\fR
+Specify the "from" frame for the second (or only) frame transformation to be computed\. This frame must be known to SPICE and can be specified using the frame name, ID, or class ID\.
+.
 .TP
-\fB\-t2\fR \fIFRAME\fR
-Specify the "to" frame for the second (or only) frame transformation to be computed. This frame must be known to SPICE and can be specified using the name, ID, or class ID.
+\fB\-t2\fR \fIframe\fR
+Specify the "to" frame for the second (or only) frame transformation to be computed\. This frame must be known to SPICE and can be specified using the name, ID, or class ID\.
+.
 .TP
-\fB\-c2\fR \fIFRAME\fR
-Specify the "coverage" frame to be used to look up the second coverage window. This frame must be known to SPICE and must be either a PCK-based (Class 2) or CK-based (Class 3) frame. It can be specified using the frame name, frame ID, or, if the second (or only) primary kernel is a CK or a binary PCK, class ID. If the second (or only) primary kernel file is a CK or a binary PCK, it must contain data for this frame.
+\fB\-c2\fR \fIframe\fR
+Specify the "coverage" frame to be used to look up the second coverage window\. This frame must be known to SPICE and must be either a PCK\-based (Class 2) or CK\-based (Class 3) frame\. It can be specified using the frame name, frame ID, or, if the second (or only) primary kernel is a CK or a binary PCK, class ID\. If the second (or only) primary kernel file is a CK or a binary PCK, it must contain data for this frame\.
+.
 .TP
-\fB\-k2\fR \fIKERNEL\fR ...
-Specify the list of additional kernels that should be used only for the second frame transformation to be computed. Kernel names must be separated by spaces.
+\fB\-k2\fR \fIkernel\fR \.\.\.
+Specify the list of additional kernels that should be used only for the second frame transformation to be computed\. Kernel names must be separated by spaces\.
+.
 .TP
-\fB\-b\fR \fITIME\fR
-Specify the coverage window begin time. This option must be provided when no primary kernels and "coverage" frames are specified. The time string provided using this option can be in any form accepted by SPICE.
+\fB\-b\fR \fItime\fR
+Specify the coverage window begin time\. This option must be provided when no primary kernels and "coverage" frames are specified\. The time string provided using this option can be in any form accepted by SPICE\.
+.
 .TP
-\fB\-e\fR \fITIME\fR
-Specify the coverage window end time. This option must be provided when no primary kernels and "coverage" frames are specified. The time string provided using this option can be in any form accepted by SPICE.
+\fB\-e\fR \fItime\fR
+Specify the coverage window end time\. This option must be provided when no primary kernels and "coverage" frames are specified\. The time string provided using this option can be in any form accepted by SPICE\.
+.
 .TP
-\fB\-n\fR \fINUMBER\fR
-Specify the number of points within the coverage window, for which the frame transformation(s) must be computed. The number must be an integer between 1 and 1,000,000. The default value is 1000.
+\fB\-n\fR \fInumber\fR
+Specify the number of points within the coverage window, for which the frame transformation(s) must be computed\. The number must be an integer between 1 and 1,000,000\. The default value is 1000\.
+.
 .TP
-\fB\-s\fR \fISTEP\fR
-specify the step, in seconds, for determining points within the coverage window, for which the frame transformation(s) must be computed. The step must be greater than 1E-8.
-This option supersedes \fB\-n\fR.
+\fB\-s\fR \fIstep\fR
+Specify the step, in seconds, for determining points within the coverage window, for which the frame transformation(s) must be computed\. The step must be greater than 1E\-8\. This option supersedes \fB\-n\fR\.
+.
 .TP
-\fB\-t\fR \fIREPORT_TYPE\fR
-Specify the type of report that the program should display.
+\fB\-t\fR \fIreport_type\fR
+Specify the type of report that the program should display\. By default, \fIreport_type\fR is \fBbasic\fR, which means it will display only the maximum rotation angle and angular velocity (AV) magnitude\.
+.
 .br
-By default, \fIREPORT_TYPE\fR is \fBbasic\fR, which means it will display only the maximum rotation angle and angular velocity (AV) magnitude.
+If \fIreport_type\fR is \fBstats\fR, it will display statistics on rotation angles and AVs\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBstats\fR, it will display statistics on rotation angles and AVs.
+If \fIreport_type\fR is \fBdumpaa\fR, it will display a table of rotation angles and axes\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpaa\fR, it will display a table of rotation angles and axes.
+If \fIreport_type\fR is \fBdumpm\fR, it will display a table of matrices\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpm\fR, it will display a table of matrices.
+If \fIreport_type\fR is \fBdumpqs\fR, it will display a table of SPICE\-style quaternions\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpqs\fR, it will display a table of SPICE-style quaternions.
+If \fIreport_type\fR is \fBdumpqo\fR, it will display a table of "other"\-style quaternions\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpqo\fR, it will display a table of "other"-style quaternions.
+If \fIreport_type\fR is \fBdumpea\fR, it will display a table of Euler angles\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpea\fR, it will display a table of Euler angles.
+If \fIreport_type\fR is \fBdumpc\fR, it will display a table of coverage intervals\.
+.
 .br
-If \fIREPORT_TYPE\fR is \fBdumpc\fR, it will display a table of coverage intervals.
-.br
-If \fIREPORT_TYPE\fR is \fBdumpg\fR, it will display a table of coverage gaps.
+If \fIreport_type\fR is \fBdumpg\fR, it will display a table of coverage gaps\.
+.
 .TP
-\fB\-a\fR \fIAV_FLAG\fR
-Tell the program whether angular velocities should be computed along with rotations.
-.br
-By default, \fIAV_FLAG\fR is \fBno\fR, which means that only rotations are computed.
-.br
-If \fIAV_FLAG\fR is \fByes\fR, rotations and angular velocities are computed.
+\fB\-a\fR \fIav_flag\fR
+Tell the program whether angular velocities should be computed along with rotations\. By default, \fIav_flag\fR is \fBno\fR, which means that only rotations are computed\. If \fIav_flag\fR is \fByes\fR, rotations and angular velocities are computed\.
+.
 .TP
-\fB\-m\fR \fIAV_FRAME\fR
-Tell the program in which frame angular velocities should be reported.
-.br
-By default, \fIAV_FRAME\fR is \fBfrom\fR, which means it will output angular velocities in "from" frame.
-.br
-If \fIAV_FRAME\fR is \fBto\fR, it will output angular velocities in "to" frame.
+\fB\-m\fR \fIav_frame\fR
+Tell the program in which frame angular velocities should be reported\. By default, \fIav_frame\fR is \fBfrom\fR, which means it will output angular velocities in "from" frame\. If \fIav_frame\fR is \fBto\fR, it will output angular velocities in "to" frame\.
+.
 .TP
-\fB\-f\fR \fITIME_TYPE\fR
-Specify the type of time tag to be used in tabular reports.
+\fB\-f\fR \fItime_type\fR
+Specify the type of time tag to be used in tabular reports\. By default, \fItime_type\fR is \fBet\fR, which means it will display times as TDB seconds past J2000\.
+.
 .br
-By default, \fITIME_TYPE\fR is \fBet\fR, which means it will display times as TDB seconds past J2000.
+If \fItime_type\fR is \fBsclk\fR, it will display times as string SCLKs\.
+.
 .br
-If \fITIME_TYPE\fR is \fBsclk\fR, it will display times as string SCLKs.
+If \fItime_type\fR is \fBsclkd\fR, it will display times as decimal SCLKs\.
+.
 .br
-If \fITIME_TYPE\fR is \fBsclkd\fR, it will display times as decimal SCLKs.
+If \fItime_type\fR is \fBticks\fR, it will display times as encoded SCLK ticks\.
+.
 .br
-If \fITIME_TYPE\fR is \fBticks\fR, it will display times as encoded SCLK ticks.
-.br
-If \fITIME_TYPE\fR is \fIPICT\fR, it will display times in any time format picture accepted by SPICE (for example "YYYY-MM-DDTHR:MN:SC.### ::RND" for time tags for be displayed as UTCs in ISO date format)
+\fItime_type\fR can also be any time format picture accepted by the TIMOUT routine (for example "YYYY\-MM\-DDTHR:MN:SC\.### ::RND" for time tags for be displayed as UTCs in ISO date format)
+.
 .TP
-\fB\-o\fR \fIAXE\fR ...
-Specify the list of axes determining the order of rotations used for converting rotation matrices to Euler angles. The value must be a space-delimited list of three axes from the set of "X", "Y", "Z" (case-insensitive). The second axis must differ from the first and third axes. The default order is "Z Y X".
+\fB\-o\fR \fIaxes\fR
+Specify the list of axes determining the order of rotations used for converting rotation matrices to Euler angles\. The value must be a space\-delimited list of three axes from the set of "X", "Y", "Z" (case\-insensitive)\. The second axis must differ from the first and third axes\. The default order is "Z Y X"\.
+.
 .TP
-\fB\-x\fR \fIUNIT\fR
-Specify the units for the angles in the rotation angle and axis dump (\fB\-t dumpaa\fR) and Euler angle dump (\fB\-t dumpea\fR) reports; ignored for all other report types. Supported units are: \fBradians\fR (by default), \fBdegrees\fR, \fBarcminutes\fR, \fBarcseconds\fR, \fBhourangle\fR, \fBminuteangle\fR and \fBsecondangle\fR.
+\fB\-x\fR \fIunit\fR
+Specify the units for the angles in the rotation angle and axis dump (\fB\-t dumpaa\fR) and Euler angle dump (\fB\-t dumpea\fR) reports; ignored for all other report types\. Supported units are: \fBradians\fR (by default), \fBdegrees\fR, \fBarcminutes\fR, \fBarcseconds\fR, \fBhourangle\fR, \fBminuteangle\fR and \fBsecondangle\fR\.
+.
 .TP
-\fB\-d\fR \fINUMBER\fR
-Specify the number of significant digits in the output numeric times (TDB seconds past J2000, decimal SCLKs and encoded SCLK ticks) and rotation component values or rotation difference component values included in the dump, coverage and coverage gap reports. The number must be an integer between 6 and 17. The default value is 14.
+\fB\-d\fR \fInumber\fR
+Specify the number of significant digits in the output numeric times (TDB seconds past J2000, decimal SCLKs and encoded SCLK ticks) and rotation component values or rotation difference component values included in the dump, coverage and coverage gap reports\. The number must be an integer between 6 and 17\. The default value is 14\.
+.
 .TP
 \fB\-v\fR
-Display only the version line. This option overrides all other options.
+Display only the version line\. This option overrides all other options\.
+.
 .TP
 \fB\-u\fR
-Display the usage message. This option overrides all other options except \fB\-v\fR.
+Display the usage message\. This option overrides all other options except \fB\-v\fR\.
+.
 .TP
 \fB\-h\fR
-Display a brief help message. This option overrides all other options except \fB\-v\fR and \fB\-u\fR.
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+Display a brief help message\. This option overrides all other options except \fB\-v\fR and \fB\-u\fR\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

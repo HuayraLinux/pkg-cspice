@@ -1,0 +1,90 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-DSKBRIEF" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-dskbrief\fR \- displays a summary for binary DSK files
+.
+.SH "SYNOPSIS"
+\fBcspice dskbrief\fR [\fIoptions\fR] \fIfile\fR [\fIfile\fR \.\.\.]
+.
+.SH "DESCRIPTION"
+\fBDSKBRIEF\fR displays a summary of the spatial coverage and additional attributes of one or more binary Digital Shape Kernel (DSK) files\.
+.
+.P
+A DSK summary includes at a minimum:
+.
+.IP "\(bu" 4
+The names or ID codes of the body or bodies for which the DSK provides data
+.
+.IP "\(bu" 4
+The surface names or surface ID codes associated with the bodies (see the DSK Required Reading, dsk\.req, for a discussion of surfaces\.)
+.
+.IP "\(bu" 4
+The names or ID codes of the reference frames relative to which DSK data are expressed
+.
+.IP "\(bu" 4
+The coordinate systems used to describe spatial coverage
+.
+.IP "\(bu" 4
+The bounds of the spatial regions for which the DSK provides data
+.
+.IP "" 0
+.
+.P
+Coverage for multiple DSK segments and files can be aggregated and displayed as though the DSK data were contained in a single file\.
+.
+.P
+The user can command \fBDSKBRIEF\fR to produce detailed summaries, including summaries of individual DSK segments\. See the Usage section and the command examples below\.
+.
+.P
+An LSK file must be provided on the command line to display times in UTC formats\. FK file(s) must be provided on the command line to display names of any frames that are not built into the Toolkit\.
+.
+.P
+\fBDSKBRIEF\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OPTIONS"
+The options can be provided in any order and can appear before, after, or intermixed with file names\. The case of option keys is significant: they must be lowercase as shown below\.
+.
+.TP
+\fB\-a\fR
+Treat all DSK files as a single file\. This option has no effect when either \fB\-full\fR or \fB\-seg\fR is used\.
+.
+.TP
+\fB\-gaps\fR
+Display coverage gaps\. This option applies to sets of DSK files only when \fB\-a\fR is used\. It applies to sets of matching segments within a given DSK file unless \fB\-full\fR or \fB\-seg\fR are used\.
+.
+.TP
+\fB\-ext\fR
+Display extended summaries: in addition to the default set of attributes, these include data type, data class, and time bounds\. This option applies to summaries of groups of DSK segments\. This option has no effect when either \fB\-full\fR or \fB\-seg\fR is used\.
+.
+.TP
+\fB\-seg\fR
+Display a segment\-by\-segment summary\. This option overrides \fB\-a\fR\.
+.
+.TP
+\fB\-full\fR
+Display a detailed summary for each segment, including data\-type\-specific parameters\. This option implies a segment\-by\-segment summary\. This option overrides \fB\-a\fR\.
+.
+.TP
+\fB\-d\fR \fIn\fR
+Display \fIn\fR significant digits of floating point values\. The range of n is 3:17\.
+.
+.TP
+\fB\-v\fR
+Display the version of this program\.
+.
+.TP
+\fB\-h\fR
+Display help text\.
+.
+.TP
+\fB\-u\fR
+Display usage text\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on http://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

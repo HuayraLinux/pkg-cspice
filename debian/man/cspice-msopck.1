@@ -1,41 +1,54 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-MSOPCK 1
-.SH NAME
-cspice-msopck \- converts attitude data into a SPICE C-kernel.
-
-.SH SYNOPSIS
-\fBcspice-msopck\fR \fISETUP_FILE\fR \fIINPUT_DATA_FILE\fR \fIOUTPUT_CK_FILE\fR
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-MSOPCK" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-msopck\fR \- converts attitude data into a SPICE C\-kernel
+.
+.SH "SYNOPSIS"
+\fBcspice msopck\fR \fIsetup_file\fR \fIinput_data_file\fR \fIoutput_ck_file\fR
+.
 .br
-\fBcspice-msopck\fR [\fIOPTIONS\fR]
-
-.SH DESCRIPTION
-.B cspice-msopck
-generates a new, or appends data to an existing, attitude data file in SPICE CK format using one of the following CK types: 1, 2, 3. This CK file is a binary file constructed according to the SPICE DAF (Double Precision Array File) architecture, containing one or more CK data segments.
-.PP
-The program accepts one ASCII text file containing descriptions of input data (setup file) and a second ASCII text file (input file) containing the source attitude data to be processed.
-.PP
-Source attitude data can be time ordered lists of quaternions, Euler angles, or matrices tagged with UTC, spacecraft on-board clock (SCLK), or Ephemeris Time (ET) times. All input data must provide attitude for a structure relative to a reference frame, both of which are specified in the setup file.
-.PP
-The program buffers the input data by chunks of 100,000 records and writes each chunk into a separate CK segment. It uses the same point as the end of the previous and the start of the next chunk to provide continuity at the segment boundary.
-.PP
-.B cspice-msopck
-is part of the SPICE Toolkit. See \fBcspice\fR(7).
-
-.SH OPTIONS
+\fBcspice msopck\fR [\fIoptions\fR]
+.
+.SH "DESCRIPTION"
+\fBMSOPCK\fR is a command\-line utility program that generates a new, or appends data to an existing, attitude data file in SPICE CK format using one of the following CK types: 1, 2, 3\. This CK file is a binary file constructed according to the SPICE DAF (Double Precision Array File) architecture, containing one or more CK data segments\.
+.
+.P
+The \fBMSOPCK\fR program accepts one ASCII text file containing descriptions of input data (setup file) and a second ASCII text file (input file) containing the source attitude data to be processed\.
+.
+.P
+Source attitude data can be time ordered lists of quaternions, Euler angles, or matrices tagged with UTC, spacecraft on\-board clock (SCLK), or Ephemeris Time (ET) times\. All input data must provide attitude for a structure relative to a reference frame, both of which are specified in the setup file\.
+.
+.P
+The program buffers the input data by chunks of 100,000 records and writes each chunk into a separate CK segment\. It uses the same point as the end of the previous and the start of the next chunk to provide continuity at the segment boundary\.
+.
+.P
+The program allows the user to optionally provide some descriptive text (metadata) in a separate file (comment file) to be placed into the "comment area" of the CK attitude file\. Doing this is highly recommended\.
+.
+.P
+For archival documentation purposes the content of the MSOPCK setup file is automatically placed into the "comment area" of the CK file\.
+.
+.P
+\fBMSOPCK\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OPTIONS"
+.
 .TP
 \fB\-u\fR, \fB\-usage\fR
-Display a brief usage message. This is the default behaviour if the command line has too few or too many arguments.
+Display a brief usage message\. This is the default behaviour if the command line has too few or too many arguments\.
+.
 .TP
 \fB\-h\fR, \fB\-help\fR
-Display a brief help message.
+Display a brief help message\.
+.
 .TP
 \fB\-t\fR, \fB\-template\fR
-Display the complete setup file template.
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+Display the complete setup file template\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

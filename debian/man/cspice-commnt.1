@@ -1,50 +1,63 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-COMMNT 1
-.SH NAME
-cspice-commnt \- manipulate comments from SPICE binary kernel files
-.SH SYNOPSIS
-.B cspice-commnt
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-COMMNT" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-commnt\fR \- manipulate comments from SPICE binary kernel files
+.
+.SH "SYNOPSIS"
+\fBcspice commnt\fR
+.
 .br
-.B cspice-commnt
-[\fIOPTIONS\fR]
+\fBcspice commnt\fR \fB\-h\fR
+.
 .br
-.B cspice-commnt
-\fB\-a\fR | \fB\-e\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
+\fBcspice commnt\fR \fB\-a\fR | \fB\-e\fR \fIkernel_file\fR \fIcomment_file\fR
+.
 .br
-.B cspice-commnt
-\fB\-r\fR | \fB\-d\fR \fIKERNEL_FILE\fR
-
-.SH DESCRIPTION
-\fBcspice-commnt\fR
-is a program that reads, adds, extracts, or deletes comments from SPICE binary kernel files.
-.PP
-.B cspice-commnt
-can be used as a menu driven interactive program or as a command line utility.
-.PP
-.B cspice-commnt
-is part of the SPICE Toolkit. See \fBcspice\fR(7).
-
-.SH OPTIONS
+\fBcspice commnt\fR \fB\-r\fR | \fB\-d\fR \fIkernel_file\fR
+.
+.SH "DESCRIPTION"
+The COMMNT utility program provides a collection of services useful for manipulating and examining the contents of the comment area in SPICE binary kernel files\. The COMMNT program can add comments to the comment area from a text file, read the comment area, displaying the comments on the terminal screen, extract the comment area to a text file, or delete the entire comment area of a SPICE binary kernel file\.
+.
+.P
+COMMNT can be used as a menu driven interactive program or as a command line utility\.
+.
+.P
+The COMMNT program supports the CK, DSK, EK, PCK, and SPK SPICE binary kernel file formats\.
+.
+.P
+The comments are stored in a "what you put in is what you get out" fashion, so care should be taken when formatting the comments before placing them into the comment area of a SPICE binary kernel file\.
+.
+.P
+\fBCOMMNT\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OPTIONS"
+To use COMMNT as a menu driven interactive program, run the program without any arguments\.
+.
 .TP
-\fB\-a\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
-Add comments to a kernel file from a text file.
+\fB\-a\fR \fIkernel_file\fR \fIcomment_file\fR
+Add comments to a kernel file from a text file\.
+.
 .TP
-\fB\-e\fR \fIKERNEL_FILE\fR \fICOMMENT_FILE\fR
-Extract comments from a kernel file to a text file.
+\fB\-e\fR \fIkernel_file\fR \fIcomment_file\fR
+Extract comments from a kernel file to a text file\.
+.
 .TP
-\fB\-r\fR \fIKERNEL_FILE\fR
-Read the comments in a kernel file, displaying the results on the Standard Output.
+\fB\-r\fR \fIkernel_file\fR
+Read the comments in a kernel file, displaying the results on the Standard Output\.
+.
 .TP
-\fB\-d\fR \fIKERNEL_FILE\fR
-Delete all of the comments in a kernel file.
+\fB\-d\fR \fIkernel_file\fR
+Delete all of the comments in a kernel file\.
+.
 .TP
 \fB\-h\fR
-Display usage information.
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+Display usage information\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

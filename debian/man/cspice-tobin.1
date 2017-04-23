@@ -1,25 +1,28 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-TOBIN 1
-.SH NAME
-cspice-tobin \- converts transfer format SPICE files to binary format
-
-.SH SYNOPSIS
-\fBcspice-tobin\fR \fITRANSFER_FORMAT_FILE\fR [\fIBINARY_FORMAT_FILE\fR]
-
-.SH DESCRIPTION
-.B cspice-tobin
-is a command-line program that converts transfer format SPK, CK and EK files into it's binary format for use in a particular computing environment. It requires at least the name of the input transfer file, which is the first argument on the command line. Optionally, a name for the output binary file may be specified as the second argument on the command line. If a name for the output file is provided it overrides the automatic naming conventions used by the program.
-.PP
-If only the name of the input transfer file is provided on the command line, the program will generate a name for the output binary kernel file that has the same base name as the input transfer file and an appropriate filename extension, based on the filename extension of the transfer file. If it does not recognize the filename extension of the input transfer file, or there is no filename extension on the input transfer file, a filename extension of '.bin' will be used as the filename extension of the output binary file. If a file having the same name as the output file already exists, it signals an error and stops.
-.PP
-.B cspice-tobin
-is part of the SPICE Toolkit. See
-.BR cspice (7).
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-TOBIN" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-tobin\fR \- converts transfer format SPICE files to binary format
+.
+.SH "SYNOPSIS"
+\fBcspice tobin\fR \fItransfer_format_file\fR [\fIbinary_format_file\fR]
+.
+.SH "DESCRIPTION"
+\fBTOBIN\fR converts a SPICE transfer format SPK, CK, PCK, DSK and EK file into it\'s binary format for use in a particular computing environment\. \fBTOBIN\fR requires at least the name of the input transfer file, which is the first argument on the command line\. Optionally, a name for the output binary file may be specified as the second argument on the command line\. If a name for the output file is provided it overrides the automatic naming conventions used by the program\.
+.
+.P
+If only the name of the input transfer file is provided on the command line, TOBIN will generate a name for the output binary kernel file that has the same base name as the input transfer file and an appropriate filename extension, based on the filename extension of the transfer file\. If \fBTOBIN\fR does not recognize the filename extension of the input transfer file, or there is no filename extension on the input transfer file, a filename extension of \'\.bin\' will be used as the filename extension of the output binary file\. If a file having the same name as the output file already exists, \fBTOBIN\fR signals an error and stops\. We assume that it is bad form to overwrite or replace an existing file\.
+.
+.P
+\fBTOBIN\fR recognizes the transfer filename extensions "\.xc", "\.xee", "\.xpc", and "\.xsp" associated with transfer files for SPICE data products\. These are converted to the SPICE binary kernel filename extensions "\.bc", "\.bee", "\.bpc", and "\.bsp," respectively\. Also recognized are the old transfer file extensions "\.tc", "\.tee", "\.tpc", and "\.tsp," which are converted into the appropriate filename extensions for a binary kernel file\.
+.
+.P
+\fBTOBIN\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

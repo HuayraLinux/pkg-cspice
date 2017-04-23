@@ -1,24 +1,28 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-SPACIT 1
-.SH NAME
-cspice-spacit \- manipulate and examine SPICE binary kernels
-
-.SH SYNOPSIS
-.B cspice-spacit
-
-.SH DESCRIPTION
-.B cspice-spacit
-is an interactive menu driven program which provides a collection of services useful for manipulating and examining SPICE binary kernel files. The program may be used to convert SPICE binary kernel files into equivalent ASCII files, called SPICE transfer files, and to convert the SPICE transfer files back to binary. SPACIT may also be used to summarize the information contained in SPICE binary kernel files and to read the comments contained in the comment area of a SPICE binary kernel file.
-.PP
-The program currently supports the CK, EK, PCK, and SPK SPICE binary kernel file formats.
-.PP
-.B cspice-spacit
-is part of the SPICE Toolkit. See \fBcspice\fR(7).
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-SPACIT" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-spacit\fR \- manipulate and examine SPICE binary kernels
+.
+.SH "SYNOPSIS"
+\fBcspice spacit\fR
+.
+.SH "DESCRIPTION"
+\fBSPACIT\fR is an interactive menu driven program which provides a collection of services useful for manipulating and examining SPICE binary kernel files\. The program may be used to convert SPICE binary kernel files into equivalent ASCII files, called SPICE transfer files, and to convert the SPICE transfer files back to binary\. SPACIT may also be used to summarize the information contained in SPICE binary kernel files and to read the comments contained in the comment area of a SPICE binary kernel file\.
+.
+.P
+The \fBSPACIT\fR program currently supports the CK, EK, PCK, and SPK SPICE binary kernel file formats\.
+.
+.P
+In addition to SPICE binary kernel files, \fBSPACIT\fR requires additional SPICE files when used to summarize a binary kernel file\. A leap seconds kernel is required for summarizing CK, EK, PCK and SPK binary kernel files\. A SCLK kernel is required for summarizing binary CK files\.
+.
+.P
+\fBSPACIT\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

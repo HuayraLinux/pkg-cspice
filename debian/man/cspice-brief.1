@@ -1,111 +1,126 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-BRIEF 1
-.SH NAME
-cspice-brief \- displays a summary for binary SPK or binary PCK files
-.SH SYNOPSIS
-.B cspice-brief
-.RI [OPTIONS]
-.RI FILE
-[\fIFILE\fR ...]
-.SH DESCRIPTION
-.B cspice-brief
-displays a contents and time coverage summary for one or more binary SPK or  binary PCK files.
-It can display a summary for each individual file listed on the command line, in a list file, and/or a meta-kernel, or for all files as if they were combined into a single file. It can display coverage boundaries as Ephemeris Times (ET) in calendar format, if requested rounded to the nearest second, minute, hour, or day, as ET seconds past J2000, as UTC times in "year-month-day" format , or as UTC times in "day-of-year" format. The program can restrict summary display to only specified bodies or frames and/or specified centers-of-motion or relative-to-frames and/or for a specified time or time interval. It can display the summary in a variety of formats, ordered by body or frame names or numeric IDs, with or without showing centers-of-motion or relative-to-frames.
-.PP
-An LSK file must be provided on the command line to display times in UTC  formats. FK file(s) must be provided on the command line to display names of any frames that are not built into the Toolkit.
-.PP
-.B cspice-brief
-is part of the SPICE Toolkit. See \fBcspice\fR(7).
-
-.SH OPTIONS
-.SS Options Controlling Output Summary Format
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-BRIEF" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-brief\fR \- displays a summary for binary SPK or binary PCK files
+.
+.SH "SYNOPSIS"
+\fBcspice brief\fR [\fIoptions\fR] \fIfile\fR [\fIfile\fR \.\.\.]
+.
+.SH "DESCRIPTION"
+\fBBRIEF\fR is a command line program that displays summary of the contents and time coverage for one or more binary SPK or binary PCK files\.
+.
+.P
+The program can display a summary for each individual file listed on the command line, in a list file, and/or a meta\-kernel, or for all files as if they were combined into a single file\. It can display coverage boundaries as Ephemeris Times (ET) in calendar format, if requested rounded to the nearest second, minute, hour, or day, as ET seconds past J2000, as UTC times in "year\-month\-day" format , or as UTC times in "day\-of\-year" format\.
+.
+.P
+\fBBRIEF\fR can restrict summary display to only specified bodies or frames and/or specified centers\-of\-motion or relative\-to\-frames and/or for a specified time or time interval\. It can display the summary in a variety of formats, ordered by body or frame names or numeric IDs, with or without showing centers\-of\-motion or relative\-to\-frames\.
+.
+.P
+An LSK file must be provided on the command line to display times in UTC formats\. FK file(s) must be provided on the command line to display names of any frames that are not built into the Toolkit\.
+.
+.P
+\fBBRIEF\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OPTIONS"
+.
+.SS "Options Controlling Output Summary Format"
+.
 .TP
-.BR \-c
-Display bodies/frames in the format that shows their centers-of-motion (for SPKs) or relative-to-frames (for binary PCKs).
+\fB\-c\fR
+Display bodies/frames in the format that shows their centers\-of\-motion (for SPKs) or relative\-to\-frames (for binary PCKs)\.
+.
 .TP
-.BR \-a
-Treat all files as a single file. Display combined summary for all files as if all data from these files were merged into a single file.
+\fB\-a\fR
+Treat all files as a single file\. Display combined summary for all files as if all data from these files were merged into a single file\.
+.
 .TP
-.BR \-t
-Display summary in a tabular format.
+\fB\-t\fR
+Display summary in a tabular format\.
+.
 .TP
-.BR \-s
-Re-order records in the tables of the tabular output in such way that the records for a particular body or frame are grouped together and sorted by the start time within each group. This option supersedes \fB\-g\fR and has no effect without \fB\-t\fR. This option re-sorts tabular display tables already ordered by \fB\-o\fR.
+\fB\-s\fR
+Re\-order records in the tables of the tabular output in such way that the records for a particular body or frame are grouped together and sorted by the start time within each group\. This option supersedes \fB\-g\fR and has no effect without \fB\-t\fR\. This option re\-sorts tabular display tables already ordered by \fB\-o\fR\.
+.
 .TP
-.BR \-g
-Re-order records in the tables of the tabular output such that all records with the same coverage are grouped together. This option has no effect  without \fB\-t\fR and it regroups tables already ordered by \fB\-o\fR.
+\fB\-g\fR
+Re\-order records in the tables of the tabular output such that all records with the same coverage are grouped together\. This option has no effect without \fB\-t\fR and it regroups tables already ordered by \fB\-o\fR\.
+.
 .TP
-.BR \-n
-Display bodies/frames using numeric IDs ("ID") rather than the default  name/ID combinations ("NAME (ID)").
+\fB\-n\fR
+Display bodies/frames using numeric IDs ("ID") rather than the default name/ID combinations ("NAME (ID)")\.
+.
 .TP
-.BR \-o
-Order bodies/frames in the table headers in the default display, or in the left columns in the tabular display, by name rather than by numeric ID. This option is ignored when \fB\-n\fR is specified.
-\br
-.SS Options Controlling Output Time Format
+\fB\-o\fR
+Order bodies/frames in the table headers in the default display, or in the left columns in the tabular display, by name rather than by numeric ID\. This option is ignored when \fB\-n\fR is specified\.
+.
+.SS "Options Controlling Output Time Format"
+If more than one of the \fB\-sec\fR, \fB\-min\fR, \fB\-hour\fR, and \fB\-day\fR options is specified, the one providing the "highest" time resolution takes precedence, namely \fB\-sec\fR > \fB\-min\fR > \fB\-hour\fR > \fB\-day\fR\.
+.
 .TP
-.BR \-etsec
-Display time tags as ET seconds past J2000 in the "SSSSSSSSSSSS.DDDDDD" format.
+\fB\-etsec\fR
+Display time tags as ET seconds past J2000 in the "SSSSSSSSSSSS\.DDDDDD" format\.
+.
 .TP
-.BR \-utc
-Display time tags as UTC in the "YYYY-MON-DD HR:MN:SC.DDD" format (needs LSK).
+\fB\-utc\fR
+Display time tags as UTC in the "YYYY\-MON\-DD HR:MN:SC\.DDD" format (needs LSK)\.
+.
 .TP
-.BR \-utcdoy
-Display time tags as UTC times in the "YYYY-DOY // HR:MN:SC.DDD" format (needs LSK).
+\fB\-utcdoy\fR
+Display time tags as UTC times in the "YYYY\-DOY // HR:MN:SC\.DDD" format (needs LSK)\.
+.
 .TP
-.BR \-sec
-Display default calendar ET time tags "rounded inward" to the nearest second.
-This option has no effect when either \fB\-etsec\fR, \fB\-utc\fR or \fB\-utcdoy\fR is used.
-If more than one of the \fB\-sec\fR, \fB\-min\fR, \fB\-hour\fR, and \fB\-day\fR options is specified, the one providing the "highest" time resolution takes precedence, namely \fB\-sec\fR > \fB\-min\fR > \fB\-hour\fR > \fB\-day\fR.
+\fB\-sec\fR
+Display default calendar ET time tags "rounded inward" to the nearest second\. This option has no effect when either \fB\-etsec\fR, \fB\-utc\fR or \fB\-utcdoy\fR is used\.
+.
 .TP
-.BR \-min
-Display default calendar ET time tags "rounded inward" to the nearest minute.
-Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well.
+\fB\-min\fR
+Display default calendar ET time tags "rounded inward" to the nearest minute\. Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well\.
+.
 .TP
-.BR \-hour
-Display default calendar ET time tags "rounded inward" to the nearest hour.
-Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well.
+\fB\-hour\fR
+Display default calendar ET time tags "rounded inward" to the nearest hour\. Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well\.
+.
 .TP
-.BR \-day
-Display default calendar ET time tags "rounded inward" to the nearest day.
-Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well.
-.SS Options Filtering Summary
+\fB\-day\fR
+Display default calendar ET time tags "rounded inward" to the nearest day\. Effectiveness and precedence rules for the \fB\-sec\fR apply to this option as well\.
+.
+.SS "Options Filtering Summary"
+.
 .TP
-\fB\-sb\fR\fIBODY\fR, \fB\-sb\fR\fI[MIN,MAX]\fR, \fB\-\fR\fIBODY\fR
-Display summary information only for the specified body/frame name or numeric ID \fIBODY\fR. The use of just \fB\-\fR followed by the body/frame name or numeric ID is deprecated.
-If the body/frame name contains spaces, these spaces must be replaced with underscores ("_").
-A range of numeric IDs in the form \fI[MIN,MAX]\fR may be used instead of a single name or numeric ID. The range can be open on either end, producing a summary for all numeric IDs greater than the specified value (\fI[MIN,:]\fR) or less than the specified value (\fI[:,MAX]\fR).
-Up to 100 individual \fB\-sb\fR and \fB\-sc\fR constraints can be specified at the same time, they will be combined using logical "OR".
+\fB\-sb\fR\fIbod\fR, \fB\-sb\fR\fI[min,max]\fR, \fB\-\fR\fIbod\fR
+Display summary information only for the specified body/frame name or numeric ID \fIbod\fR\. The use of just \fB\-\fR followed by the body/frame name or numeric ID is deprecated\. If the body/frame name contains spaces, these spaces must be replaced with underscores ("_")\. A range of numeric IDs in the form \fI[min,max]\fR may be used instead of a single name or numeric ID\. The range can be open on either end, producing a summary for all numeric IDs greater than the specified value (\fI[min,:]\fR) or less than the specified value (\fI[:,max]\fR)\. Up to 100 individual \fB\-sb\fR and \fB\-sc\fR constraints can be specified at the same time, they will be combined using logical "OR"\.
+.
 .TP
-\fB\-sc\fR\fICENTER\fR, \fB\-sc\fR\fI[MIN,MAX]\fR
-Display summary information only for the specified center-of-motion/relative-to-frame name or numeric ID \fICENTER\fR.
-Formatting rules for the \fB\-sb\fR option apply to this option as well.
+\fB\-sc\fR\fIcen\fR, \fB\-sc\fR\fI[min,max]\fR
+Display summary information only for the specified center\-of\-motion/relative\-to\-frame name or numeric ID \fIcen\fR\. Formatting rules for the \fB\-sb\fR option apply to this option as well\.
+.
 .TP
-\fB\-at\fR \fITIME\fR
-Display summary information only for the bodies/frames whose coverage intervals contains the specified \fITIME\fR.
-The time can be provided in any format supported by SPICE's TPARSE routine  as long as it doesn't contain spaces.
-This option overrides \fB\-from\fR/\fB\-to\fR.
+\fB\-at\fR \fItime\fR
+Display summary information only for the bodies/frames whose coverage intervals contains the specified \fItime\fR\. The time can be provided in any format supported by SPICE\'s TPARSE routine as long as it doesn\'t contain spaces\. This option overrides \fB\-from\fR/\fB\-to\fR\.
+.
 .TP
-\fB\-from\fR \fITIME\fR \fB\-to\fR \fITIME\fR
-Display summary information only for the bodies/frames whose coverages contain the specified time interval.
-Formatting rules for the \fB\-at\fR option apply to this option as well.
-If either \fB\-from\fR or \fB\-to\fR is specified by itself it has the same effect as the \fB\-at\fR option.
-If the time provided with \fB\-from\fR is later than the time provided with \fB\-to\fR they will be re-ordered internally.
-.SS Miscellaneous Options
+\fB\-from\fR \fIbeg\fR \fB\-to\fR \fIend\fR
+Display summary information only for the bodies/frames whose coverages contain the specified time interval\. Formatting rules for the \fB\-at\fR option apply to this option as well\. If either \fB\-from\fR or \fB\-to\fR is specified by itself it has the same effect as the \fB\-at\fR option\. If the time provided with \fB\-from\fR is later than the time provided with \fB\-to\fR they will be re\-ordered internally\.
+.
+.SS "Miscellaneous Options"
+.
 .TP
-\fB\-f\fR \fILIST_FILE\fR
-Display a summary for the files whose names are listed in the text file \fILIST_FILE\fR.
-The file names can be provided one-per-line or a few-per-line separated by one or more spaces.
+\fB\-f\fR \fIlist\fR
+Display a summary for the files whose names are listed in the text file \fIlist\fR\. The file names can be provided one\-per\-line or a few\-per\-line separated by one or more spaces\.
+.
 .TP
 \fB\-h\fR
-Display a complete usage message listing all options and exit.
+Display a complete usage message listing all options and exit\.
+.
 .TP
 \fB\-v\fR
-Display just the version line and exit.
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+Display just the version line and exit\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on http://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

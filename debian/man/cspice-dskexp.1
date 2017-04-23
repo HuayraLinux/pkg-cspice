@@ -1,0 +1,213 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-DSKEXP" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-dskexp\fR \- exports data from DSK files to text files
+.
+.SH "SYNOPSIS"
+.
+.TP
+\fBcspice dskexp\fR
+\fB\-dsk\fR \fIdsk\fR \fB\-text\fR \fIoutput_name\fR \fB\-format\fR \fIformat\fR [\fB\-prec\fR \fIn\fR]
+.
+.SH "DESCRIPTION"
+\fBDSKEXP\fR enables SPICE Toolkit users to "export" data from a DSK file to any of a variety of simple, easily parsed text formats\. This capability enables users to easily transform DSK files into formats required by other applications; it also makes it easy to inspect the data in a DSK file\.
+.
+.P
+\fBDSKEXP\fR currently is limited to processing type 2 (plate model) DSK segments\.
+.
+.P
+If the input DSK file contains multiple segments, an output text file will be created for each segment\.
+.
+.P
+\fBDSKEXP\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "OUTPUT FORMATS"
+The supported formats are:
+.
+.IP "1." 4
+\fIplate\-vertex\fR table\. The format code for this format is \fI1\fR\. The output file format is:
+.
+.IP "" 4
+.
+.nf
+
+<vertex count NV>
+1   <vertex 1  X value><Y value><Z value>
+    \.\.\.
+NV  <vertex NV X value><Y value><Z value>
+<plate count NP>
+1  <plate 1  vertex 1 ID><vertex 2 ID><vertex 3 ID>
+    \.\.\.
+NP <plate NP vertex 1 ID><vertex 2 ID><vertex 3 ID>
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "2." 4
+\fIvertex\-facet\fR table\. This format is also called \fIobj\fR format\. The format code for this format is \fI3\fR\. The output file format is:
+.
+.IP "" 4
+.
+.nf
+
+v <vertex 1  X value><Y value><Z value>
+    \.\.\.
+v <vertex NV X value><Y value><Z value>
+f <plate 1  vertex 1 ID><vertex 2 ID><vertex 3 ID>
+    \.\.\.
+f <plate NP vertex 1 ID><vertex 2 ID><vertex 3 ID>
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "3." 4
+Rosetta/OSIRIS \fIver\fR format\. The format code for this format is \fI4\fR\. The output file format is:
+.
+.IP "" 4
+.
+.nf
+
+<vertex count NV> <plate count NP>
+  <vertex 1  X value><Y value><Z value>
+      \.\.\.
+  <vertex NV X value><Y value><Z value>
+3
+  <plate 1  vertex 1 ID><vertex 2 ID><vertex 3 ID>
+      \.\.\.
+3
+  <plate NP vertex 1 ID><vertex 2 ID><vertex 3 ID>
+.
+.fi
+.
+.IP "" 0
+
+.
+.IP "" 0
+.
+.P
+In the diagram above, NV and NP are the vertex and plate counts, respectively\.
+.
+.P
+The Gaskell ICQ format (format code 2) is not supported as an export format\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-dsk\fR \fIdsk\fR
+Specify DSK input file\.
+.
+.TP
+\fB\-text\fR \fItext\fR
+Specify output text file\. If the input file contains multiple segments, an output file will be written for each segment\. The file for the nth segment, where n is greater than 1, will have the string "_\fIn\-1\fR" appended to the output file name specified on the command line\. For example, if the input DSK contains multiple segments and if the specified output file name is \'phobos\.plt\' then the file for the first segment will have that name, the file for the second segment will be named \'phobos\.plt_1\' and so on\.
+.
+.TP
+\fB\-format\fR \fIformat\fR
+Specifies the output file format\. Output formats may be specified by name or by integer code\. All of the supported output formats are valid \fBcspice\-mkdsk\fR input file formats\. See the section "OUTPUT FORMATS" above for further information\.
+.
+.TP
+\fB\-prec\fR \fIn\fR
+The optional output precision specification allows users to limit the precision of the double precision numbers representing components of plate model vertices\. Reducing the output precision can significantly reduce the size of the output file\. By default, full precision (17 mantissa digits) is used\. Range is 1:17\.
+.
+.SH "EXAMPLES"
+Create a vertex\-facet format output file\. This example uses default precision for the output vertices:
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format vertex\-facet
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a vertex\-facet format output file\. Use 9\-digit mantissas for the vertices\. The format name "obj" can be used to indicate vertex\-facet format\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format obj \-prec 9
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a vertex\-facet format output file\. Use 9\-digit mantissas for the vertices\. The format code 3 can be used to indicate vertex\-facet format\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format 3 \-prec 9
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a plate\-vertex format output file\. This example uses default precision for the output vertices\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format plate\-vertex
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a plate\-vertex format output file\. Use the integer code for this format\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format 1
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a Rosetta "ver" format output file\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format ver
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Create a Rosetta "ver" format output file\. Use the integer code for this format\.
+.
+.IP "" 4
+.
+.nf
+
+cspice dskexp \-dsk phobos\.bds \-text phobos\.obj \-format 4
+.
+.fi
+.
+.IP "" 0
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7), \fBcspice\-mkdsk\fR(1)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

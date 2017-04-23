@@ -1,0 +1,79 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-MKDSK" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-mkdsk\fR \- creates a DSK file from a text file
+.
+.SH "SYNOPSIS"
+.
+.TP
+\fBcspice mkdsk\fR
+[\fB\-setup\fR \fIsetup_file\fR]
+.
+.br
+\fB\-input\fR \fIinput_data_file\fR
+.
+.br
+\fB\-output\fR \fIoutput_dsk_file\fR
+.
+.br
+[\fB\-h\fR|\fB\-t\fR|\fB\-u\fR|\fB\-v\fR]
+.
+.SH "DESCRIPTION"
+\fBMKDSK\fR converts a text file containing surface shape and size data to a binary Digital Shape Kernel (DSK)\.
+.
+.P
+The MKDSK program requires as input a setup file containing input parameters and a second file containing the shape data to be processed\.
+.
+.P
+Data files provided to this program either represent an object\'s surface as a collection of triangular plates, or as a height grid\.
+.
+.P
+Currently the only supported output DSK data type is type 2: this type represents the surface of a specified body as a collection of triangular plates\.
+.
+.P
+The program allows the user to optionally specify some descriptive text in a separate file, called the "comment file" to be placed into the "comment area" of the DSK file\. (Doing this is highly recommended\.)
+.
+.P
+For archival documentation purposes the content of the MKDSK setup file is automatically placed at the end of the "comment area" of the DSK file\.
+.
+.P
+\fBMKDSK\fR is part of the CSPICE Toolkit\. See cspice(7) for more information\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-setup\fR \fIsetup_file\fR
+If a setup file name isn\'t provided on the command line, MKDSK will prompt for it\. For more information on the setup file format please refer to the documentation\.
+.
+.TP
+\fB\-input\fR \fIinput_data_file\fR
+Specify the input shape data file\. If the input or output file names are provided on the command line, any corresponding file names assigned using setup keywords are ignored\.
+.
+.TP
+\fB\-output\fR \fIoutput_dsk_file\fR
+Specify the output DSK file\. If the input or output file names are provided on the command line, any corresponding file names assigned using setup keywords are ignored\.
+.
+.TP
+\fB\-h\fR, \fB\-help\fR
+Pint help message and exit\.
+.
+.TP
+\fB\-t\fR, \fB\-template\fR
+Print a complete MKDSK setup file template and exit\.
+.
+.TP
+\fB\-u\fR, \fB\-usage\fR
+Print usage information and exit\.
+.
+.TP
+\fB\-v\fR, \fB\-version\fR
+Print version and exit\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on http://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.

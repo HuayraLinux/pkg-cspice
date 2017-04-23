@@ -1,26 +1,28 @@
-.\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Rock Storm <rockstorm@gmx.com>,
-.\"
-.TH CSPICE-SPKMERGE 1
-.SH NAME
-cspice-spkmerge \- subset or merge one or more SPICE SPK files
-
-.SH SYNOPSIS
-\fBcspice-spkmerge\fR \fICOMMAND_FILE\fR
-
-.SH DESCRIPTION
-.B cspice-spkmerge
-builds new SPK files by merging entire or subsets of one or more existing SPK files. It creates SPK kernels that have no overlapping ephemeris; the order in which source files are specified determines the precedence when source files contain overlapping data.
-.PP
-.B cspice-spkmerge
-reads all its instructions from a command file. A command file is an ASCII formatted file containing 'KEYWORD = value' assignments.
-.PP
-.B cspice-spkmerge
-is part of the SPICE Toolkit. See
-.BR cspice (7).
-
-.SH SEE ALSO
-.BR cspice (7).
-
-.SH AUTHOR
-This manual page was written by Rock Storm <rockstorm@gmx.com> based on the official SPICE documentation. See http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/index.html for more information.
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CSPICE\-SPKMERGE" "1" "April 2017" "" "General Commands Manual"
+.
+.SH "NAME"
+\fBcspice\-spkmerge\fR \- subset or merge one or more SPICE SPK files
+.
+.SH "SYNOPSIS"
+\fBcspice spkmerge\fR [\fIcommand_file\fR]
+.
+.SH "DESCRIPTION"
+\fBSPKMERGE\fR builds new SPK files by merging entire or subsets of one or more existing SPK files\. \fBSPKMERGE\fR creates SPK kernels that have no overlapping ephemeris; the order in which source files are specified determines the precedence when source files contain overlapping data\.
+.
+.P
+\fBSPKMERGE\fR reads all its instructions from a command file\. A command file is an ASCII formatted file containing `KEYWORD = value\' assignments\. The format of this file is thoroughly described in the documentation file spkmerge\.ug\.
+.
+.P
+\fBSPKMERGE\fR will prompt for the name of the command file when you start the program\. Alternately, you can name the command file as the only argument on the command line\.
+.
+.P
+\fBSPKMERGE\fR is part of the CSPICE Toolkit\. See \fBcspice\fR(7) for more information\.
+.
+.SH "SEE ALSO"
+\fBcspice\fR(7)
+.
+.P
+Full documentation is provided by package cspice\-doc on /usr/share/doc/cspice or it can be obtained online on https://naif\.jpl\.nasa\.gov/pub/naif/toolkit_docs/C/\.
