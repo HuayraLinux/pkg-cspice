@@ -1,0 +1,21 @@
+#! /bin/bash
+# 
+# Invoke one of the different CSPICE utilities.
+#     cspice <utility> <arguments>
+#
+# Author: Rock Storm <rockstorm@gmx.com>
+
+set -e
+
+libexecdir="/usr/lib/cspice"
+
+EXECUTABLES=(brief chronos ckbrief commnt dskbrief dskexp frmdiff inspekt \
+             mkdsk mkspk msopck spacit spkdiff spkmerge tobin toxfr version)
+
+for i in "${!EXECUTABLES[@]}"; do
+    if [ "$1" == "${EXECUTABLES[$i]}" ] ; then
+        shift
+        $libexecdir/${EXECUTABLES[$i]} $@
+        exit $?
+    fi
+done

@@ -6,7 +6,7 @@
 
 set -e
 
-__exeprefix="cspice-"
+__exeprefix="cspice"
 __datadir="data"
 __bspfile="cook_01.bsp"
 __output="brief-utc.out"
@@ -14,7 +14,7 @@ __output="brief-utc.out"
 # Populate the expeted output file
 /bin/cat <<EOF > $__output
  
-BRIEF -- Version 4.0.0, September 8, 2010 -- Toolkit Version N0065
+BRIEF -- Version 4.0.0, September 8, 2010 -- Toolkit Version N0066
  
  
 Summary for: $__bspfile
@@ -31,10 +31,10 @@ Bodies: GALILEO ORBITER (-77)   JUPITER BARYCENTER (5)  SUN (10)
 EOF
 
 # tobin test: Convert a text kernel into binary
-"$__exeprefix""tobin" "$__datadir/cook_01.tsp" "$__bspfile" > /dev/null
+"$__exeprefix" "tobin" "$__datadir/cook_01.tsp" "$__bspfile" > /dev/null
 
 # brief test: Summarize the contents of the binary kernel
-"$__exeprefix""brief" -utc "$__bspfile" "$__datadir/cook_01.tls" | \
+"$__exeprefix" "brief" -utc "$__bspfile" "$__datadir/cook_01.tls" | \
 diff "$__output" -
 
 echo "toolkit utilities: OK"

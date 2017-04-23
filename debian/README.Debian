@@ -12,7 +12,7 @@ following manner:
    along with the header files and libcspice.so.
 
  * cspice: contains mainly the utilities for which upstream has released the
-   source code, a.k.a. the SPICE Toolkit. Also, some example or "cookbook"
+   source code, a.k.a. the CSPICE Toolkit. Also, some example or "cookbook"
    programs to demonstrate the capabilities of the spice library along with
    example data can be found in the directory /usr/share/doc/cspice/examples.
 
@@ -23,25 +23,29 @@ following manner:
    found at http://naif.jpl.nasa.gov/naif/tutorials.html.
 
 
-Toolkit Modules' Renaming
-=========================
+Invoking Toolkit Modules
+========================
 
-The toolkit modules are renamed as depicted below because some of them are too generic and in order not to flood the '/usr/bin' folder:
+Each of the toolkit modules are called prepending "cspice" to the utility name
+as shown below:
  
- * brief    ->  cspice-brief
- * chronos  ->  cspice-chronos
- * ckbrief  ->  cspice-ckbrief
- * commnt   ->  cspice-commnt
- * frmdifff ->  cspice-frmdiff
- * inspekt	->	cspice-inspekt
- * mkspk	->	cspice-mkspk
- * msopck	->	cspice-msopck
- * spacit	->	cspice-spacit
- * spkdiff	->	cspice-spkdiff
- * spkmerge	->	cspice-spkmerge
- * tobin	->	cspice-tobin
- * toxfr	->	cspice-toxfr
- * version	->	cspice-version
+ * brief    ->  cspice brief
+ * chronos  ->  cspice chronos
+ * ckbrief  ->  cspice ckbrief
+ * commnt   ->  cspice commnt
+ * dskbrief ->  cspice dskbrief
+ * dskexp   ->  cspice dskexp
+ * frmdifff ->  cspice frmdiff
+ * inspekt  ->  cspice inspekt
+ * mkdsk    ->  cspice mkdsk
+ * mkspk    ->  cspice mkspk
+ * msopck   ->  cspice msopck
+ * spacit   ->  cspice spacit
+ * spkdiff  ->  cspice spkdiff
+ * spkmerge ->  cspice spkmerge
+ * tobin    ->  cspice tobin
+ * toxfr    ->  cspice toxfr
+ * version  ->  cspice version
 
 
 Header Files' Location
