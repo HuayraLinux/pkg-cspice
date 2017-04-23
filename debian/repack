@@ -1,0 +1,95 @@
+#! /bin/bash
+# repackaging script: Merge the C and FORTRAN files published by upstream to 
+#                     generate the upstream tarball.
+#
+# Author: Rock Storm <rockstorm@gmx.com>
+
+topdir=$(dirname $PWD)
+ctkname="cspice"
+ftkname="toolkit"
+debname="cspice-66+dfsg"
+
+# This script is supposed to be run from within the main cspice debian package
+# folder
+cd ..
+
+# Download files
+if [ -e $ctkname.tar.Z ] ; then :
+else
+    wget http://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_32bit/packages/cspice.tar.Z
+fi
+
+if [ -e $ftkname.tar.Z ] ; then :
+else
+    wget http://naif.jpl.nasa.gov/pub/naif/toolkit//FORTRAN/PC_Linux_gfortran_32bit/packages/toolkit.tar.Z
+fi
+
+# Extract files
+rm -fr $ctkname
+rm -fr $ftkname
+tar -zxf $ctkname.tar.Z
+tar -zxf $ftkname.tar.Z
+
+# Remove header files
+cd $ctkname
+rm src/*/*.h
+
+cdirs="brief_c chrnos_c ckbref_c commnt_c cspice csupport \
+dskbrief_c dskexp_c frmdif_c inspkt_c mkdsk_c mkspk_c \
+msopck_c spacit_c spkdif_c spkmrg_c tobin_c toxfr_c versn_c"
+
+fdirs="brief chronos ckbrief commnt spicelib support \
+dskbrief dskexp frmdiff inspekt mkdsk mkspk \
+msopck spacit spkdiff spkmerge tobin toxfr version"
+
+# Exclude files which cannot be directly translated from the published Fortran
+# files:
+excludedfiles="rdker.c zzldker.c zzxlated.c zzxlatei.c"
+for item in $excludedfiles
+do
+    excludes="$excludes --exclude="*$item""
+done
+
+arr=($cdirs)
+index=0
+for item in $fdirs
+do
+    # Copy the Fortran include files
+    cp ../$ftkname/src/$item/*.inc src/${arr[$index]}/
+    
+    # Replace each .pgm file with its Fortran counterpart
+    cp -f ../$ftkname/src/$item/*.pgm src/${arr[$index]}/
+    
+    # Replace every .c file with its fortran counterpart
+    ## List which files from the C Toolkit where actually translated from
+    ## Fortran
+    cfiles="$(grep -l -d recurse -e "translated by f2c" $excludes src/${arr[$index]}/ | grep -v -e "pgm")"
+
+    ## Find the Fortran counterpart of each *.c file
+    for item2 in $cfiles
+    do
+        ffilename="${item2%.c}"
+        ffilename="${ffilename##src*/}.f"
+        cfilepath="${item2%/*.c}"
+        ffile="$(find $topdir/$ftkname/src/$item -type f -name "$ffilename" | head -n 1)"
+        # If Fortran counterpart exists remove C file and replace it
+        if [ $ffile ]; then
+            rm $item2
+            cp $ffile ./$cfilepath/
+        fi
+    done
+    
+    let "index++"
+done
+
+# Remove the folders containing binary files
+rm -fr exe
+rm -fr etc
+rm -fr lib
+
+# Repack
+cd $topdir
+rm -rf $debname
+rm -rf $debname.tar.gz
+mv $ctkname $debname
+tar -zcf $debname.tar.gz $debname

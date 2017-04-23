@@ -22,8 +22,11 @@ produced by direct translation and are left as is:
 
 Moreover upstream distributes source code and compiled binaries, all together.
 This binaries are removed for compliance with the DFSG. Besides, upstream
-replicates the very same header files through different subfolder, these are
+replicates the very same header files through different subfolders, these are
 also removed for the sake of simplicity.
 
- -- Rock Storm <rockstorm@gmx.com>  Mon, 20 Mar 2017 18:48:04 +0100
+The construction of the "upstream tarball" is made using the script
+debian/repack.
+
+ -- Rock Storm <rockstorm@gmx.com>  Sat, 15 Apr 2017 11:54:12 +0200
 

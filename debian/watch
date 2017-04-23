@@ -2,7 +2,9 @@
 version=4
 
 # No way to reach the download file and the version has been found yet.
-# Upstream "tarball" has no version on its name. See http://naif.jpl.nasa.gov/
-# pub/naif/toolkit//C/PC_Linux_GCC_32bit/packages/cspice.tar.Z
+# Upstream "tarball" has no version on its name. See http://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_32bit/packages/cspice.tar.Z
 # The version is stated here: https://naif.jpl.nasa.gov/naif/toolkit.html
 # instead.
+
+# The upstream tarball is produced using the debian/repack script and the
+# process is explained in the debian/README.source file.
