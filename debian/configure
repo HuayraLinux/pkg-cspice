@@ -1,5 +1,5 @@
 #! /bin/sh
-# configuration script: Generate two files (one the be included by FORTRAN
+# configuration script: Generate two files (one to be included by FORTRAN
 # files and a C header file) which will deal with the architecture-related
 # differences in upstream code.
 #
