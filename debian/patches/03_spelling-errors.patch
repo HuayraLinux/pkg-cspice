@@ -1,0 +1,1322 @@
+Description: Fix some spelling errors detected by lintian
+Author: Rock Storm <rockstorm@gmx.com>
+
+--- a/src/mkdsk_c/rdffpl.f
++++ b/src/mkdsk_c/rdffpl.f
+@@ -1138,7 +1138,7 @@
+ 
+       ELSE
+ 
+-         CALL SETMSG ( 'Unkown plate data type: #.' )
++         CALL SETMSG ( 'Unknown plate data type: #.' )
+          CALL ERRINT( '#', PLTTYP                   )
+          CALL SIGERR ( 'SPICE(BADDATATYPE)'         )
+          CALL CHKOUT ( 'RDFFPL'                     )
+--- a/src/inspkt_c/inspekt.pgm
++++ b/src/inspkt_c/inspekt.pgm
+@@ -172,7 +172,7 @@
+ C-    Inspekt Version 7.20, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    Inspekt Version 7.19, 20-SEP-1999 (NJB)
+--- a/src/cspice/zzrefch1.f
++++ b/src/cspice/zzrefch1.f
+@@ -78,7 +78,7 @@
+ C     ROTATE      is a 3 x 3 rotaion matrix that can be used to
+ C                 transform positions relative to the frame
+ C                 correspsonding to frame FRAME2 to positions relative
+-C                 to the frame FRAME2.  More explicitely, if POS is
++C                 to the frame FRAME2.  More explicitly, if POS is
+ C                 the position of some object relative to the
+ C                 reference frame of FRAME1 then POS2 is the position
+ C                 of the same object relative to FRAME2 where POS2 is
+--- a/src/cspice/errdev.f
++++ b/src/cspice/errdev.f
+@@ -257,7 +257,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 24-SEP-1999 (NJB)
+@@ -267,13 +267,13 @@
+ C-    SPICELIB Version 2.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 2.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+--- a/src/cspice/wrline.f
++++ b/src/cspice/wrline.f
+@@ -348,7 +348,7 @@
+ C-    SPICELIB Version 4.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 4.0.3, 16-SEP-1999 (NJB)
+@@ -803,7 +803,7 @@
+ C-    SPICELIB Version 4.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 4.0.2, 28-JUL-1999 (WLT)
+--- a/src/cspice/fndlun.f
++++ b/src/cspice/fndlun.f
+@@ -350,7 +350,7 @@
+ C-    SPICELIB Version 6.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 6.0.3, 24-SEP-1999 (NJB)
+@@ -360,13 +360,13 @@
+ C-    SPICELIB Version 6.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 6.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+@@ -735,19 +735,19 @@
+ C-    SPICELIB Version 6.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 6.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 6.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+@@ -946,7 +946,7 @@
+ C-    SPICELIB Version 6.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 6.0.3, 24-SEP-1999 (NJB)
+@@ -956,13 +956,13 @@
+ C-    SPICELIB Version 6.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 6.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+--- a/src/cspice/zzgetelm.f
++++ b/src/cspice/zzgetelm.f
+@@ -635,7 +635,7 @@
+ C     for fetching the data out of lines one and two (after a bit
+ C     of pretty printing).  Note that some of these formats have
+ C     and implied decimal point.  In particular f6.5 and f7.7  in
+-C     all other cases the decimal points seem to be given explicitely.
++C     all other cases the decimal points seem to be given explicitly.
+ C
+ C     decode (abuf,702) epoch,     xndt20,                       ...
+ C                       xndd60,    iexp,        bstar,    ibexp, ...
+@@ -773,11 +773,11 @@
+          END IF
+ 
+ C
+-C     MO - mean anomoly, [0,360)
++C     MO - mean anomaly, [0,360)
+ C
+       IF ( MO .LT. 0.D0 .OR. MO .GE. 360.D0 ) THEN
+ 
+-            ERROR = 'MO (mean anomoly) expected bounds [0,360). '
++            ERROR = 'MO (mean anomaly) expected bounds [0,360). '
+      .              //'Actual value #1'
+             CALL REPMD ( ERROR, '#1', MO, 4, ERROR )
+ 
+--- a/src/cspice/prompt.f
++++ b/src/cspice/prompt.f
+@@ -234,7 +234,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.3, 24-SEP-1999 (NJB)
+@@ -244,13 +244,13 @@
+ C-    SPICELIB Version 3.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 3.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+--- a/src/cspice/refchg.f
++++ b/src/cspice/refchg.f
+@@ -78,7 +78,7 @@
+ C     ROTATE      is a 3 x 3 rotaion matrix that can be used to
+ C                 transform positions relative to the frame
+ C                 correspsonding to frame FRAME2 to positions relative
+-C                 to the frame FRAME2.  More explicitely, if POS is
++C                 to the frame FRAME2.  More explicitly, if POS is
+ C                 the position of some object relative to the
+ C                 reference frame of FRAME1 then POS2 is the position
+ C                 of the same object relative to FRAME2 where POS2 is
+--- a/src/cspice/txtopr.f
++++ b/src/cspice/txtopr.f
+@@ -257,7 +257,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 16-SEP-1999 (NJB)
+--- a/src/cspice/dafah.f
++++ b/src/cspice/dafah.f
+@@ -378,7 +378,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -1184,7 +1184,7 @@
+ C
+ C-    SPICELIB Version 8.1.0, 02-APR-2002 (FST)
+ C
+-C        This routine was updated to accomodate changes to the
++C        This routine was updated to accommodate changes to the
+ C        handle manager interface.  See DAFAH's Revision section
+ C        for details.
+ C
+@@ -1197,7 +1197,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -1573,7 +1573,7 @@
+ C
+ C-    SPICELIB Version 8.1.0, 02-APR-2002 (FST)
+ C
+-C        This routine was updated to accomodate changes to the
++C        This routine was updated to accommodate changes to the
+ C        handle manager interface.  See DAFAH's Revision section
+ C        for details.
+ C
+@@ -1586,7 +1586,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -2033,7 +2033,7 @@
+ C
+ C-    SPICELIB Version 8.1.0, 02-APR-2002 (FST)
+ C
+-C        This routine was updated to accomodate changes to the
++C        This routine was updated to accommodate changes to the
+ C        handle manager interface.  See DAFAH's Revision section
+ C        for details.
+ C
+@@ -2046,7 +2046,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -2581,7 +2581,7 @@
+ C
+ C-    SPICELIB Version 8.1.0, 02-APR-2002 (FST)
+ C
+-C        This routine was updated to accomodate changes to the
++C        This routine was updated to accommodate changes to the
+ C        handle manager interface.  See DAFAH's Revision section
+ C        for details.
+ C
+@@ -2594,7 +2594,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -3197,7 +3197,7 @@
+ C
+ C-    SPICELIB Version 8.1.0, 02-APR-2002 (FST)
+ C
+-C        This routine was updated to accomodate changes to the
++C        This routine was updated to accommodate changes to the
+ C        handle manager interface.  See DAFAH's Revision section
+ C        for details.
+ C
+@@ -3210,7 +3210,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -3534,7 +3534,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -3755,7 +3755,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -3983,7 +3983,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -4220,7 +4220,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -4458,7 +4458,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -4712,7 +4712,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+@@ -4993,7 +4993,7 @@
+ C-    SPICELIB Version 7.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 7.0.3, 16-SEP-1999 (NJB)
+--- a/src/cspice/writln.f
++++ b/src/cspice/writln.f
+@@ -224,7 +224,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 16-SEP-1999 (NJB)
+--- a/src/cspice/zzfrmch1.f
++++ b/src/cspice/zzfrmch1.f
+@@ -77,7 +77,7 @@
+ C     XFORM       is a 6 x 6 state transformation matrix that can
+ C                 be used to transform states relative to the frame
+ C                 correspsonding to frame FRAME2 to states relative
+-C                 to the frame FRAME2.  More explicitely, if STATE
++C                 to the frame FRAME2.  More explicitly, if STATE
+ C                 is the state of some object relative to the reference
+ C                 frame of FRAME1 then STATE2 is the state of the
+ C                 same object relative to FRAME2 where STATE2 is
+--- a/src/cspice/stmp03.f
++++ b/src/cspice/stmp03.f
+@@ -370,7 +370,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.3, 24-SEP-1999 (NJB)
+--- a/src/cspice/outmsg.f
++++ b/src/cspice/outmsg.f
+@@ -278,7 +278,7 @@
+ C-    SPICELIB Version 5.1.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 5.1.3, 24-SEP-1999 (NJB)
+--- a/src/cspice/zzrefch0.f
++++ b/src/cspice/zzrefch0.f
+@@ -78,7 +78,7 @@
+ C     ROTATE      is a 3 x 3 rotaion matrix that can be used to
+ C                 transform positions relative to the frame
+ C                 correspsonding to frame FRAME2 to positions relative
+-C                 to the frame FRAME2.  More explicitely, if POS is
++C                 to the frame FRAME2.  More explicitly, if POS is
+ C                 the position of some object relative to the
+ C                 reference frame of FRAME1 then POS2 is the position
+ C                 of the same object relative to FRAME2 where POS2 is
+--- a/src/cspice/chbase.f
++++ b/src/cspice/chbase.f
+@@ -288,7 +288,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 24-SEP-1999 (NJB)
+@@ -298,13 +298,13 @@
+ C-    SPICELIB Version 2.0.2, 28-JUL-1999 (WLT)
+ C
+ C       The environment lines were expanded so that the supported
+-C       environments are now explicitely given.  New
++C       environments are now explicitly given.  New
+ C       environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 2.0.1, 18-MAR-1999 (WLT)
+ C
+ C       The environment lines were expanded so that the supported
+-C       environments are now explicitely given.  Previously,
++C       environments are now explicitly given.  Previously,
+ C       environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C       by the environment label SUN.
+ C
+--- a/src/cspice/rdtext.f
++++ b/src/cspice/rdtext.f
+@@ -364,7 +364,7 @@
+ C-    SPICELIB Version 6.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 6.0.3, 16-SEP-1999 (NJB)
+@@ -841,7 +841,7 @@
+ C-    SPICELIB Version 6.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 6.0.2, 28-JUL-1999 (WLT)
+--- a/src/cspice/prtpkg.f
++++ b/src/cspice/prtpkg.f
+@@ -225,7 +225,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.3, 24-SEP-1999 (NJB)
+@@ -538,7 +538,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.2, 28-JUL-1999 (WLT)
+@@ -771,7 +771,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.2, 28-JUL-1999 (WLT)
+--- a/src/cspice/putdev.f
++++ b/src/cspice/putdev.f
+@@ -217,7 +217,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.3, 24-SEP-1999 (NJB)
+@@ -448,7 +448,7 @@
+ C-    SPICELIB Version 3.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 3.0.3, 24-SEP-1999 (NJB)
+--- a/src/cspice/zzfrmch0.f
++++ b/src/cspice/zzfrmch0.f
+@@ -77,7 +77,7 @@
+ C     XFORM       is a 6 x 6 state transformation matrix that can
+ C                 be used to transform states relative to the frame
+ C                 correspsonding to frame FRAME2 to states relative
+-C                 to the frame FRAME2.  More explicitely, if STATE
++C                 to the frame FRAME2.  More explicitly, if STATE
+ C                 is the state of some object relative to the reference
+ C                 frame of FRAME1 then STATE2 is the state of the
+ C                 same object relative to FRAME2 where STATE2 is
+--- a/src/csupport/pltfrm.f
++++ b/src/csupport/pltfrm.f
+@@ -138,7 +138,7 @@
+ C-    Inspekt Version 1.3.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+--- a/src/cspice/txtopn.f
++++ b/src/cspice/txtopn.f
+@@ -242,7 +242,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 16-SEP-1999 (NJB)
+--- a/src/csupport/edtcmd.f
++++ b/src/csupport/edtcmd.f
+@@ -266,7 +266,7 @@
+ C-    Beta Version 2.2.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    Beta Version 2.2.3, 20-SEP-1999 (NJB)
+--- a/src/csupport/edtcom.f
++++ b/src/csupport/edtcom.f
+@@ -260,7 +260,7 @@
+ C-    SPICELIB Version 1.4.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 1.4.3, 20-SEP-1999 (NJB)
+--- a/src/csupport/exesys.f
++++ b/src/csupport/exesys.f
+@@ -260,7 +260,7 @@
+ C-    Beta Version 2.1.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    Beta Version 2.1.3, 22-SEP-1999 (NJB)
+--- a/src/csupport/m2gmch.f
++++ b/src/csupport/m2gmch.f
+@@ -836,7 +836,7 @@
+                      CALL PREFIX ( 'Although I had matched a required'//
+      .                             ' number of expressions in the '   //
+      .                             'group below, I had not yet match' //
+-     .                             'ed the explicitely required '     //
++     .                             'ed the explicitly required '     //
+      .                             'expression that appears prior to' //
+      .                             ' the META/2 "@options" directive '//
+      .                             'in the group shown here./cr(3:) ',
+@@ -866,7 +866,7 @@
+                      CALL PREFIX ( 'Although I had matched a required'//
+      .                             ' number of expressions in the '   //
+      .                             'group below, I had not yet match' //
+-     .                             'ed the explicitely required '     //
++     .                             'ed the explicitly required '     //
+      .                             'expressions that appear prior to' //
+      .                             ' the META/2 "@options" directive '//
+      .                             'in the group shown here. '        //
+--- a/src/csupport/txtops.f
++++ b/src/csupport/txtops.f
+@@ -201,7 +201,7 @@
+ C-    SPICELIB Version 1.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 1.0.3, 21-SEP-1999 (NJB)
+@@ -212,13 +212,13 @@
+ C-    SPICELIB Version 1.0.2, 28-JUL-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are PC-DIGITAL, SGI-O32 and SGI-N32.
+ C
+ C-    SPICELIB Version 1.0.1, 18-MAR-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  Previously,
++C        environments are now explicitly given.  Previously,
+ C        environments such as SUN-SUNOS and SUN-SOLARIS were implied
+ C        by the environment label SUN.
+ C
+--- a/src/csupport/zzgetenv.f
++++ b/src/csupport/zzgetenv.f
+@@ -270,7 +270,7 @@
+ C-    SPICELIB Version 2.0.4, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    SPICELIB Version 2.0.3, 21-SEP-1999 (NJB)
+--- a/src/csupport/zzgetfat.f
++++ b/src/csupport/zzgetfat.f
+@@ -325,7 +325,7 @@
+ C-    Beta Version 1.0.2, 08-OCT-1999 (WLT)
+ C
+ C        The environment lines were expanded so that the supported
+-C        environments are now explicitely given.  New
++C        environments are now explicitly given.  New
+ C        environments are WIN-NT
+ C
+ C-    Beta Version 1.0.1, 21-SEP-1999 (NJB)
+--- a/src/spkdif_c/chwcml.f
++++ b/src/spkdif_c/chwcml.f
+@@ -1445,7 +1445,7 @@
+             CALL FRMNAM( IC(3), FRAME(1) )
+             IF ( FRAME(1) .EQ. ' ' ) THEN
+                CALL SETMSG ( 'Cannot pick default frame for this '   //
+-     .                       'run becasue no frame names were '      //
++     .                       'run because no frame names were '      //
+      .                       'specified on the command line and '    //
+      .                       'the frame ID # picked from '           //
+      .                       'the SPK ''#'' could not be mapped '    //
+@@ -2003,7 +2003,7 @@
+       IF ( SPK(1) .NE. ' ' .AND. SPK(2) .NE. ' ' ) THEN
+ 
+ C
+-C        For backward compatibility with verison 1.0.0 we will always 
++C        For backward compatibility with version 1.0.0 we will always
+ C        run in comparison mode when two SPKs were provided.
+ C
+ C         SAMPLE = EQSTR( CENNAM(1), CENNAM(2) ) .AND.
+@@ -2361,7 +2361,7 @@
+ C
+ C           For compatibility with the version 1, set number of states
+ C           to the default number or the number of minimum iterations
+-C           as was done in the verison 1 if the comparison window is a
++C           as was done in the version 1 if the comparison window is a
+ C           single interval.
+ C           
+             IF ( WNCARD(CMPWIN) .EQ. 1 ) THEN
+--- a/src/cspice/sgfref.f
++++ b/src/cspice/sgfref.f
+@@ -311,7 +311,7 @@
+      .   //            ' to read has an unsupported reference'
+      .   //            ' directory structure. The integer code'
+      .   //            ' given for this structure is #. The'
+-     .   //            ' likely cause of this anomoly is that'
++     .   //            ' likely cause of this anomaly is that'
+      .   //            ' your version of SPICELIB needs to be'
+      .   //            ' updated. Contact your system'
+      .   //            ' administrator or NAIF for a toolkit'
+--- a/src/cspice/zzdspr.f
++++ b/src/cspice/zzdspr.f
+@@ -184,7 +184,7 @@
+ C
+ C     ARGPP      Argument of periapsis.
+ C
+-C     MP         Mean anomoly.
++C     MP         Mean anomaly.
+ C
+ C$ Detailed_Output
+ C
+@@ -197,7 +197,7 @@
+ C
+ C     ARGPP      Calculated perturbed argument of periapsis.
+ C
+-C     MP         Calculated perturbed mean anomoly.
++C     MP         Calculated perturbed mean anomaly.
+ C
+ C$ Parameters
+ C
+--- a/src/cspice/pckpds.f
++++ b/src/cspice/pckpds.f
+@@ -102,7 +102,7 @@
+ C        value of TYPE is outside the range 2 to 1000 (inclusive).
+ C        This does not ensure that the TYPE is a legitimate PCK
+ C        segment type, but it is a simple check that helps avoid
+-C        problems that arise from unitialized values or improperly
++C        problems that arise from uninitialized values or improperly
+ C        ordered calling arguments.
+ C
+ C$ Files
+--- a/src/cspice/sgseqw.f
++++ b/src/cspice/sgseqw.f
+@@ -2578,7 +2578,7 @@
+          CALL SETMSG ( 'The number of packets to store is not'
+      .   //            ' positive.  The value supplied was #.'
+      .   //            ' Perhaps this packet count was'
+-     .   //            ' unitialized.'                         )
++     .   //            ' uninitialized.'                         )
+          CALL ERRINT ( '#', NPKTS                              )
+          CALL SIGERR ( 'SPICE(NUMPACKETSNOTPOS)'               )
+          CALL CHKOUT ( 'SGWFPK'                                )
+@@ -3122,7 +3122,7 @@
+          CALL SETMSG ( 'The number of packets to store is not'
+      .   //            ' positive.  The value supplied was #.'
+      .   //            ' Perhaps this packet count was'
+-     .   //            ' unitialized.'                         )
++     .   //            ' uninitialized.'                         )
+          CALL ERRINT ( '#', NPKTS                              )
+          CALL SIGERR ( 'SPICE(NUMPACKETSNOTPOS)'               )
+          CALL CHKOUT ( 'SGWVPK'                                )
+--- a/src/inspkt_c/clmgr.f
++++ b/src/inspkt_c/clmgr.f
+@@ -59,7 +59,7 @@
+ C     changed and NJB modified this routine to reflect that
+ C     change.
+ C
+-C-    Version 2.0.  Fixed the problem with an unitialized variable
++C-    Version 2.0.  Fixed the problem with an uninitialized variable
+ C     D.  D is no longer used.
+ C
+       IMPLICIT NONE
+--- a/src/cspice/timdef.f
++++ b/src/cspice/timdef.f
+@@ -479,7 +479,7 @@
+  
+       ELSE
+  
+-         CALL SETMSG ( 'The action speficied to TIMDEF was '
++         CALL SETMSG ( 'The action specified to TIMDEF was '
+      .   //            '''#''.  This is not a recognized action. '
+      .   //            'The recognized actions are ''SET'' and '
+      .   //            '''GET''. ' )
+--- a/src/chrnos_c/cronos.f
++++ b/src/chrnos_c/cronos.f
+@@ -125,7 +125,7 @@
+ C
+ C     The CMDLIN input argument, specifying the time systems/types from
+ C     which and to which the conversion should be done along with a set
+-C     of the other parameters needed to perform the converison,
++C     of the other parameters needed to perform the conversion,
+ C     incorporates these specification in a single line, similar to a
+ C     command line for an executable. The command line has the following
+ C     syntax:
+@@ -177,7 +177,7 @@
+ C 
+ C     The case of command line switches is insignificant.
+ C
+-C     This routine supports converison between the following time
++C     This routine supports conversion between the following time
+ C     systems, that can be specified after the -FROM and -TO command
+ C     line switches:
+ C
+@@ -803,7 +803,7 @@
+          IF ( TOFRMT .NE. ' ' ) THEN
+ 
+ C
+-C           Is formating applicable to time system/type?
++C           Is formatting applicable to time system/type?
+ C
+             IF ( FMTTED( TOSIDX, TOTIDX  ) ) THEN
+ 
+@@ -1852,7 +1852,7 @@
+      .              POS ( TOFRMT, '::TDT',  1 ) .NE. 0       ) THEN
+                   CALL SETMSG ( 'Output format picture ''#'' which '//
+      .                       'is supposed to be a suitable for '    //
+-     .                       'formating time as UTC contains TDB, ' //
++     .                       'formatting time as UTC contains TDB, ' //
+      .                       'TDT, GCAL, JCAL or MCAL token which ' //
+      .                       'tells SPICE time '                    //
+      .                       'subsystem to output time in the '     //
+@@ -1947,7 +1947,7 @@
+      .              POS ( TOFRMT, '::TDT',  1 ) .NE. 0       ) THEN
+                   CALL SETMSG ( 'Output format picture ''#'' which '//
+      .                       'is supposed to be a suitable for '    //
+-     .                       'formating time as ET contains UTC, '  //
++     .                       'formatting time as ET contains UTC, '  //
+      .                       'TDT, GCAL, JCAL or MCAL token which ' //
+      .                       'will tell SPICE time '                //
+      .                       'subsystem to output time in the '     //
+--- a/src/cspice/remlac.f
++++ b/src/cspice/remlac.f
+@@ -172,7 +172,7 @@
+ C         inputs.
+ C
+ C         If the dimension of the array is less than one, any
+-C         value of LOC is invalid. The old verison did not check
++C         value of LOC is invalid. The old version did not check
+ C         the dimension of the array, and as a result, its output
+ C         was unpredictable.
+ C
+--- a/src/cspice/remlad.f
++++ b/src/cspice/remlad.f
+@@ -172,7 +172,7 @@
+ C         inputs.
+ C
+ C         If the dimension of the array is less than one, any
+-C         value of LOC is invalid. The old verison did not check
++C         value of LOC is invalid. The old version did not check
+ C         the dimension of the array, and as a result, its output
+ C         was unpredictable.
+ C
+--- a/src/cspice/remlai.f
++++ b/src/cspice/remlai.f
+@@ -172,7 +172,7 @@
+ C         inputs.
+ C
+ C         If the dimension of the array is less than one, any
+-C         value of LOC is invalid. The old verison did not check
++C         value of LOC is invalid. The old version did not check
+ C         the dimension of the array, and as a result, its output
+ C         was unpredictable.
+ C
+--- a/src/cspice/zzddhini.f
++++ b/src/cspice/zzddhini.f
+@@ -199,7 +199,7 @@
+  
+          CALL CHKIN  ( 'ZZDDHINI'                                   )
+          CALL SETMSG ( 'The binary file format, ''#'', is not '
+-     .   //            'supported by this verison of the toolkit. '
++     .   //            'supported by this version of the toolkit. '
+      .   //            'This is a serious problem, contact NAIF.'   )
+          CALL ERRCH  ( '#', TMPSTR                                  )
+          CALL SIGERR ( 'SPICE(BUG)'                                 )
+@@ -249,7 +249,7 @@
+  
+                CALL CHKIN  ( 'ZZDDHINI'                             )
+                CALL SETMSG ( 'The binary file format, ''#'', is '
+-     .         //            'not supported by this verison of '
++     .         //            'not supported by this version of '
+      .         //            'the toolkit. This is a serious '
+      .         //            'problem, contact NAIF.            '   )
+                CALL ERRCH  ( '#', TMPSTR                            )
+--- a/src/cspice/appndc.f
++++ b/src/cspice/appndc.f
+@@ -107,7 +107,7 @@
+ C      appends the element 'PLUTO' at the location PLANETS (9), and the
+ C      cardinality is updated.
+ C
+-C      If the cell is not big enough to accomodate the addition of
++C      If the cell is not big enough to accommodate the addition of
+ C      the item, an error is signalled. In this case, the cell is not
+ C      altered.
+ C
+@@ -169,9 +169,9 @@
+       END IF
+  
+ C
+-C     Check to see if the cell can accomodate the addition of a
++C     Check to see if the cell can accommodate the addition of a
+ C     new item. If there is room, append the item to the cell and
+-C     reset the cardinality. If the cell cannot accomodate the
++C     reset the cardinality. If the cell cannot accommodate the
+ C     addition of a new item, signal an error.
+ C
+  
+@@ -184,7 +184,7 @@
+  
+       ELSE
+  
+-        CALL SETMSG ( 'The cell cannot accomodate the '     //
++        CALL SETMSG ( 'The cell cannot accommodate the '     //
+      .                'addition of the item *.'                 )
+  
+         CALL ERRCH  ( '*', ITEM )
+--- a/src/cspice/appndd.f
++++ b/src/cspice/appndd.f
+@@ -107,7 +107,7 @@
+ C      appends the element 34.0D0 at the location NUMBERS (9), and the
+ C      cardinality is updated.
+ C
+-C      If the cell is not big enough to accomodate the addition of
++C      If the cell is not big enough to accommodate the addition of
+ C      the item, an error is signalled. In this case, the cell is not
+ C      altered.
+ C
+@@ -175,9 +175,9 @@
+  
+  
+ C
+-C     Check to see if the cell can accomodate the addition of a
++C     Check to see if the cell can accommodate the addition of a
+ C     new item. If there is room, append the item to the cell and
+-C     reset the cardinality. If the cell cannot accomodate the
++C     reset the cardinality. If the cell cannot accommodate the
+ C     addition of a new item, signal an error.
+ C
+  
+@@ -190,7 +190,7 @@
+  
+       ELSE
+  
+-        CALL SETMSG ( 'The cell cannot accomodate the '          //
++        CALL SETMSG ( 'The cell cannot accommodate the '          //
+      .                'addition of the element *. '                )
+  
+         CALL ERRDP  ( '*', ITEM )
+--- a/src/cspice/appndi_c.c
++++ b/src/cspice/appndi_c.c
+@@ -173,7 +173,7 @@
+    if ( cell->card == cell->size )
+    {
+       chkin_c  ( "appndi_c"                                        );
+-      setmsg_c ( "The cell cannot accomodate the addition of the "
++      setmsg_c ( "The cell cannot accommodate the addition of the "
+                  "element *"                                       );
+       errint_c ( "*", item                                         );
+       sigerr_c ( "SPICE(CELLTOOSMALL)"                             );
+--- a/src/cspice/dafec.f
++++ b/src/cspice/dafec.f
+@@ -270,7 +270,7 @@
+ C        DAF. The maximum length of a line stored in the comment area
+ C        should be kept reasonable, so that they may be easily
+ C        extracted. A good value for this would be 1000 characters, as
+-C        this can easily accomodate ``screen width'' lines as well as
++C        this can easily accommodate ``screen width'' lines as well as
+ C        long lines which may contain some other form of information.
+ C
+ C     3) This routine is only used to read records on environments
+--- a/src/cspice/dafwfr.f
++++ b/src/cspice/dafwfr.f
+@@ -150,7 +150,7 @@
+ C
+ C-    SPICELIB Version 3.0.0, 21-MAR-1999 (FST)
+ C
+-C        This routine was modified to accomodate the preservation
++C        This routine was modified to accommodate the preservation
+ C        of the FTP validation and binary file format strings that
+ C        are now part of the DAF file record.
+ C
+--- a/src/cspice/excess.f
++++ b/src/cspice/excess.f
+@@ -82,7 +82,7 @@
+ C     EXCESS sets the long error message.  The message has the form:
+ C
+ C                 An excess of <NUMBER> element(s) could
+-C                 not be accomodated in the output <STRUCT>.
++C                 not be accommodated in the output <STRUCT>.
+ C
+ C     Leading and trailing blanks in STRUCT are removed. If there is
+ C     no excess (NUMBER is zero or negative), then is blank.
+@@ -95,12 +95,12 @@
+ C           NUMBER = 1
+ C           STRUCT = 'set'
+ C           ERROR  = 'An excess of 1 element could not
+-C                     be accomodated in the output set.'
++C                     be accommodated in the output set.'
+ C
+ C           NUMBER = 5
+ C           STRUCT = 'stack'
+ C           ERROR  =  An excess of 5 elements could not
+-C                     be accomodated in the output stack.'
++C                     be accommodated in the output stack.'
+ C
+ C           NUMBER = 0
+ C           STRUCT =
+--- a/src/cspice/lparss_c.c
++++ b/src/cspice/lparss_c.c
+@@ -108,7 +108,7 @@
+ -Exceptions
+  
+  
+-   1)  If the size of the set is not large enough to accomodate all of
++   1)  If the size of the set is not large enough to accommodate all of
+        the items in the set, the error SPICE(SETEXCESS) is signaled.
+        
+    2)  The error SPICE(NULLPOINTER) is signaled if either of the input
+--- a/src/cspice/nninrt.inc
++++ b/src/cspice/nninrt.inc
+@@ -71,14 +71,14 @@
+ C-    SPICELIB Version 1.6.0, 30-OCT-2014 (BVS)
+ C
+ C        Increased the number of non-inertial frames from 105 to 106
+-C        in order to accomodate the following PCK based frame:
++C        in order to accommodate the following PCK based frame:
+ C
+ C           IAU_BENNU
+ C
+ C-    SPICELIB Version 1.5.0, 11-OCT-2011 (BVS)
+ C
+ C        Increased the number of non-inertial frames from 100 to 105
+-C        in order to accomodate the following PCK based frames:
++C        in order to accommodate the following PCK based frames:
+ C
+ C           IAU_CERES
+ C           IAU_PALLAS
+@@ -89,7 +89,7 @@
+ C-    SPICELIB Version 1.4.0, 11-MAY-2010 (BVS)
+ C
+ C        Increased the number of non-inertial frames from 96 to 100
+-C        in order to accomodate the following PCK based frames:
++C        in order to accommodate the following PCK based frames:
+ C
+ C           IAU_BORRELLY
+ C           IAU_TEMPEL_1
+@@ -99,7 +99,7 @@
+ C-    SPICELIB Version 1.3.0, 12-DEC-2002 (BVS)
+ C
+ C        Increased the number of non-inertial frames from 85 to 96
+-C        in order to accomodate the following PCK based frames:
++C        in order to accommodate the following PCK based frames:
+ C
+ C           IAU_CALLIRRHOE
+ C           IAU_THEMISTO
+@@ -116,7 +116,7 @@
+ C-    SPICELIB Version 1.2.0, 02-AUG-2002 (FST)
+ C
+ C        Increased the number of non-inertial frames from 81 to 85
+-C        in order to accomodate the following PCK based frames:
++C        in order to accommodate the following PCK based frames:
+ C
+ C           IAU_PAN
+ C           IAU_GASPRA
+@@ -126,7 +126,7 @@
+ C-    SPICELIB Version 1.1.0, 20-FEB-1997 (WLT)
+ C
+ C        Increased the number of non-inertial frames from 79 to 81
+-C        in order to accomodate the following earth rotation
++C        in order to accommodate the following earth rotation
+ C        models:
+ C
+ C           ITRF93
+--- a/src/cspice/zzgpnm.f
++++ b/src/cspice/zzgpnm.f
+@@ -150,7 +150,7 @@
+ C
+ C$ Exceptions
+ C
+-C     1) If the NAMES array cannot accomodate any more kernel variable
++C     1) If the NAMES array cannot accommodate any more kernel variable
+ C        names, the error 'SPICE(KERNELPOOLFULL)' is signalled.
+ C
+ C$ Particulars
+--- a/src/cspice/zzxlated.c
++++ b/src/cspice/zzxlated.c
+@@ -460,7 +460,7 @@
+ 
+ /* -    SPICELIB Version 1.26.0, 15-NOV-2015 (EDW) */
+ 
+-/*        Recast J = 8*(-1+I) + 1 as J = -7+8*I to accomodate */
++/*        Recast J = 8*(-1+I) + 1 as J = -7+8*I to accommodate */
+ /*        f2c processing. */
+ 
+ /* -    SPICELIB Version 1.25.0, 10-MAR-2014 (BVS) */
+--- a/src/cspice/zzxlatei.c
++++ b/src/cspice/zzxlatei.c
+@@ -461,7 +461,7 @@
+ 
+ /* -    SPICELIB Version 1.26.0, 15-NOV-2015 (EDW) */
+ 
+-/*        Recast J = 4*(-1+I) + 1 as J = -3+4*I to accomodate */
++/*        Recast J = 4*(-1+I) + 1 as J = -3+4*I to accommodate */
+ /*        f2c processing. */
+ 
+ /* -    SPICELIB Version 1.25.0, 10-MAR-2014 (BVS) */
+--- a/src/spacit_c/spacit.pgm
++++ b/src/spacit_c/spacit.pgm
+@@ -134,7 +134,7 @@
+ C        All write to standard output call replaced with TOSTDO.
+ C
+ C        Operation of the binary to transfer function enhanced to
+-C        accomodate SFDUs.  See the routines:  SPAT2B 2.0.0;
++C        accommodate SFDUs.  See the routines:  SPAT2B 2.0.0;
+ C        ZZGETFAT 1.0.0; ZZCONVTB 1.0.0 for details.
+ C
+ C-    Beta Version 7.1.1, 14-MAR-1997 (WLT)
+@@ -261,7 +261,7 @@
+ C        All write to standard output call replaced with TOSTDO.
+ C
+ C        Operation of the binary to transfer function enhanced to
+-C        accomodate SFDUs.  See the routines:  SPAT2B 2.0.0;
++C        accommodate SFDUs.  See the routines:  SPAT2B 2.0.0;
+ C        ZZGETFAT 1.0.0; ZZCONVTB 1.0.0 for details.
+ C
+ C-    Beta Version 7.1.1, 14-MAR-1997 (WLT)
+--- a/src/tobin_c/tobin.pgm
++++ b/src/tobin_c/tobin.pgm
+@@ -161,7 +161,7 @@
+ C-    SPICELIB Version 1.2.0  20-MAR-1999 (EDW)
+ C
+ C        Operation of the binary to transfer function enhanced to
+-C        accomodate SFDUs.  See the routines: ZZGETFAT 1.0.0;
++C        accommodate SFDUs.  See the routines: ZZGETFAT 1.0.0;
+ C        ZZCONVTB 1.0.0 for details.
+ C
+ C-    SPICELIB Version 1.1.0, 07-DEC-1995 (KRG)
+--- a/src/csupport/tabrpt.f
++++ b/src/csupport/tabrpt.f
+@@ -156,7 +156,7 @@
+ C
+ C        Increased the internal buffer sizes and modified
+ C        the fetching logic so that the buffer will not fill
+-C        up and inadvertantly cut off data with no warning.
++C        up and inadvertently cut off data with no warning.
+ C
+ C-    Beta Version 2.0.0, 9-Aug-1995 (WLT)
+ C
+@@ -218,7 +218,7 @@
+ C     The arrays below are used to store attributes on a column
+ C     by column basis.
+ C
+-C     STYLE  is the style to be used when formating text for an
++C     STYLE  is the style to be used when formatting text for an
+ C            individual column
+ C
+ C     COUNT  is a counter that is used to indicate how many components
+--- a/src/csupport/makstr.f
++++ b/src/csupport/makstr.f
+@@ -116,7 +116,7 @@
+ C
+ C                 Note THIS must match the input pattern.
+ C
+-C                 The tokens of THIS are the characters upto and
++C                 The tokens of THIS are the characters up to and
+ C                 including the last non-blank character of THIS.
+ C
+ C                 This should have the same number of tokens as does
+@@ -585,7 +585,7 @@
+ C
+ C                 Note THIS must match the input pattern.
+ C
+-C                 The tokens of THIS are the characters upto and
++C                 The tokens of THIS are the characters up to and
+ C                 including the last non-blank character of THIS.
+ C
+ C                 This should have the same number of tokens as does
+--- a/src/csupport/pstack.f
++++ b/src/csupport/pstack.f
+@@ -154,7 +154,7 @@
+ C     This routine serves as an umbrella routine for a family of
+ C     entry points that perform the buffering and fetching of the
+ C     original input lines to your program.  Moreover, it buffers
+-C     upto 20 of the input paragraphs so that you can easily recall
++C     up to 20 of the input paragraphs so that you can easily recall
+ C     the history of the command sequence entered in your program.
+ C
+ C$ Examples
+--- a/src/csupport/podaec.f
++++ b/src/csupport/podaec.f
+@@ -82,7 +82,7 @@
+ C     1) If N is not positive, the pod is not changed.
+ C
+ C     2) If there is insufficient room in the pod to append all
+-C        ofthe new elements, the pod is not changed, and the error
++C        of the new elements, the pod is not changed, and the error
+ C        SPICE(TOOMANYPEAS) is signalled.
+ C
+ C$ Files
+--- a/src/csupport/podaed.f
++++ b/src/csupport/podaed.f
+@@ -82,7 +82,7 @@
+ C     1) If N is not positive, the pod is not changed.
+ C
+ C     2) If there is insufficient room in the pod to append all
+-C        ofthe new elements, the pod is not changed, and the error
++C        of the new elements, the pod is not changed, and the error
+ C        SPICE(TOOMANYPEAS) is signalled.
+ C
+ C$ Files
+--- a/src/csupport/podaei.f
++++ b/src/csupport/podaei.f
+@@ -82,7 +82,7 @@
+ C     1) If N is not positive, the pod is not changed.
+ C
+ C     2) If there is insufficient room in the pod to append all
+-C        ofthe new elements, the pod is not changed, and the error
++C        of the new elements, the pod is not changed, and the error
+ C        SPICE(TOOMANYPEAS) is signalled.
+ C
+ C$ Files
+--- a/src/brief_c/objadd.f
++++ b/src/brief_c/objadd.f
+@@ -150,7 +150,7 @@
+      .//            'list is supposed to have room available in '
+      .//            'it, but no free areas were located.  The '
+      .//            'most likely cause is that the object list '
+-     .//            'has been inadvertantly corrupted by some '
++     .//            'has been inadvertently corrupted by some '
+      .//            'portion of your software.  The other '
+      .//            'possibility is that there is a bug in the '
+      .//            'SPICE code. ' )
+--- a/src/cspice/spcrfl.f
++++ b/src/cspice/spcrfl.f
+@@ -180,7 +180,7 @@
+ C        was used to join two parts of a comment line that may be
+ C        broken across two comment records. The problem was, SUFFIX
+ C        cannot know about leading/imbedded blanks when it appends, so
+-C        blanks were inadvertantly removed when they happened to be
++C        blanks were inadvertently removed when they happened to be
+ C        stored at the end of comment record.
+ C
+ C        Added the variable TMPLEN to record the length of the first
+@@ -579,7 +579,7 @@
+ C        was used to join two parts of a comment line that may be
+ C        broken across two comment records. The problem was, SUFFIX
+ C        cannot know about leading/imbedded blanks when it appends, so
+-C        blanks were inadvertantly removed when they happened to be
++C        blanks were inadvertently removed when they happened to be
+ C        stored at the end of comment record.
+ C
+ C        Added the variable TMPLEN to record the length of the first
+--- a/src/cspice/zzftpchk.f
++++ b/src/cspice/zzftpchk.f
+@@ -129,7 +129,7 @@
+ C
+ C     C
+ C     C     Check for FTP transfer errors to prevent the user from
+-C     C     inadvertantly using a damaged kernel. First read the file
++C     C     inadvertently using a damaged kernel. First read the file
+ C     C     record into a string of 1000 characters.
+ C     C
+ C           READ ( UNIT = LUN, REC = 1, IOSTAT = IOSTAT ) FTPTST
+--- a/src/csupport/trnlat.f
++++ b/src/csupport/trnlat.f
+@@ -172,19 +172,19 @@
+          TITLE (13) = 'COMBUFFULLLNG'
+  
+          ENGLSH(13) = 'The designer of the program has '
+-     .   //           'inadvertantly exceeded the internal '
++     .   //           'inadvertently exceeded the internal '
+      .   //           'command buffer.  Please keep your session '
+      .   //           'log and report this problem to NAIF. '
+          FRENCH(13) = 'The designer of the program has '
+-     .   //           'inadvertantly exceeded the internal '
++     .   //           'inadvertently exceeded the internal '
+      .   //           'command buffer.  Please keep your session '
+      .   //           'log and report this problem to NAIF. '
+          GERMAN(13) = 'The designer of the program has '
+-     .   //           'inadvertantly exceeded the internal '
++     .   //           'inadvertently exceeded the internal '
+      .   //           'command buffer.  Please keep your session '
+      .   //           'log and report this problem to NAIF. '
+          RUSSAN(13) = 'The designer of the program has '
+-     .   //           'inadvertantly exceeded the internal '
++     .   //           'inadvertently exceeded the internal '
+      .   //           'command buffer.  Please keep your session '
+      .   //           'log and report this problem to NAIF. '
+  
+--- a/src/inspkt_c/nspsho.f
++++ b/src/inspkt_c/nspsho.f
+@@ -546,7 +546,7 @@
+  
+             ERROR(1) =  'There is currently no column having the '
+      .      //          'name ''#''.  To obtain a list of the columns '
+-     .      //          'that are available you can use the either of'
++     .      //          'that are available you can use the either of '
+      .      //          'the commands: SHOW SUMMARY or SHOW KERNELS'
+             CALL REPMC ( ERROR(1), '#', LITNAM, ERROR(1) )
+             CALL CHKOUT(     'NSPSHO'  )
+--- a/src/inspkt_c/nspset.f
++++ b/src/inspkt_c/nspset.f
+@@ -785,7 +785,7 @@
+  
+             ERROR(1) =  'There is currently no column having the '
+      .      //          'name ''#''.  To obtain a list of the columns '
+-     .      //          'that are available you can use the either of'
++     .      //          'that are available you can use the either of '
+      .      //          'the commands: SHOW SUMMARY or SHOW KERNELS'
+             CALL REPMC ( ERROR(1), '#', LITNAM, ERROR(1) )
+             CALL CHKOUT(     RNAME  )

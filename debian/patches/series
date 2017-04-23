@@ -1,2 +1,3 @@
-support-multiple-architectures.patch
-create-and-link-to-shared-libraries.patch
+01_support-multiple-architectures.patch
+02_create-and-link-to-shared-libraries.patch
+03_spelling-errors.patch
