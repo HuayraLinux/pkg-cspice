@@ -1,1 +1,2 @@
 Tests: brief-utc devtest
+Depends: libcspice1, cspice, libcspice-dev
