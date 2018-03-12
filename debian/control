@@ -1,6 +1,6 @@
 Source: cspice
 Maintainer: Debian Astronomy Team <debian-astro-maintainers@lists.alioth.debian.org>
-Uploaders: Rock Storm <rockstorm@gmx.com>
+Uploaders: Rock Storm <rockstorm@gmx.com>, Ignacio Losiggio <iglosiggio@gmail.com>
 Section: science
 Priority: extra
 Build-Depends: debhelper (>= 9),

@@ -1,5 +1,9 @@
-cspice (66+dfsg-1) UNRELEASED; urgency=low
+cspice (66+dfsg-1) unstable; urgency=low
 
+  [ Rock Storm ]
   * Initial release (Closes: #841104)
+
+  [ Ignacio Losiggio ]
+  * Import to Huayra GNU/Linux as Celestia dependency
 
  -- Rock Storm <rockstorm@gmx.com>  Fri, 14 Apr 2017 10:52:35 +0200
